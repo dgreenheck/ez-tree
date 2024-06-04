@@ -23,9 +23,9 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 document.body.appendChild(renderer.domElement);
 
-const composer = new EffectComposer(renderer);
-
 const scene = new THREE.Scene();
+
+// ---- CAMERA/LIGHTING -------
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
@@ -50,10 +50,14 @@ scene.add(spotLight);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 15, 0);
+controls.target.set(0, 20, 0);
 controls.autoRotate = true;
 controls.autoRotateSpeed = 1;
-camera.position.set(50, 20, 0);
+camera.position.set(70, 20, 0);
+
+// ---- POST-PROCESSING -------
+
+const composer = new EffectComposer(renderer);
 
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
@@ -70,42 +74,12 @@ fxaaPass.material.uniforms['resolution'].value.x = 1 / (renderer.domElement.offs
 fxaaPass.material.uniforms['resolution'].value.y = 1 / (renderer.domElement.offsetHeight * pixelRatio);
 composer.addPass(fxaaPass);
 
-let counter = 0;
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  stats.update();
-  composer.render();
-
-  const dt = clock.getDelta();
-  tree.params.maturity = Math.min(1, tree.params.maturity + 0.2 * dt);
-
-  if (clock.getElapsedTime() > 8) {
-    clock = new THREE.Clock();
-    tree.params.seed = Math.random() * 60000;
-    tree.params.maturity = 0.1;
-    tree.generate();
-  }
-
-  if (counter++ === 1) {
-    tree.generate();
-    counter = 0;
-  }
-}
-
-// Events
-window.addEventListener('resize', () => {
-  // Resize camera aspect ratio and renderer size to the new window size
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// --------------------------------------------------------------------------
+// ----- TREE -----------
 
 const treeParams = {
   seed: 0,
-  maturity: 0,
+  maturity: 1,
+  animateGrowth: false,
 
   trunk: {
     color: 0xd59d63,       // Color of the tree trunk
@@ -167,13 +141,12 @@ tree.castShadow = true;
 tree.receiveShadow = true;
 scene.add(tree);
 
-console.log(scene);
-
-// ******** UI *********** //
+// ---- UI -----
 
 const gui = new GUI();
 gui.add(tree.params, 'seed', 0, 65536, 1).name('Seed');
 gui.add(tree.params, 'maturity', 0, 1).name('Maturity');
+gui.add(tree.params, 'animateGrowth', 0, 1).name('Animate Growth');
 
 const trunkFolder = gui.addFolder('Trunk').close();
 trunkFolder.addColor(tree.params.trunk, 'color').name('Color');
@@ -216,7 +189,6 @@ leavesFolder.add(tree.params.leaves, 'emissive', 0, 1).name('Emissive');
 leavesFolder.add(tree.params.leaves, 'opacity', 0, 1).name('Opacity');
 leavesFolder.add(tree.params.leaves, 'alphaTest', 0, 1).name('AlphaTest');
 
-
 const forceFolder = gui.addFolder('Sun Direction').close();
 const directionFolder = forceFolder.addFolder('Sun Direction');
 directionFolder.add(tree.params.sun.direction, 'x', -1, 1).name('X');
@@ -237,6 +209,40 @@ gui.onChange(() => {
       o.material.needsUpdate = true;
     }
   });
+});
+
+// --- RENDER LOOP ------
+
+let resetTimeout = null;
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  stats.update();
+
+  if (treeParams.animateGrowth) {
+    const dt = clock.getDelta();
+    tree.params.maturity = Math.min(1, tree.params.maturity + 0.2 * dt);
+
+    if (tree.params.maturity >= 1 && !resetTimeout) {
+      resetTimeout = setTimeout(() => {
+        tree.params.seed = Math.random() * 60000;
+        tree.params.maturity = 0.1;
+        resetTimeout = null;
+      }, 3000);
+    }
+
+    tree.generate();
+  }
+
+  composer.render();
+}
+
+// Events
+window.addEventListener('resize', () => {
+  // Resize camera aspect ratio and renderer size to the new window size
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
 animate();
