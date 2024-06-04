@@ -3,7 +3,7 @@
 */
 export default {
   // Set the base directory for GitHub pages
-  base: '/treegen-js/',
+  base: '/tree-js/',
   build: {
     outDir: './dist',
     sourcemap: true,
