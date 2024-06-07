@@ -19,7 +19,7 @@ const exporter = new GLTFExporter();
 const stats = new Stats()
 document.body.appendChild(stats.dom)
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
 renderer.setClearColor(0);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -262,6 +262,20 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 's') {
+    renderer.setClearColor(0x000000, 0); // Set background to transparent
+    renderer.render(scene, camera);
+    
+    const link = document.createElement('a');
+    link.href = renderer.domElement.toDataURL('image/png');
+    link.download = 'tree.png';
+    link.click();
+    
+    renderer.setClearColor(0); // Restore original background color
+  }
 });
 
 animate();
