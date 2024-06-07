@@ -54,8 +54,6 @@ scene.add(spotLight);
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 20, 0);
-controls.autoRotate = true;
-controls.autoRotateSpeed = 1;
 camera.position.set(70, 20, 0);
 
 // ---- POST-PROCESSING -------
@@ -221,7 +219,7 @@ gui.add({
     },
     { binary: true }
   )
-}, 'export').name('Export GLB');
+}, 'export').name('Export to GLB');
 
 gui.onChange(() => {
   tree.generate();
