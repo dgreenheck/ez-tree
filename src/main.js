@@ -8,10 +8,13 @@ import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 import { Tree, LeafStyle, LeafType } from './tree';
 
 let clock = new THREE.Clock();
+// Instantiate a exporter
+const exporter = new GLTFExporter();
 
 const stats = new Stats()
 document.body.appendChild(stats.dom)
@@ -201,6 +204,24 @@ const bloomFolder = postProcessingFolder.addFolder('Bloom');
 bloomFolder.add(bloomPass, 'threshold', 0, 1).name('Threshold');
 bloomFolder.add(bloomPass, 'strength', 0, 3).name('Strength');
 bloomFolder.add(bloomPass, 'radius', 0, 10).name('Radius');
+
+gui.add({
+  export: () => exporter.parse(
+    tree,
+    (glb) => {
+      const blob = new Blob([glb], { type: 'application/octet-stream' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.getElementById('downloadLink');
+      link.href = url;
+      link.download = 'tree.glb';
+      link.click();
+    },
+    (err) => {
+      console.error(err);
+    },
+    { binary: true }
+  )
+}, 'export').name('Export GLB');
 
 gui.onChange(() => {
   tree.generate();

@@ -91,6 +91,7 @@ export class Tree extends THREE.Group {
     g.computeBoundingSphere();
 
     const mat = new THREE.MeshLambertMaterial({
+      name: 'branches',
       flatShading: this.params.trunk.flatShading,
       color: this.params.trunk.color
     });
@@ -119,6 +120,7 @@ export class Tree extends THREE.Group {
     g.computeBoundingSphere();
 
     const mat = new THREE.MeshLambertMaterial({
+      name: 'leaves',
       color: this.params.leaves.color,
       emissive: this.params.leaves.color,
       emissiveIntensity: this.params.leaves.emissive,
