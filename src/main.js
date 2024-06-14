@@ -19,7 +19,7 @@ const exporter = new GLTFExporter();
 const stats = new Stats()
 document.body.appendChild(stats.dom)
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setClearColor(0);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -30,7 +30,7 @@ const scene = new THREE.Scene();
 
 // ---- CAMERA/LIGHTING -------
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
 scene.add(ambientLight);
 
 const sunlight = new THREE.DirectionalLight();
@@ -77,8 +77,8 @@ composer.addPass(fxaaPass);
 
 // ----- TREE -----------
 
-const treeParams = {
-  seed: 0,
+let treeParams = {
+  seed: 33311,
   maturity: 1,
   animateGrowth: false,
 
@@ -87,7 +87,7 @@ const treeParams = {
     flatShading: false,    // Use face normals for shading instead of vertex normals
     textured: true,        // Apply texture to bark
     length: 20,            // Length of the trunk
-    radius: 1.5,           // Starting radius of the trunk
+    radius: 2.11,          // Starting radius of the trunk
     flare: 1.0             // Multipler for base of trunk
   },
 
@@ -97,17 +97,17 @@ const treeParams = {
     // child branches can start forming 60% of the way up the parent branch
     stop: .95,               // Defines where child branches stop forming on the parent branch. A value of 0.9 means the
     // child branches stop forming 90% of the way up the parent branch
-    sweepAngle: 2,           // Max sweep of the branches (radians)
+    sweepAngle: 1.48,           // Max sweep of the branches (radians)
     minChildren: 3,          // Minimum number of child branches
-    maxChildren: 4,          // Maximum number of child branches
-    lengthVariance: 0.2,     // % variance in branch length
+    maxChildren: 9,          // Maximum number of child branches
+    lengthVariance: 0.05,     // % variance in branch length
     lengthMultiplier: .7,    // Length of child branch relative to parent
-    radiusMultiplier: .9,    // Radius of child branch relative to parent
+    radiusMultiplier: .5,    // Radius of child branch relative to parent
     taper: .7,               // Radius of end of branch relative to the start of the branch
-    gnarliness: 0.2,         // Max amplitude of random angle added to each section's orientation
-    gnarliness1_R: 0.05,  // Same as above, but inversely proportional to the branch radius
+    gnarliness: 0.3,         // Max amplitude of random angle added to each section's orientation
+    gnarliness1_R: 0.04,  // Same as above, but inversely proportional to the branch radius
     // The two terms can be used to balance gnarliness of trunk vs. branches
-    twist: 0.0,
+    twist: -0.1,
   },
 
   geometry: {
@@ -120,11 +120,11 @@ const treeParams = {
 
   leaves: {
     style: 1,
-    type: 1,
+    type: 0,
     minCount: 5,
-    maxCount: 7,
-    size: 2,
-    sizeVariance: 0,
+    maxCount: 25,
+    size: 1.375,
+    sizeVariance: 0.7,
     color: 0x6b7f48,
     emissive: 0.02,
     opacity: 1,
@@ -203,8 +203,9 @@ bloomFolder.add(bloomPass, 'threshold', 0, 1).name('Threshold');
 bloomFolder.add(bloomPass, 'strength', 0, 3).name('Strength');
 bloomFolder.add(bloomPass, 'radius', 0, 10).name('Radius');
 
-gui.add({
-  export: () => exporter.parse(
+const exportFolder = gui.addFolder('Export').close();
+exportFolder.add({
+  exportGlb: () => exporter.parse(
     tree,
     (glb) => {
       const blob = new Blob([glb], { type: 'application/octet-stream' });
@@ -219,7 +220,58 @@ gui.add({
     },
     { binary: true }
   )
-}, 'export').name('Export to GLB');
+}, 'exportGlb').name('Export GLB');
+
+exportFolder.add({
+  exportPng: () => {
+    renderer.setClearColor(0x000000, 0); // Set background to transparent
+    renderer.render(scene, camera);
+
+    const link = document.getElementById('downloadLink');
+    link.href = renderer.domElement.toDataURL('image/png');
+    link.download = 'tree.png';
+    link.click();
+
+    renderer.setClearColor(0); // Restore original background color
+  }
+}, 'exportPng').name('Export PNG');
+
+exportFolder.add({
+  exportParams: () => {
+    const link = document.getElementById('downloadLink');
+    const json = JSON.stringify(treeParams, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    link.href = URL.createObjectURL(blob);
+    link.download = 'tree.json';
+    link.click();
+  }
+}, 'exportParams').name('Save Parameters');
+
+exportFolder.add({
+  loadParams: () => {
+    document.getElementById('fileInput').click();
+  }
+}, 'loadParams').name('Load Parameters');
+
+document.getElementById('fileInput').addEventListener('change', function (event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        console.log(e.target.result);
+        tree.params = JSON.parse(e.target.result);
+        tree.generate();
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+      }
+    };
+    reader.onerror = function (e) {
+      console.error('Error reading file:', e);
+    };
+    reader.readAsText(file);
+  }
+});
 
 gui.onChange(() => {
   tree.generate();
