@@ -17,6 +17,13 @@ npm install
 npm run dev
 ```
 
+## Running with Docker
+
+```bash
+docker compose build
+docker compose up -d
+```
+
 # Parameters
 
 ## Trunk
