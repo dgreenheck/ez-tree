@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  tree-gen-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./public:/usr/src/app/public
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0
