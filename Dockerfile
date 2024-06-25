@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Build the app
-RUN npm run build
+RUN npm run build:demo
 
 # Install a simple HTTP server for serving static content
 RUN npm install -g http-server
@@ -23,4 +23,4 @@ RUN npm install -g http-server
 EXPOSE 8080
 
 # Run the app when the container launches
-CMD ["http-server", "dist"]
+CMD ["http-server", "demo/dist"]

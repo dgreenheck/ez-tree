@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 import RNG from './rng';
 
+import barkSrc from './textures/bark.png';
+import ashLeavesSrc from './textures/leaves_ash.png';
+import aspenLeavesSrc from './textures/leaves_aspen.png';
+import oakLeavesSrc from './textures/leaves_oak.png';
+
 const loader = new THREE.TextureLoader();
 
 function loadTexture(path) {
@@ -8,13 +13,73 @@ function loadTexture(path) {
     tex.colorSpace = THREE.SRGBColorSpace;
   });
 }
-const barkTexture = loadTexture(`textures/bark/bark.png`);
+const barkTexture = loadTexture(barkSrc);
 
 const leafTextures = [
-  loadTexture(`textures/leaves/ash.png`),
-  loadTexture(`textures/leaves/aspen.png`),
-  loadTexture(`textures/leaves/oak.png`)
+  loadTexture(ashLeavesSrc),
+  loadTexture(aspenLeavesSrc),
+  loadTexture(oakLeavesSrc)
 ];
+
+const TreeParams = {
+  seed: 0,
+  maturity: 1,
+  animateGrowth: false,
+
+  trunk: {
+    color: 0xd59d63,       // Color of the tree trunk
+    flatShading: false,    // Use face normals for shading instead of vertex normals
+    textured: true,        // Apply texture to bark
+    length: 20,            // Length of the trunk
+    radius: 2,             // Starting radius of the trunk
+    flare: 0.5             // Multipler for base of trunk
+  },
+
+  branch: {
+    levels: 4,               // Number of branch recursions ( Keep under 5 )
+    start: .6,               // Defines where child branches start forming on the parent branch. A value of 0.6 means the
+    // child branches can start forming 60% of the way up the parent branch
+    stop: .95,               // Defines where child branches stop forming on the parent branch. A value of 0.9 means the
+    // child branches stop forming 90% of the way up the parent branch
+    sweepAngle: 1.48,           // Max sweep of the branches (radians)
+    minChildren: 5,          // Minimum number of child branches
+    maxChildren: 5,          // Maximum number of child branches
+    lengthVariance: 0.05,     // % variance in branch length
+    lengthMultiplier: .7,    // Length of child branch relative to parent
+    radiusMultiplier: .5,    // Radius of child branch relative to parent
+    taper: .7,               // Radius of end of branch relative to the start of the branch
+    gnarliness: 0.3,         // Max amplitude of random angle added to each section's orientation
+    gnarliness1_R: 0.04,  // Same as above, but inversely proportional to the branch radius
+    // The two terms can be used to balance gnarliness of trunk vs. branches
+    twist: -0.1,
+  },
+
+  geometry: {
+    sections: 10,             // Number of sections that make up this branch 
+    segments: 12,           // Number of faces around the circumference of the branch
+    lengthVariance: 0.1,   // % variance in the nominal section length
+    radiusVariance: 0.1,   // % variance in the nominal section radius
+    randomization: 0.1,    // Randomization factor applied to vertices
+  },
+
+  leaves: {
+    style: 1,
+    type: 0,
+    minCount: 5,
+    maxCount: 25,
+    size: 1.375,
+    sizeVariance: 0.7,
+    color: 0x6b7f48,
+    emissive: 0.02,
+    opacity: 1,
+    alphaTest: 0.5
+  },
+
+  sun: {
+    direction: new THREE.Vector3(0, 1, 0),
+    strength: 0.02
+  }
+}
 
 export const LeafStyle = {
   Single: 0,
@@ -28,8 +93,15 @@ export const LeafType = {
 };
 
 export class Tree extends THREE.Group {
+  /**
+   * @type {TreeParams}
+   */
+  params;
 
-  constructor(params) {
+  /**
+   * @param {TreeParams} params 
+   */
+  constructor(params = TreeParams) {
     super();
     this.params = params;
 
@@ -37,8 +109,6 @@ export class Tree extends THREE.Group {
     this.leavesMesh = new THREE.Mesh();
     this.add(this.branchesMesh);
     this.add(this.leavesMesh);
-
-    this.generate();
   }
 
   /**
@@ -73,10 +143,6 @@ export class Tree extends THREE.Group {
 
     this.#createBranchesGeometry();
     this.#createLeavesGeometry();
-
-    const vertexCount = (this.branches.verts.length + this.leaves.verts.length) / 3;
-    const triangleCount = (this.branches.indices.length + this.leaves.indices.length) / 3;
-    document.getElementById('model-info').innerText = `Vertex Count: ${vertexCount} | Triangle Count: ${triangleCount}`;
   }
 
   /**

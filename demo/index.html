@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tree.js Demo</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    #model-info {
+      position: absolute;
+      color: white;
+      font-family: sans-serif;
+      bottom: 0px;
+      right: 0px;
+      text-align: right;
+      padding: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="./main.js"></script>
+  <div id="model-info">Vertex Count: 0 | Triangle Count: 0</div>
+  <a id="downloadLink" style="display:none"></a>
+  <input type="file" id="fileInput" accept=".json" style="display: none;" />
+</body>
+
+</html>

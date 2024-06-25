@@ -6,18 +6,40 @@
 
 A procedural tree generator built with Three.js. Over 30 tunable parameters and support for exporting to .glb.
 
-# Live Demo
+# Installation
+
+The tree generation code is published as an npm package and can be imported into your own project.
+
+```js
+npm i @dgreenheck/tree-js
+```
+
+# Usage
+
+```js
+const tree = new Tree();
+tree.generate();
+scene.add(tree);
+```
+
+For more info, see the demo app for an example on how to create a tree.
+
+# Demo
+
+The demo application is a Three.js app which allows you to tune the parameters of the tree in real-time. It also has options for exporting the generated mesh to a `.glb` file, as well as a `.png` export of the current view for 2D applications.
+
+## Live Demo
 
 https://dgreenheck.github.io/tree-js/
 
-# Running Code Locally
+## Running Demo Locally
 
 ```bash
 npm install
-npm run dev
+npm run demo
 ```
 
-## Running with Docker
+## Running Demo with Docker
 
 ```bash
 docker compose build
@@ -57,18 +79,20 @@ docker compose up -d
 - `lengthVariance` - % variance in the nominal section length
 - `radiusVariance` - % variance in the nominal section radius
 - `randomization` - Randomization factor applied to vertices
-- `sections` - Number of sections that make up this branch 
+- `sections` - Number of sections that make up this branch
 - `segments` - Number of faces around the circumference of the branch
 
 ## Leaves
+
 - `color` - Leaf color
 - `maxCount` - Max number of leaves per branch
 - `minCount` - Min number of leaves per branch
-- `size` - Size of leaf texture 
+- `size` - Size of leaf texture
 - `sizeVariance` - Variance in leaf size between branches
 - `style` - Leaf billboard style (single or double)
 - `type` - Leaf type (Ash, Aspen or Oak)
 
 ## Sun
+
 - `direction` - Influences the direction the tree grows towards
 - `strength` - Strength of the sun influence

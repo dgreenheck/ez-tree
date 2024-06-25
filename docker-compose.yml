@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   tree-gen-app:
@@ -12,4 +12,4 @@ services:
       - ./public:/usr/src/app/public
     environment:
       - NODE_ENV=development
-    command: npm run dev -- --host 0.0.0.0
+    command: npm run demo -- --host 0.0.0.0
