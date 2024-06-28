@@ -1,4 +1,4 @@
-import path from 'path';
+import dts from "vite-plugin-dts";
 
 // Config file for the npm build
 /**
@@ -8,9 +8,9 @@ export default {
   build: {
     outDir: './build',
     lib: {
-      entry: path.resolve(__dirname, 'index.js'), // Entry point of your library
+      entry: 'src/index.js', // Entry point of your library
       name: '@dgreenheck-tree-js', // Global variable name for your UMD build
-      fileName: (format) => `@dgreenheck-tree-js.${format}.js` // Output file name format
+      fileName: (format) => `@dgreenheck-tree-js.${format}.js`, // Output file name format
     },
     rollupOptions: {
       // Ensure to externalize dependencies you don't want to bundle into your library
@@ -20,6 +20,11 @@ export default {
           three: 'THREE' // Global variable for externalized dependencies
         }
       }
-    },
-  }
+    }
+  },
+  plugins: [
+    dts({
+      rollupTypes: true
+    })
+  ]
 };
