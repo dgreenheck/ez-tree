@@ -1,7 +1,16 @@
 {
   "name": "@dgreenheck/tree-js",
   "author": "Daniel Greenheck",
-  "version": "0.2.1",
+  "version": "0.2.2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgreenheck/tree-js.git"
+  },
+  "homepage": "https://dgreenheck.github.io/tree-js/",
+  "bugs": {
+    "url": "https://github.com/dgreenheck/tree-js/issues"
+  },
   "type": "module",
   "main": "build/@dgreenheck-tree-js.umd.js",
   "module": "build/@dgreenheck-tree-js.es.js",
@@ -30,5 +39,12 @@
   },
   "peerDependencies": {
     "three": ">=0.155"
-  }
+  },
+  "keywords": [
+    "threejs",
+    "three-js",
+    "procedural",
+    "generation",
+    "tree"
+  ]
 }
