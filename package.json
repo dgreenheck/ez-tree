@@ -1,7 +1,7 @@
 {
   "name": "@dgreenheck/tree-js",
   "author": "Daniel Greenheck",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "main": "build/@dgreenheck-tree-js.umd.js",
   "module": "build/@dgreenheck-tree-js.es.js",
@@ -14,6 +14,7 @@
   "files": [
     "build",
     "demo",
+    "src",
     "index.js"
   ],
   "scripts": {
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.9.1",
     "vite-plugin-static-copy": "^1.0.5"
   },
   "peerDependencies": {

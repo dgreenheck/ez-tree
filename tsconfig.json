@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "declaration": true,
+    "declarationDir": "./build",
+    "allowJs": true,
+    "outDir": "./dist"
+  },
+  "include": [
+    "src/**/*.js"
+  ]
+}

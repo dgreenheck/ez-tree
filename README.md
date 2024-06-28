@@ -17,10 +17,19 @@ npm i @dgreenheck/tree-js
 # Usage
 
 ```js
+// Create new instance
 const tree = new Tree();
+
+// Set parameters
+tree.params.trunk.length = 20;
+tree.params.branch.levels = 3;
+
+// Generate tree and add to scene
 tree.generate();
 scene.add(tree);
 ```
+
+Any time the tree parametes are changed, you must call `generate()` to regenerate the geometry.
 
 For more info, see the demo app for an example on how to create a tree.
 

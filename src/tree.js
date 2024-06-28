@@ -104,7 +104,6 @@ export class Tree extends THREE.Group {
   constructor(params = TreeParams) {
     super();
     this.params = params;
-
     this.branchesMesh = new THREE.Mesh();
     this.leavesMesh = new THREE.Mesh();
     this.add(this.branchesMesh);
