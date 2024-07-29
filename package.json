@@ -29,7 +29,8 @@
   "scripts": {
     "build:demo": "vite build --config vite.demo.config.js",
     "build:npm": "vite build --config vite.npm.config.js",
-    "demo": "npm run build:npm && vite --config vite.demo.config.js --host 127.0.0.1",
+    "build:watch": "vite build --config vite.npm.config.js --watch",
+    "demo": "vite --config vite.demo.config.js --host 127.0.0.1",
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {

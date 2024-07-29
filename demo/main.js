@@ -72,27 +72,10 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-let resetTimeout = null;
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   stats.update();
-
-  if (tree.params.animateGrowth) {
-    const dt = clock.getDelta();
-    tree.params.maturity = Math.min(1, tree.params.maturity + 0.2 * dt);
-
-    if (tree.params.maturity >= 1 && !resetTimeout) {
-      resetTimeout = setTimeout(() => {
-        tree.params.seed = Math.random() * 60000;
-        tree.params.maturity = 0.1;
-        resetTimeout = null;
-      }, 3000);
-    }
-
-    tree.generate();
-  }
-
   renderer.render(scene, camera);
 }
 

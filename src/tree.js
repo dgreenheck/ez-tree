@@ -23,8 +23,6 @@ const leafTextures = [
 
 const TreeParams = {
   seed: 0,
-  maturity: 1,
-  animateGrowth: false,
 
   trunk: {
     color: 0xd59d63,       // Color of the tree trunk
@@ -37,21 +35,22 @@ const TreeParams = {
 
   branch: {
     levels: 4,               // Number of branch recursions ( Keep under 5 )
+    children: 1,             // Number of child branches at each level
     start: .6,               // Defines where child branches start forming on the parent branch. A value of 0.6 means the
     // child branches can start forming 60% of the way up the parent branch
     stop: .95,               // Defines where child branches stop forming on the parent branch. A value of 0.9 means the
     // child branches stop forming 90% of the way up the parent branch
-    sweepAngle: 1.48,           // Max sweep of the branches (radians)
-    minChildren: 5,          // Minimum number of child branches
-    maxChildren: 5,          // Maximum number of child branches
-    lengthVariance: 0.05,     // % variance in branch length
+    angle: Math.PI / 3,      // Angle of the child branches relative to the parent branch (radians)
+    lengthVariance: 0.0,     // % variance in branch length
     lengthMultiplier: .7,    // Length of child branch relative to parent
     radiusMultiplier: .5,    // Radius of child branch relative to parent
     taper: .7,               // Radius of end of branch relative to the start of the branch
-    gnarliness: 0.3,         // Max amplitude of random angle added to each section's orientation
-    gnarliness1_R: 0.04,  // Same as above, but inversely proportional to the branch radius
-    // The two terms can be used to balance gnarliness of trunk vs. branches
-    twist: -0.1,
+    gnarliness: 0.0,         // Max amplitude of random angle added to each section's orientation
+    twist: 0.0,
+    force: {
+      direction: new THREE.Vector3(0, 1, 0),
+      strength: 0.0
+    }
   },
 
   geometry: {
@@ -65,19 +64,13 @@ const TreeParams = {
   leaves: {
     style: 1,
     type: 0,
-    minCount: 5,
-    maxCount: 25,
+    count: 20,
     size: 1.375,
     sizeVariance: 0.7,
     color: 0x6b7f48,
     emissive: 0.02,
     opacity: 1,
     alphaTest: 0.5
-  },
-
-  sun: {
-    direction: new THREE.Vector3(0, 1, 0),
-    strength: 0.02
   }
 }
 
@@ -255,8 +248,6 @@ export class Tree extends THREE.Group {
           segmentRadius *= (1 + rng.random(this.params.geometry.radiusVariance, -this.params.geometry.radiusVariance));
         }
 
-        segmentRadius *= Math.pow(this.params.maturity, 2);
-
         // Create the segment vertex
         const vertex = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle))
           .multiplyScalar(segmentRadius)
@@ -294,27 +285,22 @@ export class Tree extends THREE.Group {
 
       // Move to origin to the next section's origin
       let sectionLength = (length / this.params.geometry.sections) *
-        (1 + rng.random(this.params.geometry.lengthVariance, -this.params.geometry.lengthVariance));
-      sectionLength *= Math.min(1.0, sectionLength * (this.params.maturity));
-
-      if (level > 1 && i < this.params.geometry.sections - 1) {
-        sectionLength = Math.max(0, sectionLength * (this.params.maturity - 0.5) * 2.0)
-      }
+        (1 + rng.random(-this.params.geometry.lengthVariance, this.params.geometry.lengthVariance));
 
       sectionOrigin.add(new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation));
 
       // Perturb the orientation of the next section randomly. The higher the
       // gnarliness, the larger potential perturbation
-      const gnarliness = this.params.maturity * (this.params.branch.gnarliness + this.params.branch.gnarliness1_R / sectionRadius);
+      const gnarliness = this.params.branch.gnarliness;
       sectionOrientation.x += rng.random(gnarliness, -gnarliness);
       sectionOrientation.z += rng.random(gnarliness, -gnarliness);
 
-      // Apply sun force to the branch
+      // Apply growth force to the branch
       const qSection = new THREE.Quaternion().setFromEuler(sectionOrientation);
       const qTwist = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.params.branch.twist);
-      const qForce = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), this.params.sun.direction);
+      const qForce = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), this.params.branch.force.direction);
       qSection.multiply(qTwist);
-      qSection.rotateTowards(qForce, this.params.sun.strength / sectionRadius);
+      qSection.rotateTowards(qForce, this.params.branch.force.strength / sectionRadius);
       sectionOrientation.setFromQuaternion(qSection);
     }
 
@@ -333,8 +319,7 @@ export class Tree extends THREE.Group {
 
     // Width and length of the leaf quad
     let leafSize = this.params.leaves.size *
-      (1 + rng.random(this.params.leaves.sizeVariance, -this.params.leaves.sizeVariance));
-    leafSize = Math.max(0, leafSize * (this.params.maturity - 0.75) * 4.0);
+      (1 + rng.random(-this.params.leaves.sizeVariance, this.params.leaves.sizeVariance));
 
     const W = leafSize;
     const L = 1.5 * leafSize;
@@ -378,12 +363,12 @@ export class Tree extends THREE.Group {
     if (level > this.params.branch.levels) return;
 
     // Randomly determine the number of child branches to sprout from this tree
-    const minBranches = (level === this.params.branch.levels) ? this.params.leaves.minCount : this.params.branch.minChildren;
-    const maxBranches = (level === this.params.branch.levels) ? this.params.leaves.maxCount : this.params.branch.maxChildren;
-    const childBranchCount = Math.round(rng.random() * (maxBranches - minBranches)) + minBranches;
+    const childBranchCount = (level === this.params.branch.levels)
+      ? this.params.leaves.count
+      : this.params.branch.children;
 
     // Calculate the separation angle between branches
-    const branchSepAngle = this.params.branch.sweepAngle / (childBranchCount - 1);
+    const branchSepAngle = this.params.branch.angle / (childBranchCount - 1);
 
     for (let i = 0; i < childBranchCount; i++) {
       // Figure out a random tree section to grow from
@@ -404,7 +389,7 @@ export class Tree extends THREE.Group {
       const offset = rng.random(2 * Math.PI);
       let childBranchRadius = section.radius;
       if (i < childBranchCount - 1) {
-        const r1 = new THREE.Quaternion().setFromEuler(new THREE.Euler(this.params.maturity * this.params.branch.sweepAngle / 2, 0, 0));
+        const r1 = new THREE.Quaternion().setFromEuler(new THREE.Euler(this.params.branch.angle, 0, 0));
         const r2 = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, offset + i * branchSepAngle, 0));
         const r3 = new THREE.Quaternion().setFromEuler(section.orientation);
 

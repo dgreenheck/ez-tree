@@ -45,6 +45,7 @@ https://dgreenheck.github.io/tree-js/
 
 ```bash
 npm install
+npm run build:npm
 npm run demo
 ```
 
@@ -79,7 +80,7 @@ docker compose up -d
 - `radiusMultiplier` - Radius of child branch relative to parent
 - `start` - Defines where child branches start forming on the parent branch. A value of 0.6 means the child branches can start forming 60% of the way up the parent branch
 - `stop` - Defines where child branches stop forming on the parent branch. A value of 0.9 means the child branches stop forming 90% of the way up the parent branch
-- `sweepAngle` - Max sweep of the branches (radians)
+- `angle` - Max sweep of the branches (radians)
 - `taper` - Radius of end of branch relative to the start of the branch
 - `twist` - Amount of twisting about the vertical axisq
 

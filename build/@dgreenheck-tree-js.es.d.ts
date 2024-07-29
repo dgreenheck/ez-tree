@@ -15,8 +15,6 @@ export declare class Tree {
      */
     constructor(params?: {
         seed: number;
-        maturity: number;
-        animateGrowth: boolean;
         trunk: {
             color: number;
             flatShading: boolean;
@@ -27,18 +25,20 @@ export declare class Tree {
         };
         branch: {
             levels: number;
+            children: number;
             start: number;
             stop: number;
-            sweepAngle: number;
-            minChildren: number;
-            maxChildren: number;
+            angle: number;
             lengthVariance: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
             taper: number;
             gnarliness: number;
-            gnarliness1_R: number;
             twist: number;
+            force: {
+                direction: any;
+                strength: number;
+            };
         };
         geometry: {
             sections: number;
@@ -50,18 +50,13 @@ export declare class Tree {
         leaves: {
             style: number;
             type: number;
-            minCount: number;
-            maxCount: number;
+            count: number;
             size: number;
             sizeVariance: number;
             color: number;
             emissive: number;
             opacity: number;
             alphaTest: number;
-        };
-        sun: {
-            direction: any;
-            strength: number;
         };
     });
     /**
@@ -69,8 +64,6 @@ export declare class Tree {
      */
     params: {
         seed: number;
-        maturity: number;
-        animateGrowth: boolean;
         trunk: {
             color: number;
             flatShading: boolean;
@@ -81,18 +74,20 @@ export declare class Tree {
         };
         branch: {
             levels: number;
+            children: number;
             start: number;
             stop: number;
-            sweepAngle: number;
-            minChildren: number;
-            maxChildren: number;
+            angle: number;
             lengthVariance: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
             taper: number;
             gnarliness: number;
-            gnarliness1_R: number;
             twist: number;
+            force: {
+                direction: any;
+                strength: number;
+            };
         };
         geometry: {
             sections: number;
@@ -104,18 +99,13 @@ export declare class Tree {
         leaves: {
             style: number;
             type: number;
-            minCount: number;
-            maxCount: number;
+            count: number;
             size: number;
             sizeVariance: number;
             color: number;
             emissive: number;
             opacity: number;
             alphaTest: number;
-        };
-        sun: {
-            direction: any;
-            strength: number;
         };
     };
     branchesMesh: any;
