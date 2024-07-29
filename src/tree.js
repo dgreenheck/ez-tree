@@ -30,7 +30,6 @@ const TreeParams = {
     textured: true,        // Apply texture to bark
     length: 20,            // Length of the trunk
     radius: 2,             // Starting radius of the trunk
-    flare: 0.5             // Multipler for base of trunk
   },
 
   branch: {
@@ -41,6 +40,7 @@ const TreeParams = {
     stop: .95,               // Defines where child branches stop forming on the parent branch. A value of 0.9 means the
     // child branches stop forming 90% of the way up the parent branch
     angle: Math.PI / 3,      // Angle of the child branches relative to the parent branch (radians)
+    angleVariance: 0.0,      // Random offset applied to angle
     lengthVariance: 0.0,     // % variance in branch length
     lengthMultiplier: .7,    // Length of child branch relative to parent
     radiusMultiplier: .5,    // Radius of child branch relative to parent
@@ -222,13 +222,13 @@ export class Tree extends THREE.Group {
     for (let i = 0; i <= this.params.geometry.sections; i++) {
       let sectionRadius = radius;
 
-      // If creating trunk branch, flare the base of the trunk
-      if (level === 1) {
-        sectionRadius += this.params.trunk.flare / (i + 1);
+      // If final section of final level, set radius to effecively zero
+      if (level === this.params.branch.levels && i === this.params.geometry.sections) {
+        sectionRadius = 0.01;
+      } else {
+        // Taper the branch with each successive section based on the taper factor
+        sectionRadius *= (1 - this.params.branch.taper * (i / this.params.geometry.sections));
       }
-
-      // Taper the branch with each successive section based on the taper factor
-      sectionRadius *= (1 - this.params.branch.taper * (i / this.params.geometry.sections));
 
       // Create the segments that make up this section.
       let first;
@@ -285,7 +285,7 @@ export class Tree extends THREE.Group {
 
       // Move to origin to the next section's origin
       let sectionLength = (length / this.params.geometry.sections) *
-        (1 + rng.random(-this.params.geometry.lengthVariance, this.params.geometry.lengthVariance));
+        (1 + rng.random(this.params.geometry.lengthVariance, -this.params.geometry.lengthVariance));
 
       sectionOrigin.add(new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation));
 
@@ -319,7 +319,7 @@ export class Tree extends THREE.Group {
 
     // Width and length of the leaf quad
     let leafSize = this.params.leaves.size *
-      (1 + rng.random(-this.params.leaves.sizeVariance, this.params.leaves.sizeVariance));
+      (1 + rng.random(this.params.leaves.sizeVariance, -this.params.leaves.sizeVariance));
 
     const W = leafSize;
     const L = 1.5 * leafSize;
@@ -366,7 +366,7 @@ export class Tree extends THREE.Group {
     const childBranchCount = (level === this.params.branch.levels)
       ? this.params.leaves.count
       // One of the child branches is used to cap the parent branch
-      : this.params.branch.children;
+      : this.params.branch.children - 1;
 
     const radialOffset = rng.random();
 
@@ -388,11 +388,9 @@ export class Tree extends THREE.Group {
       //const offset = rng.random(2 * Math.PI);
       let childBranchRadius = section.radius;
       if (i < childBranchCount) {
+        const angleOffset = rng.random(this.params.branch.angleVariance, -this.params.branch.angleVariance);
         const radialAngle = 2.0 * Math.PI * (radialOffset + (i / childBranchCount));
-        console.log('childBranchCount', childBranchCount);
-        console.log('radialOfffset', radialOffset);
-        console.log('radialAngle', radialAngle * 180 / Math.PI);
-        const q1 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.params.branch.angle);
+        const q1 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.params.branch.angle + angleOffset);
         const q2 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), radialAngle);
         const q3 = new THREE.Quaternion().setFromEuler(section.orientation);
 

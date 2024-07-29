@@ -21,7 +21,6 @@ export declare class Tree {
             textured: boolean;
             length: number;
             radius: number;
-            flare: number;
         };
         branch: {
             levels: number;
@@ -29,6 +28,7 @@ export declare class Tree {
             start: number;
             stop: number;
             angle: number;
+            angleVariance: number;
             lengthVariance: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
@@ -70,7 +70,6 @@ export declare class Tree {
             textured: boolean;
             length: number;
             radius: number;
-            flare: number;
         };
         branch: {
             levels: number;
@@ -78,6 +77,7 @@ export declare class Tree {
             start: number;
             stop: number;
             angle: number;
+            angleVariance: number;
             lengthVariance: number;
             lengthMultiplier: number;
             radiusMultiplier: number;

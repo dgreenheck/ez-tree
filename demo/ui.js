@@ -19,7 +19,6 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   trunkFolder.add(tree.params.trunk, 'flatShading').name('Flat Shading');
   trunkFolder.add(tree.params.trunk, 'length', 0, 50).name('Length');
   trunkFolder.add(tree.params.trunk, 'radius', 0, 5).name('Radius');
-  trunkFolder.add(tree.params.trunk, 'flare', 0, 5).name('Flare');
 
   const branchFolder = gui.addFolder('Branches').close();
 
@@ -29,11 +28,12 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   forceFolder.add(tree.params.branch.force.direction, 'z', -1, 1).name('Z');
   forceFolder.add(tree.params.branch.force, 'strength', -0.1, 0.1).name('Strength');
 
-  branchFolder.add(tree.params.branch, 'levels', 1, 5, 1).name('Levels');
+  branchFolder.add(tree.params.branch, 'levels', 1, 4, 1).name('Levels');
   branchFolder.add(tree.params.branch, 'children', 1, 5, 1).name('Child Count');
   branchFolder.add(tree.params.branch, 'start', 0, 1).name('Start');
   branchFolder.add(tree.params.branch, 'stop', 0, 1).name('Stop');
   branchFolder.add(tree.params.branch, 'angle', 0, Math.PI).name('Angle');
+  branchFolder.add(tree.params.branch, 'angleVariance', 0, Math.PI).name('Angle Variance');
   branchFolder.add(tree.params.branch, 'lengthVariance', 0, 1).name('Length Variance');
   branchFolder.add(tree.params.branch, 'lengthMultiplier', 0, 1).name('Length Multiplier');
   branchFolder.add(tree.params.branch, 'radiusMultiplier', 0, 1).name('Radius Multiplier');
