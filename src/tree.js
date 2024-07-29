@@ -35,7 +35,7 @@ const TreeParams = {
 
   branch: {
     levels: 4,               // Number of branch recursions ( Keep under 5 )
-    children: 1,             // Number of child branches at each level
+    children: 3,             // Number of child branches at each level
     start: .6,               // Defines where child branches start forming on the parent branch. A value of 0.6 means the
     // child branches can start forming 60% of the way up the parent branch
     stop: .95,               // Defines where child branches stop forming on the parent branch. A value of 0.9 means the
@@ -45,8 +45,8 @@ const TreeParams = {
     lengthMultiplier: .7,    // Length of child branch relative to parent
     radiusMultiplier: .5,    // Radius of child branch relative to parent
     taper: .7,               // Radius of end of branch relative to the start of the branch
-    gnarliness: 0.0,         // Max amplitude of random angle added to each section's orientation
-    twist: 0.0,
+    gnarliness: 0.3,         // Max amplitude of random angle added to each section's orientation
+    twist: 0.2,
     force: {
       direction: new THREE.Vector3(0, 1, 0),
       strength: 0.0
@@ -365,18 +365,16 @@ export class Tree extends THREE.Group {
     // Randomly determine the number of child branches to sprout from this tree
     const childBranchCount = (level === this.params.branch.levels)
       ? this.params.leaves.count
+      // One of the child branches is used to cap the parent branch
       : this.params.branch.children;
 
-    // Calculate the separation angle between branches
-    const branchSepAngle = this.params.branch.angle / (childBranchCount - 1);
+    const radialOffset = rng.random();
 
-    for (let i = 0; i < childBranchCount; i++) {
+    for (let i = 0; i <= childBranchCount; i++) {
       // Figure out a random tree section to grow from
       let sectionIndex = 0;
-      if (i < childBranchCount - 1) {
-        let startIndex = this.params.geometry.sections * this.params.branch.start;
-        let endIndex = this.params.geometry.sections * this.params.branch.stop;
-        sectionIndex = Math.floor(rng.random() * (endIndex - startIndex) + startIndex);
+      if (i < childBranchCount) {
+        sectionIndex = Math.floor(this.params.geometry.sections * rng.random(this.params.branch.stop, (level == this.params.branch.levels ? 0 : this.params.branch.start)));
       } else {
         // Force the last branch to always come out of the last ring
         sectionIndex = sections.length - 1;
@@ -384,17 +382,22 @@ export class Tree extends THREE.Group {
 
       // Parent section this child branch is sprouting from
       let section = sections[sectionIndex];
+      let childBranchOrientation = section.orientation.clone();
 
       // All but the last branches use the separation angle
-      const offset = rng.random(2 * Math.PI);
+      //const offset = rng.random(2 * Math.PI);
       let childBranchRadius = section.radius;
-      if (i < childBranchCount - 1) {
-        const r1 = new THREE.Quaternion().setFromEuler(new THREE.Euler(this.params.branch.angle, 0, 0));
-        const r2 = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, offset + i * branchSepAngle, 0));
-        const r3 = new THREE.Quaternion().setFromEuler(section.orientation);
+      if (i < childBranchCount) {
+        const radialAngle = 2.0 * Math.PI * (radialOffset + (i / childBranchCount));
+        console.log('childBranchCount', childBranchCount);
+        console.log('radialOfffset', radialOffset);
+        console.log('radialAngle', radialAngle * 180 / Math.PI);
+        const q1 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.params.branch.angle);
+        const q2 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), radialAngle);
+        const q3 = new THREE.Quaternion().setFromEuler(section.orientation);
 
         // Branch X angle is half the angle sweep + the separation angle
-        section.orientation = new THREE.Euler().setFromQuaternion(r3.multiply(r2.multiply(r1)));
+        childBranchOrientation = new THREE.Euler().setFromQuaternion(q3.multiply(q2.multiply(q1)));
 
         // Reduce the radius of the child branch so the starting end doesn't extend
         // outside the bounds of the parent branch
@@ -408,14 +411,14 @@ export class Tree extends THREE.Group {
         this.#generateLeaf(
           rng,
           section.origin,
-          section.orientation.clone()
+          childBranchOrientation
         );
 
         if (this.params.leaves.style === LeafStyle.Double) {
           this.#generateLeaf(
             rng,
             section.origin,
-            section.orientation.clone(),
+            childBranchOrientation,
             true
           );
         }
@@ -423,7 +426,7 @@ export class Tree extends THREE.Group {
         this.#generateBranch(
           rng,
           section.origin,
-          section.orientation.clone(),
+          childBranchOrientation,
           childBranchLength,
           childBranchRadius,
           level + 1
