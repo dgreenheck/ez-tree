@@ -58,51 +58,48 @@ docker compose up -d
 
 # Parameters
 
+- `seed` - Seed for RNG
+
 ## Trunk
 
 - `color` - Color of the tree trunk
-- `flare` - Multipler for base of trunk
 - `flatShading` - Use face normals for shading instead of vertex normals
 - `length` - Length of the base trunk
-- `maturity`: Growth stage of tree
 - `radius` - Starting radius of the trunk
-- `textured` - Apply bark texture
 
 ## Branches
 
-- `gnarliness` - Max amplitude of random angle added to each section's orientation
-- `gnarliness1_R` - Same as above, but inversely proportional to the branch radius. The two terms can be used to balance gnarliness of trunk vs. branches
-- `lengthVariance` - % variance in branch length
-- `lengthMultiplier` - Length of child branch relative to parent
 - `levels` - Number of branch recursions ( Keep under 5 )
-- `minChildren` - Minimum number of child branches
-- `maxChildren` - Maximum number of child branches
-- `radiusMultiplier` - Radius of child branch relative to parent
+- `children` - Number of child branches
 - `start` - Defines where child branches start forming on the parent branch. A value of 0.6 means the child branches can start forming 60% of the way up the parent branch
 - `stop` - Defines where child branches stop forming on the parent branch. A value of 0.9 means the child branches stop forming 90% of the way up the parent branch
-- `angle` - Max sweep of the branches (radians)
+- `angle` - Angle between child branch and parent branch (radians)
+- `angleVariance` - Variation in `angle` (radians)
+- `lengthVariance` - Variation in branch length
+- `lengthMultiplier` - Length of child branch relative to parent
+- `radiusMultiplier` - Radius of child branch relative to parent
 - `taper` - Radius of end of branch relative to the start of the branch
-- `twist` - Amount of twisting about the vertical axisq
+- `gnarliness` - Max amplitude of random angle added to each section's orientation
+- `twist` - Amount of twisting about the vertical axis
 
-## Geometry
-
-- `lengthVariance` - % variance in the nominal section length
-- `radiusVariance` - % variance in the nominal section radius
-- `randomization` - Randomization factor applied to vertices
-- `sections` - Number of sections that make up this branch
-- `segments` - Number of faces around the circumference of the branch
-
-## Leaves
-
-- `color` - Leaf color
-- `maxCount` - Max number of leaves per branch
-- `minCount` - Min number of leaves per branch
-- `size` - Size of leaf texture
-- `sizeVariance` - Variance in leaf size between branches
-- `style` - Leaf billboard style (single or double)
-- `type` - Leaf type (Ash, Aspen or Oak)
-
-## Sun
+## External Force
 
 - `direction` - Influences the direction the tree grows towards
 - `strength` - Strength of the sun influence
+
+## Geometry
+
+- `sections` - Number of sections that make up this branch
+- `segments` - Number of faces around the circumference of the branch
+- `lengthVariance` - % variance in the nominal section length
+- `radiusVariance` - % variance in the nominal section radius
+- `randomization` - Randomization factor applied to vertices
+
+## Leaves
+
+- `style` - Leaf billboard style (single or double)
+- `type` - Leaf type (Ash, Aspen or Oak)
+- `color` - Leaf color
+- `count` - Number of leaves per branch
+- `size` - Size of leaf texture
+- `sizeVariance` - Variance in leaf size between branches
