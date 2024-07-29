@@ -13,29 +13,32 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   const gui = new GUI();
 
   gui.add(tree.params, 'seed', 0, 65536, 1).name('Seed');
-  gui.add(tree.params, 'maturity', 0, 1).name('Maturity');
-  gui.add(tree.params, 'animateGrowth', 0, 1).name('Animate Growth');
 
   const trunkFolder = gui.addFolder('Trunk').close();
   trunkFolder.addColor(tree.params.trunk, 'color').name('Color');
   trunkFolder.add(tree.params.trunk, 'flatShading').name('Flat Shading');
   trunkFolder.add(tree.params.trunk, 'length', 0, 50).name('Length');
   trunkFolder.add(tree.params.trunk, 'radius', 0, 5).name('Radius');
-  trunkFolder.add(tree.params.trunk, 'flare', 0, 5).name('Flare');
 
   const branchFolder = gui.addFolder('Branches').close();
-  branchFolder.add(tree.params.branch, 'levels', 1, 5, 1).name('Levels');
+
+  const forceFolder = branchFolder.addFolder('External Force').close();
+  forceFolder.add(tree.params.branch.force.direction, 'x', -1, 1).name('X');
+  forceFolder.add(tree.params.branch.force.direction, 'y', -1, 1).name('Y');
+  forceFolder.add(tree.params.branch.force.direction, 'z', -1, 1).name('Z');
+  forceFolder.add(tree.params.branch.force, 'strength', -0.1, 0.1).name('Strength');
+
+  branchFolder.add(tree.params.branch, 'levels', 1, 4, 1).name('Levels');
+  branchFolder.add(tree.params.branch, 'children', 1, 5, 1).name('Child Count');
   branchFolder.add(tree.params.branch, 'start', 0, 1).name('Start');
   branchFolder.add(tree.params.branch, 'stop', 0, 1).name('Stop');
-  branchFolder.add(tree.params.branch, 'minChildren', 0, 10, 1).name('Min Children');
-  branchFolder.add(tree.params.branch, 'maxChildren', 0, 10, 1).name('Max Children');
-  branchFolder.add(tree.params.branch, 'sweepAngle', 0, Math.PI).name('Sweep Angle');
+  branchFolder.add(tree.params.branch, 'angle', 0, Math.PI).name('Angle');
+  branchFolder.add(tree.params.branch, 'angleVariance', 0, Math.PI).name('Angle Variance');
   branchFolder.add(tree.params.branch, 'lengthVariance', 0, 1).name('Length Variance');
   branchFolder.add(tree.params.branch, 'lengthMultiplier', 0, 1).name('Length Multiplier');
   branchFolder.add(tree.params.branch, 'radiusMultiplier', 0, 1).name('Radius Multiplier');
   branchFolder.add(tree.params.branch, 'taper', 0.5, 1).name('Taper');
   branchFolder.add(tree.params.branch, 'gnarliness', 0, 0.5).name('Gnarliness (1)');
-  branchFolder.add(tree.params.branch, 'gnarliness1_R', 0, 0.25).name('Gnarliness (1/R)');
   branchFolder.add(tree.params.branch, 'twist', -0.25, 0.25, 0.01).name('Twist Strength');
 
   const geometryFolder = gui.addFolder('Geometry').close();
@@ -48,21 +51,13 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   const leavesFolder = gui.addFolder('Leaves').close();
   leavesFolder.add(tree.params.leaves, 'style', LeafStyle).name('Style');
   leavesFolder.add(tree.params.leaves, 'type', LeafType);
+  leavesFolder.add(tree.params.leaves, 'count', 0, 100, 1).name('Count');
   leavesFolder.add(tree.params.leaves, 'size', 0, 5).name('Size');
   leavesFolder.add(tree.params.leaves, 'sizeVariance', 0, 1).name('Size Variance');
-  leavesFolder.add(tree.params.leaves, 'minCount', 0, 100, 1).name('Min Count');
-  leavesFolder.add(tree.params.leaves, 'maxCount', 0, 100, 1).name('Max Count');
   leavesFolder.addColor(tree.params.leaves, 'color').name('Color');
   leavesFolder.add(tree.params.leaves, 'emissive', 0, 1).name('Emissive');
   leavesFolder.add(tree.params.leaves, 'opacity', 0, 1).name('Opacity');
   leavesFolder.add(tree.params.leaves, 'alphaTest', 0, 1).name('AlphaTest');
-
-  const forceFolder = gui.addFolder('Sun Direction').close();
-  const directionFolder = forceFolder.addFolder('Sun Direction');
-  directionFolder.add(tree.params.sun.direction, 'x', -1, 1).name('X');
-  directionFolder.add(tree.params.sun.direction, 'y', -1, 1).name('Y');
-  directionFolder.add(tree.params.sun.direction, 'z', -1, 1).name('Z');
-  forceFolder.add(tree.params.sun, 'strength', -0.1, 0.1).name('Sun Strength');
 
   const exportFolder = gui.addFolder('Export').close();
   exportFolder.add({
