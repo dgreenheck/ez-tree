@@ -89,6 +89,7 @@ const TreeParams = {
     billboard: 'double',
     type: 'ash',
     count: 20,
+    start: 0,
     size: 1.375,
     sizeVariance: 0.7,
     color: 0x6b7f48,
@@ -386,16 +387,23 @@ export class Tree extends THREE.Group {
       if (i < childBranchCount) {
         // Determine how far along the length of the parent branch the child
         // branch should originate from (0 to 1)
-        const childBranchStart = rng.random(this.params.branch.stop, this.params.branch.start);
+        let childBranchStart;
+        if (level === this.params.branch.levels) {
+          childBranchStart = rng.random(1.0, this.params.leaves.start);
+        } else {
+          childBranchStart = rng.random(this.params.branch.stop, this.params.branch.start);
+        }
 
         // Find which sections are on either side of the child branch origin point
         // so we can determine the origin, orientation and radius of the branch
-        // 0.0    0.25     0.5     0.75    1.0
-        // 0 ----- 1 ------ 2 ----- 3 ----- 4
-
         let sectionIndex = Math.floor(childBranchStart * (sections.length - 1));
-        let sectionA = sections[sectionIndex];
-        let sectionB = sections[sectionIndex + 1];
+        let sectionA, sectionB;
+        sectionA = sections[sectionIndex]
+        if (sectionIndex === sections.length - 1) {
+          sectionB = sectionA;
+        } else {
+          sectionB = sections[sectionIndex + 1];
+        }
 
         // Find normalized distance from section A to section B (0 to 1)
         let alpha = (childBranchStart - (sectionIndex / (sections.length - 1))) / (1 / (sections.length - 1));
@@ -408,11 +416,9 @@ export class Tree extends THREE.Group {
           ((1 - alpha) * sectionA.radius + alpha * sectionB.radius);
 
         // Linearlly interpolate the orientation
-        childBranchOrientation = new THREE.Euler(
-          (1 - alpha) * sectionA.orientation.x + alpha * sectionB.orientation.x,
-          (1 - alpha) * sectionA.orientation.y + alpha * sectionB.orientation.y,
-          (1 - alpha) * sectionA.orientation.z + alpha * sectionB.orientation.z
-        );
+        let qA = new THREE.Quaternion().setFromEuler(sectionA.orientation);
+        let qB = new THREE.Quaternion().setFromEuler(sectionB.orientation);
+        childBranchOrientation = new THREE.Euler().setFromQuaternion(qB.slerp(qA, alpha));
 
         // Calculate the angle offset from the parent branch and the radial angle
         const angleOffset = rng.random(this.params.branch.angleVariance, -this.params.branch.angleVariance);

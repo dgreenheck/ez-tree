@@ -53,6 +53,7 @@ export declare class Tree {
             billboard: string;
             type: string;
             count: number;
+            start: number;
             size: number;
             sizeVariance: number;
             color: number;
@@ -100,6 +101,7 @@ export declare class Tree {
             billboard: string;
             type: string;
             count: number;
+            start: number;
             size: number;
             sizeVariance: number;
             color: number;

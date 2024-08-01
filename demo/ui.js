@@ -53,6 +53,7 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   leavesFolder.add(tree.params.leaves, 'type', LeafType);
   leavesFolder.add(tree.params.leaves, 'billboard', Billboard).name('Billboard');
   leavesFolder.add(tree.params.leaves, 'count', 0, 100, 1).name('Count');
+  leavesFolder.add(tree.params.leaves, 'start', 0, 1).name('Start');
   leavesFolder.add(tree.params.leaves, 'size', 0, 5).name('Size');
   leavesFolder.add(tree.params.leaves, 'sizeVariance', 0, 1).name('Size Variance');
   leavesFolder.addColor(tree.params.leaves, 'color').name('Color');
