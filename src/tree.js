@@ -32,7 +32,6 @@ function loadTexture(path) {
      */
     (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
-      tex.mi
     });
 }
 const barkTexture = loadTexture(barkSrc);
