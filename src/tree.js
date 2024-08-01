@@ -364,8 +364,8 @@ export class Tree extends THREE.Group {
    *  origin: THREE.Vector3,
    *  orientation: THREE.Euler,
    *  radius: number
-   * }} sections The parent branch's sections
-   * @param {*} parentLength The length of the parent branch
+   * }[]} sections The parent branch's sections
+   * @param {number} parentLength The length of the parent branch
    * @returns 
    */
   #generateChildBranches(rng, level, sections, parentLength) {
@@ -380,35 +380,55 @@ export class Tree extends THREE.Group {
     const radialOffset = rng.random();
 
     for (let i = 0; i <= childBranchCount; i++) {
-      // Figure out a random tree section to grow from
-      let sectionIndex = 0;
+      let childBranchOrigin;
+      let childBranchOrientation;
+      let childBranchRadius;
       if (i < childBranchCount) {
-        sectionIndex = Math.floor(this.params.geometry.sections * rng.random(this.params.branch.stop, (level == this.params.branch.levels ? 0 : this.params.branch.start)));
-      } else {
-        // Force the last branch to always come out of the last ring
-        sectionIndex = sections.length - 1;
-      }
+        // Determine how far along the length of the parent branch the child
+        // branch should originate from (0 to 1)
+        const childBranchStart = rng.random(this.params.branch.stop, this.params.branch.start);
 
-      // Parent section this child branch is sprouting from
-      let section = sections[sectionIndex];
-      let childBranchOrientation = section.orientation.clone();
+        // Find which sections are on either side of the child branch origin point
+        // so we can determine the origin, orientation and radius of the branch
+        // 0.0    0.25     0.5     0.75    1.0
+        // 0 ----- 1 ------ 2 ----- 3 ----- 4
 
-      // All but the last branches use the separation angle
-      //const offset = rng.random(2 * Math.PI);
-      let childBranchRadius = section.radius;
-      if (i < childBranchCount) {
+        let sectionIndex = Math.floor(childBranchStart * (sections.length - 1));
+        let sectionA = sections[sectionIndex];
+        let sectionB = sections[sectionIndex + 1];
+
+        // Find normalized distance from section A to section B (0 to 1)
+        let alpha = (childBranchStart - (sectionIndex / (sections.length - 1))) / (1 / (sections.length - 1));
+
+        // Linearly interpolate origin from section A to section B
+        childBranchOrigin = new THREE.Vector3().lerpVectors(sectionA.origin, sectionB.origin, alpha);
+
+        // Linearly interpolate radius
+        childBranchRadius = this.params.branch.radiusMultiplier *
+          ((1 - alpha) * sectionA.radius + alpha * sectionB.radius);
+
+        // Linearlly interpolate the orientation
+        childBranchOrientation = new THREE.Euler(
+          (1 - alpha) * sectionA.orientation.x + alpha * sectionB.orientation.x,
+          (1 - alpha) * sectionA.orientation.y + alpha * sectionB.orientation.y,
+          (1 - alpha) * sectionA.orientation.z + alpha * sectionB.orientation.z
+        );
+
+        // Calculate the angle offset from the parent branch and the radial angle
         const angleOffset = rng.random(this.params.branch.angleVariance, -this.params.branch.angleVariance);
         const radialAngle = 2.0 * Math.PI * (radialOffset + (i / childBranchCount));
         const q1 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.params.branch.angle + angleOffset);
         const q2 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), radialAngle);
-        const q3 = new THREE.Quaternion().setFromEuler(section.orientation);
+        const q3 = new THREE.Quaternion().setFromEuler(childBranchOrientation);
 
-        // Branch X angle is half the angle sweep + the separation angle
         childBranchOrientation = new THREE.Euler().setFromQuaternion(q3.multiply(q2.multiply(q1)));
-
-        // Reduce the radius of the child branch so the starting end doesn't extend
-        // outside the bounds of the parent branch
-        childBranchRadius *= this.params.branch.radiusMultiplier
+      } else {
+        // Parent section this child branch is sprouting from
+        let sectionIndex = sections.length - 1;
+        let section = sections[sectionIndex];
+        childBranchOrigin = section.origin.clone();
+        childBranchOrientation = section.orientation.clone();
+        childBranchRadius = section.radius;
       }
 
       let childBranchLength = parentLength * (this.params.branch.lengthMultiplier +
@@ -417,14 +437,14 @@ export class Tree extends THREE.Group {
       if (level === this.params.branch.levels) {
         this.#generateLeaf(
           rng,
-          section.origin,
+          childBranchOrigin,
           childBranchOrientation
         );
 
         if (this.params.leaves.billboard === Billboard.Double) {
           this.#generateLeaf(
             rng,
-            section.origin,
+            childBranchOrigin,
             childBranchOrientation,
             true
           );
@@ -432,7 +452,7 @@ export class Tree extends THREE.Group {
       } else {
         this.#generateBranch(
           rng,
-          section.origin,
+          childBranchOrigin,
           childBranchOrientation,
           childBranchLength,
           childBranchRadius,
