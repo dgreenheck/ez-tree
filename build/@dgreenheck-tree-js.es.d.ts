@@ -1,12 +1,25 @@
-export declare namespace LeafStyle {
-    let Single: number;
-    let Double: number;
+export declare namespace Billboard {
+    let Single: string;
+    let Double: string;
 }
 
 export declare namespace LeafType {
-    let Ash: number;
-    let Aspen: number;
-    let Oak: number;
+    let Ash: string;
+    let Aspen: string;
+    let Beech: string;
+    let Evergreen: string;
+    let Oak: string;
+}
+
+declare class RNG {
+    constructor(seed: any);
+    m_w: number;
+    m_z: number;
+    mask: number;
+    /**
+     * Returns a random number between min and max
+     */
+    random(max?: number, min?: number): number;
 }
 
 export declare class Tree {
@@ -23,13 +36,13 @@ export declare class Tree {
             radius: number;
         };
         branch: {
+            sections: number;
+            segments: number;
             levels: number;
             children: number;
             start: number;
             stop: number;
             angle: number;
-            angleVariance: number;
-            lengthVariance: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
             taper: number;
@@ -40,25 +53,21 @@ export declare class Tree {
                 strength: number;
             };
         };
-        geometry: {
-            sections: number;
-            segments: number;
-            lengthVariance: number;
-            radiusVariance: number;
-            randomization: number;
-        };
         leaves: {
-            style: number;
-            type: number;
+            billboard: string;
+            type: string;
             count: number;
+            start: number;
             size: number;
             sizeVariance: number;
             color: number;
-            emissive: number;
-            opacity: number;
             alphaTest: number;
         };
     });
+    /**
+     * @type {RNG}
+     */
+    rng: RNG;
     /**
      * @type {TreeParams}
      */
@@ -72,13 +81,13 @@ export declare class Tree {
             radius: number;
         };
         branch: {
+            sections: number;
+            segments: number;
             levels: number;
             children: number;
             start: number;
             stop: number;
             angle: number;
-            angleVariance: number;
-            lengthVariance: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
             taper: number;
@@ -89,27 +98,20 @@ export declare class Tree {
                 strength: number;
             };
         };
-        geometry: {
-            sections: number;
-            segments: number;
-            lengthVariance: number;
-            radiusVariance: number;
-            randomization: number;
-        };
         leaves: {
-            style: number;
-            type: number;
+            billboard: string;
+            type: string;
             count: number;
+            start: number;
             size: number;
             sizeVariance: number;
             color: number;
-            emissive: number;
-            opacity: number;
             alphaTest: number;
         };
     };
     branchesMesh: any;
     leavesMesh: any;
+    branchQueue: any[];
     /**
      * Generate a new tree
      */
@@ -126,21 +128,22 @@ export declare class Tree {
         indices: any[];
         uvs: any[];
     };
-    trunk: void;
     #private;
 }
 
 export { }
 
-export namespace LeafStyle {
-    let Single: number;
-    let Double: number;
+export namespace Billboard {
+    let Single: string;
+    let Double: string;
 }
 
 
 export namespace LeafType {
-    let Ash: number;
-    let Aspen: number;
-    let Oak: number;
+    let Ash: string;
+    let Aspen: string;
+    let Beech: string;
+    let Evergreen: string;
+    let Oak: string;
 }
 
