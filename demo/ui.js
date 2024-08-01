@@ -22,31 +22,25 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
 
   const branchFolder = gui.addFolder('Branches').close();
 
-  const forceFolder = branchFolder.addFolder('External Force').close();
-  forceFolder.add(tree.params.branch.force.direction, 'x', -1, 1).name('X');
-  forceFolder.add(tree.params.branch.force.direction, 'y', -1, 1).name('Y');
-  forceFolder.add(tree.params.branch.force.direction, 'z', -1, 1).name('Z');
-  forceFolder.add(tree.params.branch.force, 'strength', -0.1, 0.1).name('Strength');
+  branchFolder.add(tree.params.branch, 'sections', 1, 20, 1).name('Sections');
+  branchFolder.add(tree.params.branch, 'segments', 3, 32, 1).name('Segments');
 
   branchFolder.add(tree.params.branch, 'levels', 1, 4, 1).name('Levels');
   branchFolder.add(tree.params.branch, 'children', 1, 10, 1).name('Child Count');
   branchFolder.add(tree.params.branch, 'start', 0, 1).name('Start');
   branchFolder.add(tree.params.branch, 'stop', 0, 1).name('Stop');
   branchFolder.add(tree.params.branch, 'angle', 0, Math.PI).name('Angle');
-  branchFolder.add(tree.params.branch, 'angleVariance', 0, Math.PI).name('Angle Variance');
-  branchFolder.add(tree.params.branch, 'lengthVariance', 0, 1).name('Length Variance');
-  branchFolder.add(tree.params.branch, 'lengthMultiplier', 0, 1).name('Length Multiplier');
-  branchFolder.add(tree.params.branch, 'radiusMultiplier', 0, 1).name('Radius Multiplier');
+  branchFolder.add(tree.params.branch, 'lengthMultiplier', 0, 1).name('Length');
+  branchFolder.add(tree.params.branch, 'radiusMultiplier', 0, 1).name('Radius');
   branchFolder.add(tree.params.branch, 'taper', 0.1, 1).name('Taper');
-  branchFolder.add(tree.params.branch, 'gnarliness', 0, 0.5).name('Gnarliness (1)');
-  branchFolder.add(tree.params.branch, 'twist', -0.25, 0.25, 0.01).name('Twist Strength');
+  branchFolder.add(tree.params.branch, 'gnarliness', 0, 0.5).name('Gnarliness');
+  branchFolder.add(tree.params.branch, 'twist', -0.25, 0.25, 0.01).name('Twist');
 
-  const geometryFolder = gui.addFolder('Geometry').close();
-  geometryFolder.add(tree.params.geometry, 'sections', 1, 20, 1).name('Section Count');
-  geometryFolder.add(tree.params.geometry, 'lengthVariance', 0, 1).name('Section Length Variance');
-  geometryFolder.add(tree.params.geometry, 'radiusVariance', 0, 1).name('Section Radius Variance');
-  geometryFolder.add(tree.params.geometry, 'segments', 3, 32, 1).name('Radial Segment Count');
-  geometryFolder.add(tree.params.geometry, 'randomization', 0, 0.5).name('Vertex Randomization');
+  const forceFolder = branchFolder.addFolder('External Force').close();
+  forceFolder.add(tree.params.branch.force.direction, 'x', -1, 1).name('X');
+  forceFolder.add(tree.params.branch.force.direction, 'y', -1, 1).name('Y');
+  forceFolder.add(tree.params.branch.force.direction, 'z', -1, 1).name('Z');
+  forceFolder.add(tree.params.branch.force, 'strength', -0.1, 0.1).name('Strength');
 
   const leavesFolder = gui.addFolder('Leaves').close();
 

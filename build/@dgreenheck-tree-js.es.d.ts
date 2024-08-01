@@ -11,6 +11,17 @@ export declare namespace LeafType {
     let Oak: string;
 }
 
+declare class RNG {
+    constructor(seed: any);
+    m_w: number;
+    m_z: number;
+    mask: number;
+    /**
+     * Returns a random number between min and max
+     */
+    random(max?: number, min?: number): number;
+}
+
 export declare class Tree {
     /**
      * @param {TreeParams} params
@@ -25,13 +36,13 @@ export declare class Tree {
             radius: number;
         };
         branch: {
+            sections: number;
+            segments: number;
             levels: number;
             children: number;
             start: number;
             stop: number;
             angle: number;
-            angleVariance: number;
-            lengthVariance: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
             taper: number;
@@ -41,13 +52,6 @@ export declare class Tree {
                 direction: any;
                 strength: number;
             };
-        };
-        geometry: {
-            sections: number;
-            segments: number;
-            lengthVariance: number;
-            radiusVariance: number;
-            randomization: number;
         };
         leaves: {
             billboard: string;
@@ -61,6 +65,10 @@ export declare class Tree {
         };
     });
     /**
+     * @type {RNG}
+     */
+    rng: RNG;
+    /**
      * @type {TreeParams}
      */
     params: {
@@ -73,13 +81,13 @@ export declare class Tree {
             radius: number;
         };
         branch: {
+            sections: number;
+            segments: number;
             levels: number;
             children: number;
             start: number;
             stop: number;
             angle: number;
-            angleVariance: number;
-            lengthVariance: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
             taper: number;
@@ -89,13 +97,6 @@ export declare class Tree {
                 direction: any;
                 strength: number;
             };
-        };
-        geometry: {
-            sections: number;
-            segments: number;
-            lengthVariance: number;
-            radiusVariance: number;
-            randomization: number;
         };
         leaves: {
             billboard: string;
@@ -110,6 +111,7 @@ export declare class Tree {
     };
     branchesMesh: any;
     leavesMesh: any;
+    branchQueue: any[];
     /**
      * Generate a new tree
      */
@@ -126,7 +128,6 @@ export declare class Tree {
         indices: any[];
         uvs: any[];
     };
-    trunk: void;
     #private;
 }
 
