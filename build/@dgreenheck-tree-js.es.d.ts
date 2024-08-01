@@ -8,6 +8,7 @@ export declare namespace LeafType {
     let Aspen: string;
     let Beech: string;
     let Evergreen: string;
+    let Oak: string;
 }
 
 export declare class Tree {
@@ -55,8 +56,6 @@ export declare class Tree {
             size: number;
             sizeVariance: number;
             color: number;
-            emissive: number;
-            opacity: number;
             alphaTest: number;
         };
     });
@@ -104,8 +103,6 @@ export declare class Tree {
             size: number;
             sizeVariance: number;
             color: number;
-            emissive: number;
-            opacity: number;
             alphaTest: number;
         };
     };
@@ -144,5 +141,6 @@ export namespace LeafType {
     let Aspen: string;
     let Beech: string;
     let Evergreen: string;
+    let Oak: string;
 }
 

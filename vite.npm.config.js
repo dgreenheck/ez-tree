@@ -20,7 +20,8 @@ export default {
           three: 'THREE' // Global variable for externalized dependencies
         }
       }
-    }
+    },
+    sourcemap: true
   },
   plugins: [
     dts({

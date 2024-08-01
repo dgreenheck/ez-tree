@@ -8,8 +8,7 @@ import leavesAsh from './textures/leaves/ash.png';
 import leavesAspen from './textures/leaves/aspen.png';
 import leavesBeech from './textures/leaves/beech.png';
 import leavesEvergreen from './textures/leaves/evergreen.png';
-//import leavesOakFall from './textures/leaves/oak_fall.png';
-//import leavesOakSummer from './textures/leaves/oak_summer.png';
+import leavesOak from './textures/leaves/oak.png';
 
 export const Billboard = {
   Single: 'single',
@@ -21,16 +20,20 @@ export const LeafType = {
   Aspen: 'aspen',
   Beech: 'beech',
   Evergreen: 'evergreen',
-  //OakFall: 'oak_fall',
-  //akSummer: 'oak_summer',
+  Oak: 'oak'
 };
 
 const loader = new THREE.TextureLoader();
 
 function loadTexture(path) {
-  return loader.load(path, (tex) => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-  });
+  return loader.load(path,
+    /**
+     * @param {THREE.Texture} tex 
+     */
+    (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.mi
+    });
 }
 const barkTexture = loadTexture(barkSrc);
 
@@ -39,8 +42,7 @@ const leafTextures = {
   'aspen': loadTexture(leavesAspen),
   'beech': loadTexture(leavesBeech),
   'evergreen': loadTexture(leavesEvergreen),
-  //'oak_fall': loadTexture(leavesOakFall),
-  //'oak_summer': loadTexture(leavesOakSummer),
+  'oak': loadTexture(leavesOak)
 };
 
 const TreeParams = {
@@ -55,8 +57,8 @@ const TreeParams = {
   },
 
   branch: {
-    levels: 4,               // Number of branch recursions ( Keep under 5 )
-    children: 3,             // Number of child branches at each level
+    levels: 3,               // Number of branch recursions ( Keep under 5 )
+    children: 5,             // Number of child branches at each level
     start: .6,               // Defines where child branches start forming on the parent branch. A value of 0.6 means the
     // child branches can start forming 60% of the way up the parent branch
     stop: .95,               // Defines where child branches stop forming on the parent branch. A value of 0.9 means the
@@ -90,8 +92,6 @@ const TreeParams = {
     size: 1.375,
     sizeVariance: 0.7,
     color: 0x6b7f48,
-    emissive: 0.02,
-    opacity: 1,
     alphaTest: 0.5
   }
 }
@@ -191,8 +191,6 @@ export class Tree extends THREE.Group {
     const mat = new THREE.MeshLambertMaterial({
       name: 'leaves',
       color: this.params.leaves.color,
-      emissive: this.params.leaves.color,
-      emissiveIntensity: this.params.leaves.emissive,
       side: THREE.DoubleSide,
       map: leafTextures[this.params.leaves.type],
       transparent: true,

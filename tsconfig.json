@@ -5,7 +5,8 @@
     "declaration": true,
     "declarationDir": "./build",
     "allowJs": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "sourceMap": true
   },
   "include": [
     "src/**/*.js"

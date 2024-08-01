@@ -29,7 +29,7 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   forceFolder.add(tree.params.branch.force, 'strength', -0.1, 0.1).name('Strength');
 
   branchFolder.add(tree.params.branch, 'levels', 1, 4, 1).name('Levels');
-  branchFolder.add(tree.params.branch, 'children', 1, 5, 1).name('Child Count');
+  branchFolder.add(tree.params.branch, 'children', 1, 10, 1).name('Child Count');
   branchFolder.add(tree.params.branch, 'start', 0, 1).name('Start');
   branchFolder.add(tree.params.branch, 'stop', 0, 1).name('Stop');
   branchFolder.add(tree.params.branch, 'angle', 0, Math.PI).name('Angle');
@@ -37,7 +37,7 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   branchFolder.add(tree.params.branch, 'lengthVariance', 0, 1).name('Length Variance');
   branchFolder.add(tree.params.branch, 'lengthMultiplier', 0, 1).name('Length Multiplier');
   branchFolder.add(tree.params.branch, 'radiusMultiplier', 0, 1).name('Radius Multiplier');
-  branchFolder.add(tree.params.branch, 'taper', 0.5, 1).name('Taper');
+  branchFolder.add(tree.params.branch, 'taper', 0.1, 1).name('Taper');
   branchFolder.add(tree.params.branch, 'gnarliness', 0, 0.5).name('Gnarliness (1)');
   branchFolder.add(tree.params.branch, 'twist', -0.25, 0.25, 0.01).name('Twist Strength');
 
@@ -56,8 +56,6 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   leavesFolder.add(tree.params.leaves, 'size', 0, 5).name('Size');
   leavesFolder.add(tree.params.leaves, 'sizeVariance', 0, 1).name('Size Variance');
   leavesFolder.addColor(tree.params.leaves, 'color').name('Color');
-  leavesFolder.add(tree.params.leaves, 'emissive', 0, 1).name('Emissive');
-  leavesFolder.add(tree.params.leaves, 'opacity', 0, 1).name('Opacity');
   leavesFolder.add(tree.params.leaves, 'alphaTest', 0, 1).name('AlphaTest');
 
   const exportFolder = gui.addFolder('Export').close();
