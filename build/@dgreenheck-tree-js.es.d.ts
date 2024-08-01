@@ -1,12 +1,13 @@
-export declare namespace LeafStyle {
-    let Single: number;
-    let Double: number;
+export declare namespace Billboard {
+    let Single: string;
+    let Double: string;
 }
 
 export declare namespace LeafType {
-    let Ash: number;
-    let Aspen: number;
-    let Oak: number;
+    let Ash: string;
+    let Aspen: string;
+    let Beech: string;
+    let Evergreen: string;
 }
 
 export declare class Tree {
@@ -48,8 +49,8 @@ export declare class Tree {
             randomization: number;
         };
         leaves: {
-            style: number;
-            type: number;
+            billboard: string;
+            type: string;
             count: number;
             size: number;
             sizeVariance: number;
@@ -97,8 +98,8 @@ export declare class Tree {
             randomization: number;
         };
         leaves: {
-            style: number;
-            type: number;
+            billboard: string;
+            type: string;
             count: number;
             size: number;
             sizeVariance: number;
@@ -132,15 +133,16 @@ export declare class Tree {
 
 export { }
 
-export namespace LeafStyle {
-    let Single: number;
-    let Double: number;
+export namespace Billboard {
+    let Single: string;
+    let Double: string;
 }
 
 
 export namespace LeafType {
-    let Ash: number;
-    let Aspen: number;
-    let Oak: number;
+    let Ash: string;
+    let Aspen: string;
+    let Beech: string;
+    let Evergreen: string;
 }
 

@@ -1,6 +1,6 @@
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-import { LeafStyle, LeafType, Tree } from '@dgreenheck/tree-js';
+import { Billboard, LeafType, Tree } from '@dgreenheck/tree-js';
 
 const exporter = new GLTFExporter();
 
@@ -49,8 +49,9 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   geometryFolder.add(tree.params.geometry, 'randomization', 0, 0.5).name('Vertex Randomization');
 
   const leavesFolder = gui.addFolder('Leaves').close();
-  leavesFolder.add(tree.params.leaves, 'style', LeafStyle).name('Style');
+
   leavesFolder.add(tree.params.leaves, 'type', LeafType);
+  leavesFolder.add(tree.params.leaves, 'billboard', Billboard).name('Billboard');
   leavesFolder.add(tree.params.leaves, 'count', 0, 100, 1).name('Count');
   leavesFolder.add(tree.params.leaves, 'size', 0, 5).name('Size');
   leavesFolder.add(tree.params.leaves, 'sizeVariance', 0, 1).name('Size Variance');

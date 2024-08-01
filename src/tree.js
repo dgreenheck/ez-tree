@@ -1,10 +1,29 @@
 import * as THREE from 'three';
 import RNG from './rng';
 
-import barkSrc from './textures/bark.png';
-import ashLeavesSrc from './textures/leaves_ash.png';
-import aspenLeavesSrc from './textures/leaves_aspen.png';
-import oakLeavesSrc from './textures/leaves_oak.png';
+import barkSrc from './textures/bark/aspen.png';
+
+// Leaf textures
+import leavesAsh from './textures/leaves/ash.png';
+import leavesAspen from './textures/leaves/aspen.png';
+import leavesBeech from './textures/leaves/beech.png';
+import leavesEvergreen from './textures/leaves/evergreen.png';
+//import leavesOakFall from './textures/leaves/oak_fall.png';
+//import leavesOakSummer from './textures/leaves/oak_summer.png';
+
+export const Billboard = {
+  Single: 'single',
+  Double: 'double'
+};
+
+export const LeafType = {
+  Ash: 'ash',
+  Aspen: 'aspen',
+  Beech: 'beech',
+  Evergreen: 'evergreen',
+  //OakFall: 'oak_fall',
+  //akSummer: 'oak_summer',
+};
 
 const loader = new THREE.TextureLoader();
 
@@ -15,11 +34,14 @@ function loadTexture(path) {
 }
 const barkTexture = loadTexture(barkSrc);
 
-const leafTextures = [
-  loadTexture(ashLeavesSrc),
-  loadTexture(aspenLeavesSrc),
-  loadTexture(oakLeavesSrc)
-];
+const leafTextures = {
+  'ash': loadTexture(leavesAsh),
+  'aspen': loadTexture(leavesAspen),
+  'beech': loadTexture(leavesBeech),
+  'evergreen': loadTexture(leavesEvergreen),
+  //'oak_fall': loadTexture(leavesOakFall),
+  //'oak_summer': loadTexture(leavesOakSummer),
+};
 
 const TreeParams = {
   seed: 0,
@@ -62,8 +84,8 @@ const TreeParams = {
   },
 
   leaves: {
-    style: 1,
-    type: 0,
+    billboard: 'double',
+    type: 'ash',
     count: 20,
     size: 1.375,
     sizeVariance: 0.7,
@@ -73,17 +95,6 @@ const TreeParams = {
     alphaTest: 0.5
   }
 }
-
-export const LeafStyle = {
-  Single: 0,
-  Double: 1
-};
-
-export const LeafType = {
-  Ash: 0,
-  Aspen: 1,
-  Oak: 2
-};
 
 export class Tree extends THREE.Group {
   /**
@@ -412,7 +423,7 @@ export class Tree extends THREE.Group {
           childBranchOrientation
         );
 
-        if (this.params.leaves.style === LeafStyle.Double) {
+        if (this.params.leaves.billboard === Billboard.Double) {
           this.#generateLeaf(
             rng,
             section.origin,
