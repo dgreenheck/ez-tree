@@ -1,24 +1,35 @@
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-import { Billboard, LeafType, Tree } from '@dgreenheck/tree-js';
+import { Billboard, LeafType, Tree, TreeType } from '@dgreenheck/tree-js';
 
 const exporter = new GLTFExporter();
 
 /**
  * Setups the UI
  * @param {Tree} tree 
- * @param {*} bloomPass 
  */
-export function setupUI(tree, renderer, scene, camera, bloomPass) {
+export function setupUI(tree, renderer, scene, camera) {
   const gui = new GUI();
+  gui.reset();
 
   gui.add(tree.params, 'seed', 0, 65536, 1).name('Seed');
+  gui.add(tree.params, 'type', TreeType).name('Tree Type');
+  gui.add({
+    exportParams: () => {
+      const link = document.getElementById('downloadLink');
+      const json = JSON.stringify(tree.params, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      link.href = URL.createObjectURL(blob);
+      link.download = 'tree.json';
+      link.click();
+    }
+  }, 'exportParams').name('Save Parameters');
 
-  const trunkFolder = gui.addFolder('Trunk').close();
-  trunkFolder.addColor(tree.params.trunk, 'color').name('Color');
-  trunkFolder.add(tree.params.trunk, 'flatShading').name('Flat Shading');
-  trunkFolder.add(tree.params.trunk, 'length', 0, 50).name('Length');
-  trunkFolder.add(tree.params.trunk, 'radius', 0, 5).name('Radius');
+  gui.add({
+    loadParams: () => {
+      document.getElementById('fileInput').click();
+    }
+  }, 'loadParams').name('Load Parameters');
 
   const branchFolder = gui.addFolder('Branches').close();
 
@@ -26,14 +37,13 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   branchFolder.add(tree.params.branch, 'segments', 3, 32, 1).name('Segments');
 
   branchFolder.add(tree.params.branch, 'levels', 1, 4, 1).name('Levels');
-  branchFolder.add(tree.params.branch, 'children', 1, 10, 1).name('Child Count');
+  branchFolder.add(tree.params.branch, 'children', 0, 100, 1).name('Child Count');
   branchFolder.add(tree.params.branch, 'start', 0, 1).name('Start');
-  branchFolder.add(tree.params.branch, 'stop', 0, 1).name('Stop');
   branchFolder.add(tree.params.branch, 'angle', 0, Math.PI).name('Angle');
   branchFolder.add(tree.params.branch, 'lengthMultiplier', 0, 1).name('Length');
   branchFolder.add(tree.params.branch, 'radiusMultiplier', 0, 1).name('Radius');
   branchFolder.add(tree.params.branch, 'taper', 0.1, 1).name('Taper');
-  branchFolder.add(tree.params.branch, 'gnarliness', 0, 0.5).name('Gnarliness');
+  branchFolder.add(tree.params.branch, 'gnarliness', -0.5, 0.5).name('Gnarliness');
   branchFolder.add(tree.params.branch, 'twist', -0.25, 0.25, 0.01).name('Twist');
 
   const forceFolder = branchFolder.addFolder('External Force').close();
@@ -52,6 +62,12 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
   leavesFolder.add(tree.params.leaves, 'sizeVariance', 0, 1).name('Size Variance');
   leavesFolder.addColor(tree.params.leaves, 'color').name('Color');
   leavesFolder.add(tree.params.leaves, 'alphaTest', 0, 1).name('AlphaTest');
+
+  const trunkFolder = gui.addFolder('Trunk').close();
+  trunkFolder.addColor(tree.params.trunk, 'color').name('Color');
+  trunkFolder.add(tree.params.trunk, 'flatShading').name('Flat Shading');
+  trunkFolder.add(tree.params.trunk, 'length', 0, 50).name('Length');
+  trunkFolder.add(tree.params.trunk, 'radius', 0, 5).name('Radius');
 
   const exportFolder = gui.addFolder('Export').close();
   exportFolder.add({
@@ -85,23 +101,6 @@ export function setupUI(tree, renderer, scene, camera, bloomPass) {
       renderer.setClearColor(0); // Restore original background color
     }
   }, 'exportPng').name('Export PNG');
-
-  exportFolder.add({
-    exportParams: () => {
-      const link = document.getElementById('downloadLink');
-      const json = JSON.stringify(tree.params, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      link.href = URL.createObjectURL(blob);
-      link.download = 'tree.json';
-      link.click();
-    }
-  }, 'exportParams').name('Save Parameters');
-
-  exportFolder.add({
-    loadParams: () => {
-      document.getElementById('fileInput').click();
-    }
-  }, 'loadParams').name('Load Parameters');
 
   gui.onChange(() => {
     tree.generate();

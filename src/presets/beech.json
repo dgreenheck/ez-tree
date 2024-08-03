@@ -1,0 +1,43 @@
+{
+  "seed": 29284,
+  "type": "deciduous",
+  "trunk": {
+    "color": 13999459,
+    "flatShading": false,
+    "textured": true,
+    "length": 25,
+    "radius": 2.355
+  },
+  "branch": {
+    "sections": 10,
+    "segments": 8,
+    "levels": 4,
+    "children": 5,
+    "start": 0.213,
+    "stop": 0.95,
+    "angle": 1.05557513160617,
+    "lengthMultiplier": 0.889,
+    "radiusMultiplier": 0.791,
+    "taper": 0.6237,
+    "gnarliness": 0.34,
+    "twist": 0.11,
+    "force": {
+      "direction": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "strength": 0.0424
+    }
+  },
+  "leaves": {
+    "billboard": "double",
+    "type": "beech",
+    "count": 23,
+    "start": 0.213,
+    "size": 4.015,
+    "sizeVariance": 0.262,
+    "color": 7831631,
+    "alphaTest": 0.5
+  }
+}

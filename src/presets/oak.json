@@ -1,0 +1,43 @@
+{
+  "seed": 17200,
+  "type": "deciduous",
+  "trunk": {
+    "color": 13999459,
+    "flatShading": false,
+    "textured": true,
+    "length": 25,
+    "radius": 2.355
+  },
+  "branch": {
+    "sections": 10,
+    "segments": 8,
+    "levels": 4,
+    "children": 4,
+    "start": 0.287,
+    "stop": 0.95,
+    "angle": 1.05557513160617,
+    "lengthMultiplier": 0.705,
+    "radiusMultiplier": 1,
+    "taper": 0.6678,
+    "gnarliness": 0.094,
+    "twist": 0.15,
+    "force": {
+      "direction": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "strength": 0.01
+    }
+  },
+  "leaves": {
+    "billboard": "double",
+    "type": "oak",
+    "count": 30,
+    "start": 0,
+    "size": 2.605,
+    "sizeVariance": 0.324,
+    "color": 7831631,
+    "alphaTest": 0.5
+  }
+}

@@ -28,6 +28,7 @@ export declare class Tree {
      */
     constructor(params?: {
         seed: number;
+        type: string;
         trunk: {
             color: number;
             flatShading: boolean;
@@ -73,6 +74,7 @@ export declare class Tree {
      */
     params: {
         seed: number;
+        type: string;
         trunk: {
             color: number;
             flatShading: boolean;
@@ -129,6 +131,12 @@ export declare class Tree {
         uvs: any[];
     };
     #private;
+}
+
+export declare namespace TreeType {
+    let Deciduous: string;
+    let Evergreen_1: string;
+        { Evergreen_1 as Evergreen };
 }
 
 export { }
