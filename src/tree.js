@@ -49,7 +49,6 @@ const leafTextures = {
   'oak': loadTexture(leavesOak)
 };
 
-/*
 const TreeParams = {
   seed: 49424,
   type: TreeType.Deciduous,
@@ -92,51 +91,6 @@ const TreeParams = {
     sizeVariance: 0.7,
     color: 0x8b8f68,
     alphaTest: 0.5
-  }
-}
-*/
-
-const TreeParams = {
-  "seed": 49424,
-  "type": "deciduous",
-  "trunk": {
-    "color": 13999459,
-    "flatShading": false,
-    "textured": true,
-    "length": 25,
-    "radius": 2.355
-  },
-  "branch": {
-    "sections": 8,
-    "segments": 8,
-    "levels": 3,
-    "children": 6,
-    "start": 0.73,
-    "stop": 0.95,
-    "angle": 1.05557513160617,
-    "lengthMultiplier": 0.766,
-    "radiusMultiplier": 0.619,
-    "taper": 0.6129,
-    "gnarliness": 0.1825,
-    "twist": 0.2,
-    "force": {
-      "direction": {
-        "x": 0,
-        "y": 1,
-        "z": 0
-      },
-      "strength": 0.02
-    }
-  },
-  "leaves": {
-    "billboard": "double",
-    "type": "oak",
-    "count": 30,
-    "start": 0,
-    "size": 2.605,
-    "sizeVariance": 0.324,
-    "color": 9146216,
-    "alphaTest": 0.5
   }
 }
 

@@ -50,11 +50,7 @@ export declare class Tree {
             gnarliness: number;
             twist: number;
             force: {
-                direction: {
-                    x: number;
-                    y: number;
-                    z: number;
-                };
+                direction: any;
                 strength: number;
             };
         };
@@ -100,11 +96,7 @@ export declare class Tree {
             gnarliness: number;
             twist: number;
             force: {
-                direction: {
-                    x: number;
-                    y: number;
-                    z: number;
-                };
+                direction: any;
                 strength: number;
             };
         };
