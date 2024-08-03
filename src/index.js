@@ -1,2 +1,2 @@
 // index.js
-export { Billboard, LeafType, Tree } from './tree';
+export { Billboard, LeafType, Tree, TreeType } from './tree';

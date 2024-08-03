@@ -53,7 +53,7 @@ document.getElementById('fileInput').addEventListener('change', function (event)
         console.log(e.target.result);
         tree.params = JSON.parse(e.target.result);
         tree.generate();
-        setupUI(tree, renderer, scene, camera, bloomPass);
+        setupUI(tree, renderer, scene, camera);
       } catch (error) {
         console.error('Error parsing JSON:', error);
       }

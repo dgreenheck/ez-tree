@@ -1,0 +1,43 @@
+{
+  "seed": 23644,
+  "type": "evergreen",
+  "trunk": {
+    "color": 13999459,
+    "flatShading": false,
+    "textured": true,
+    "length": 47.55,
+    "radius": 1.25
+  },
+  "branch": {
+    "sections": 4,
+    "segments": 8,
+    "levels": 2,
+    "children": 40,
+    "start": 0.115,
+    "stop": 1,
+    "angle": 1.09327424344925,
+    "lengthMultiplier": 0.385,
+    "radiusMultiplier": 0.226,
+    "taper": 0.8892,
+    "gnarliness": 0.1435,
+    "twist": 0,
+    "force": {
+      "direction": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "strength": 0
+    }
+  },
+  "leaves": {
+    "billboard": "double",
+    "type": "evergreen",
+    "count": 29,
+    "start": 0,
+    "size": 1.75,
+    "sizeVariance": 0.398,
+    "color": 9146216,
+    "alphaTest": 0.5
+  }
+}
