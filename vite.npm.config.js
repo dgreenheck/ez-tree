@@ -1,9 +1,9 @@
-import dts from "vite-plugin-dts";
+import dts from 'vite-plugin-dts';
 
 // Config file for the npm build
 /**
-* @type {import('vite').UserConfig}
-*/
+ * @type {import('vite').UserConfig}
+ */
 export default {
   build: {
     outDir: './build',
@@ -17,15 +17,15 @@ export default {
       external: ['three'], // Add your dependencies here
       output: {
         globals: {
-          three: 'THREE' // Global variable for externalized dependencies
-        }
-      }
+          three: 'THREE', // Global variable for externalized dependencies
+        },
+      },
     },
-    sourcemap: true
+    sourcemap: 'inline',
   },
   plugins: [
     dts({
-      rollupTypes: true
-    })
-  ]
+      rollupTypes: true,
+    }),
+  ],
 };
