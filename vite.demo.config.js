@@ -2,8 +2,8 @@
 import path from 'path';
 
 /**
-* @type {import('vite').UserConfig}
-*/
+ * @type {import('vite').UserConfig}
+ */
 export default {
   base: '/tree-js/',
   build: {
@@ -13,7 +13,10 @@ export default {
   root: './demo',
   resolve: {
     alias: {
-      '@dgreenheck/tree-js': path.resolve(__dirname, 'build/@dgreenheck-tree-js.es.js')
-    }
-  }
-}
+      '@dgreenheck/tree-js': path.resolve(
+        __dirname,
+        'build/@dgreenheck-tree-js.es.js',
+      ),
+    },
+  },
+};

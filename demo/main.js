@@ -1,13 +1,13 @@
 import * as THREE from 'three';
-import Stats from 'three/examples/jsm/libs/stats.module'
+import Stats from 'three/examples/jsm/libs/stats.module';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Tree } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
 
 let clock = new THREE.Clock();
 
-const stats = new Stats()
-document.body.appendChild(stats.dom)
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setClearColor(0);
@@ -27,7 +27,12 @@ sunlight.position.set(50, 50, 50);
 sunlight.castShadow = true;
 scene.add(sunlight);
 
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000,
+);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 20, 0);
 camera.position.set(70, 20, 0);
@@ -40,30 +45,34 @@ scene.add(tree);
 
 // Display vertex and triangle count on UI
 const vertexCount = (tree.branches.verts.length + tree.leaves.verts.length) / 3;
-const triangleCount = (tree.branches.indices.length + tree.leaves.indices.length) / 3;
-document.getElementById('model-info').innerText = `Vertex Count: ${vertexCount} | Triangle Count: ${triangleCount}`;
+const triangleCount =
+  (tree.branches.indices.length + tree.leaves.indices.length) / 3;
+document.getElementById('model-info').innerText =
+  `Vertex Count: ${vertexCount} | Triangle Count: ${triangleCount}`;
 
 // Read tree parameters from JSON
-document.getElementById('fileInput').addEventListener('change', function (event) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      try {
-        console.log(e.target.result);
-        tree.params = JSON.parse(e.target.result);
-        tree.generate();
-        setupUI(tree, renderer, scene, camera);
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-      }
-    };
-    reader.onerror = function (e) {
-      console.error('Error reading file:', e);
-    };
-    reader.readAsText(file);
-  }
-});
+document
+  .getElementById('fileInput')
+  .addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          console.log(e.target.result);
+          tree.params = JSON.parse(e.target.result);
+          tree.generate();
+          setupUI(tree, renderer, scene, camera);
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+        }
+      };
+      reader.onerror = function (e) {
+        console.error('Error reading file:', e);
+      };
+      reader.readAsText(file);
+    }
+  });
 
 // Resize camera aspect ratio and renderer size to the new window size
 window.addEventListener('resize', () => {

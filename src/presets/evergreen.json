@@ -9,8 +9,18 @@
     "radius": 1.25
   },
   "branch": {
-    "sections": 4,
-    "segments": 8,
+    "sections": {
+      "1": 4,
+      "2": 4,
+      "3": 4,
+      "4": 4
+    },
+    "segments": {
+      "1": 8,
+      "2": 8,
+      "3": 8,
+      "4": 8
+    },
     "levels": 2,
     "children": 40,
     "start": 0.115,

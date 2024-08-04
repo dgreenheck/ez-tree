@@ -1,6 +1,26 @@
+import * as THREE_2 from 'three';
+
 export declare namespace Billboard {
     let Single: string;
     let Double: string;
+}
+
+declare class Branch {
+    /**
+     * Generates a new branch
+     * @param {THREE.Vector3} origin The starting point of the branch
+     * @param {THREE.Euler} orientation The starting orientation of the branch
+     * @param {number} length The length of the branch
+     * @param {number} radius The radius of the branch at its starting point
+     */
+    constructor(origin?: THREE_2.Vector3, orientation?: THREE_2.Euler, length?: number, radius?: number, level?: number, sectionCount?: number, segmentCount?: number);
+    origin: THREE_2.Vector3;
+    orientation: THREE_2.Euler;
+    length: number;
+    radius: number;
+    level: number;
+    sectionCount: number;
+    segmentCount: number;
 }
 
 export declare namespace LeafType {
@@ -22,7 +42,7 @@ declare class RNG {
     random(max?: number, min?: number): number;
 }
 
-export declare class Tree {
+export declare class Tree extends THREE_2.Group {
     /**
      * @param {TreeParams} params
      */
@@ -37,12 +57,21 @@ export declare class Tree {
             radius: number;
         };
         branch: {
-            sections: number;
-            segments: number;
+            sections: {
+                1: number;
+                2: number;
+                3: number;
+                4: number;
+            };
+            segments: {
+                1: number;
+                2: number;
+                3: number;
+                4: number;
+            };
             levels: number;
             children: number;
             start: number;
-            stop: number;
             angle: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
@@ -50,7 +79,7 @@ export declare class Tree {
             gnarliness: number;
             twist: number;
             force: {
-                direction: any;
+                direction: THREE_2.Vector3;
                 strength: number;
             };
         };
@@ -83,12 +112,21 @@ export declare class Tree {
             radius: number;
         };
         branch: {
-            sections: number;
-            segments: number;
+            sections: {
+                1: number;
+                2: number;
+                3: number;
+                4: number;
+            };
+            segments: {
+                1: number;
+                2: number;
+                3: number;
+                4: number;
+            };
             levels: number;
             children: number;
             start: number;
-            stop: number;
             angle: number;
             lengthMultiplier: number;
             radiusMultiplier: number;
@@ -96,7 +134,7 @@ export declare class Tree {
             gnarliness: number;
             twist: number;
             force: {
-                direction: any;
+                direction: THREE_2.Vector3;
                 strength: number;
             };
         };
@@ -111,9 +149,12 @@ export declare class Tree {
             alphaTest: number;
         };
     };
-    branchesMesh: any;
-    leavesMesh: any;
-    branchQueue: any[];
+    /**
+     * @type {Branch[]}
+     */
+    branchQueue: Branch[];
+    branchesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[]>;
+    leavesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[]>;
     /**
      * Generate a new tree
      */
