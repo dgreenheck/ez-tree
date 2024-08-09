@@ -1,1 +1,2 @@
-export { Billboard, LeafType, Tree, TreeType } from './tree';
+export { Tree } from './tree';
+export { Billboard, LeafType, TreeType } from './enums';

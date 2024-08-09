@@ -49,48 +49,86 @@ export declare class Tree extends THREE_2.Group {
     constructor(params?: {
         seed: number;
         type: string;
-        trunk: {
-            color: number;
-            flatShading: boolean;
-            textured: boolean;
-            length: number;
-            radius: number;
-        };
+        tint: number;
+        flatShading: boolean;
+        textured: boolean;
+        levels: number;
         branch: {
-            sections: {
+            angle: {
                 1: number;
                 2: number;
                 3: number;
-                4: number;
+            };
+            children: {
+                0: number;
+                1: number;
+                2: number;
+            };
+            force: {
+                direction: {
+                    x: number;
+                    y: number;
+                    z: number;
+                };
+                strength: number;
+            };
+            gnarliness: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
+            };
+            length: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
+            };
+            radius: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
+            };
+            sections: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
             };
             segments: {
+                0: number;
                 1: number;
                 2: number;
                 3: number;
-                4: number;
             };
-            levels: number;
-            children: number;
-            start: number;
-            angle: number;
-            lengthMultiplier: number;
-            radiusMultiplier: number;
-            taper: number;
-            gnarliness: number;
-            twist: number;
-            force: {
-                direction: THREE_2.Vector3;
-                strength: number;
+            start: {
+                1: number;
+                2: number;
+                3: number;
+            };
+            taper: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
+            };
+            twist: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
             };
         };
         leaves: {
-            billboard: string;
             type: string;
+            billboard: string;
+            angle: number;
             count: number;
             start: number;
             size: number;
             sizeVariance: number;
-            color: number;
+            tint: number;
             alphaTest: number;
         };
     });
@@ -104,48 +142,86 @@ export declare class Tree extends THREE_2.Group {
     params: {
         seed: number;
         type: string;
-        trunk: {
-            color: number;
-            flatShading: boolean;
-            textured: boolean;
-            length: number;
-            radius: number;
-        };
+        tint: number;
+        flatShading: boolean;
+        textured: boolean;
+        levels: number;
         branch: {
-            sections: {
+            angle: {
                 1: number;
                 2: number;
                 3: number;
-                4: number;
+            };
+            children: {
+                0: number;
+                1: number;
+                2: number;
+            };
+            force: {
+                direction: {
+                    x: number;
+                    y: number;
+                    z: number;
+                };
+                strength: number;
+            };
+            gnarliness: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
+            };
+            length: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
+            };
+            radius: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
+            };
+            sections: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
             };
             segments: {
+                0: number;
                 1: number;
                 2: number;
                 3: number;
-                4: number;
             };
-            levels: number;
-            children: number;
-            start: number;
-            angle: number;
-            lengthMultiplier: number;
-            radiusMultiplier: number;
-            taper: number;
-            gnarliness: number;
-            twist: number;
-            force: {
-                direction: THREE_2.Vector3;
-                strength: number;
+            start: {
+                1: number;
+                2: number;
+                3: number;
+            };
+            taper: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
+            };
+            twist: {
+                0: number;
+                1: number;
+                2: number;
+                3: number;
             };
         };
         leaves: {
-            billboard: string;
             type: string;
+            billboard: string;
+            angle: number;
             count: number;
             start: number;
             size: number;
             sizeVariance: number;
-            color: number;
+            tint: number;
             alphaTest: number;
         };
     };
@@ -181,6 +257,97 @@ export declare namespace TreeType {
 }
 
 export { }
+
+export namespace TreeParams {
+    let seed: number;
+    let type: string;
+    let tint: number;
+    let flatShading: boolean;
+    let textured: boolean;
+    let levels: number;
+    namespace branch {
+        let angle: {
+            1: number;
+            2: number;
+            3: number;
+        };
+        let children: {
+            0: number;
+            1: number;
+            2: number;
+        };
+        namespace force {
+            namespace direction {
+                let x: number;
+                let y: number;
+                let z: number;
+            }
+            let strength: number;
+        }
+        let gnarliness: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        let length: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        let radius: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        let sections: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        let segments: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        let start: {
+            1: number;
+            2: number;
+            3: number;
+        };
+        let taper: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        let twist: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+    }
+    namespace leaves {
+        let type_1: string;
+        export { type_1 as type };
+        export let billboard: string;
+        let angle_1: number;
+        export { angle_1 as angle };
+        export let count: number;
+        let start_1: number;
+        export { start_1 as start };
+        export let size: number;
+        export let sizeVariance: number;
+        let tint_1: number;
+        export { tint_1 as tint };
+        export let alphaTest: number;
+    }
+}
 
 export namespace Billboard {
     let Single: string;

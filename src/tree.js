@@ -1,7 +1,10 @@
 import * as THREE from 'three';
 import RNG from './rng';
 import { Branch } from './branch';
+import { Billboard, LeafType, TreeType } from './enums';
+import { TreeParams } from './treeParams';
 
+// Bark textures
 import barkSrc from './textures/bark/aspen.png';
 
 // Leaf textures
@@ -10,24 +13,6 @@ import leavesAspen from './textures/leaves/aspen.png';
 import leavesBeech from './textures/leaves/beech.png';
 import leavesEvergreen from './textures/leaves/evergreen.png';
 import leavesOak from './textures/leaves/oak.png';
-
-export const Billboard = {
-  Single: 'single',
-  Double: 'double',
-};
-
-export const LeafType = {
-  Ash: 'ash',
-  Aspen: 'aspen',
-  Beech: 'beech',
-  Evergreen: 'evergreen',
-  Oak: 'oak',
-};
-
-export const TreeType = {
-  Deciduous: 'deciduous',
-  Evergreen: 'evergreen',
-};
 
 const loader = new THREE.TextureLoader();
 
@@ -50,60 +35,6 @@ const leafTextures = {
   beech: loadTexture(leavesBeech),
   evergreen: loadTexture(leavesEvergreen),
   oak: loadTexture(leavesOak),
-};
-
-const TreeParams = {
-  seed: 49424,
-  type: TreeType.Deciduous,
-
-  trunk: {
-    color: 0xd59d63, // Color of the tree trunk
-    flatShading: false, // Use face normals for shading instead of vertex normals
-    textured: true, // Apply texture to bark
-    length: 25, // Length of the trunk
-    radius: 1, // Starting radius of the trunk
-  },
-
-  branch: {
-    sections: {
-      // Number of sections per branch level
-      1: 8,
-      2: 6,
-      3: 4,
-      4: 2,
-    },
-    segments: {
-      // Number of radial segments per branch level (min 3)
-      1: 8,
-      2: 6,
-      3: 4,
-      4: 3,
-    },
-    levels: 3, // Number of branch recursions
-    children: 5, // Number of child branches at each level
-    start: 0.3, // Defines where child branches start forming on the parent branch
-    angle: Math.PI / 3, // Angle of the child branches relative to the parent branch (radians)
-    lengthMultiplier: 0.7, // Length of child branch relative to parent
-    radiusMultiplier: 0.5, // Radius of child branch relative to parent
-    taper: 0.6, // Radius of end of branch relative to the start of the branch
-    gnarliness: 0.2, // Max amplitude of random angle added to each section's orientation
-    twist: 0.2,
-    force: {
-      direction: new THREE.Vector3(0, 1, 0),
-      strength: 0.02,
-    },
-  },
-
-  leaves: {
-    billboard: Billboard.Double,
-    type: LeafType.Oak,
-    count: 30,
-    start: 0,
-    size: 1.75,
-    sizeVariance: 0.7,
-    color: 0x8b8f68,
-    alphaTest: 0.5,
-  },
 };
 
 export class Tree extends THREE.Group {
@@ -160,11 +91,11 @@ export class Tree extends THREE.Group {
       new Branch(
         new THREE.Vector3(),
         new THREE.Euler(),
-        this.params.trunk.length,
-        this.params.trunk.radius,
-        1,
-        this.params.branch.sections[1],
-        this.params.branch.segments[1],
+        this.params.branch.length[0],
+        this.params.branch.radius[0],
+        0,
+        this.params.branch.sections[0],
+        this.params.branch.segments[0],
       ),
     );
 
@@ -183,9 +114,6 @@ export class Tree extends THREE.Group {
    * @returns
    */
   #generateBranch(branch) {
-
-    if (branch.level > this.params.branch.levels) return;
-
     // Used later for geometry index generation
     const indexOffset = this.branches.verts.length / 3;
 
@@ -202,13 +130,15 @@ export class Tree extends THREE.Group {
       // If final section of final level, set radius to effecively zero
       if (
         i === branch.sectionCount &&
-        branch.level === this.params.branch.levels
+        branch.level === this.params.levels
       ) {
-        sectionRadius = 0.01;
-      } else {
-        // Taper the branch with each successive section based on the taper factor
+        sectionRadius = 0.001;
+      } else if (this.params.type === TreeType.Deciduous) {
         sectionRadius *=
-          1 - this.params.branch.taper * (i / branch.sectionCount);
+          1 - this.params.branch.taper[branch.level] * (i / branch.sectionCount);
+      } else if (this.params.type === TreeType.Evergreen) {
+        // Evergreens do not have a terminal branch so they have a taper of 1
+        sectionRadius *= 1 - (i / branch.sectionCount);
       }
 
       // Create the segments that make up this section.
@@ -256,7 +186,7 @@ export class Tree extends THREE.Group {
       let sectionLength =
         branch.length /
         branch.sectionCount /
-        (this.params.type === 'Deciduous' ? this.params.branch.levels - 1 : 1);
+        (this.params.type === 'Deciduous' ? this.params.levels - 1 : 1);
 
       sectionOrigin.add(
         new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation),
@@ -266,7 +196,7 @@ export class Tree extends THREE.Group {
       // gnarliness, the larger potential perturbation
       const gnarliness =
         Math.max(1, 1 / Math.sqrt(sectionRadius)) *
-        this.params.branch.gnarliness;
+        this.params.branch.gnarliness[branch.level];
 
       sectionOrientation.x += this.rng.random(gnarliness, -gnarliness);
       sectionOrientation.z += this.rng.random(gnarliness, -gnarliness);
@@ -276,12 +206,12 @@ export class Tree extends THREE.Group {
 
       const qTwist = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(0, 1, 0),
-        this.params.branch.twist,
+        this.params.branch.twist[branch.level],
       );
 
       const qForce = new THREE.Quaternion().setFromUnitVectors(
         new THREE.Vector3(0, 1, 0),
-        this.params.branch.force.direction,
+        new THREE.Vector3().copy(this.params.branch.force.direction),
       );
 
       qSection.multiply(qTwist);
@@ -295,15 +225,17 @@ export class Tree extends THREE.Group {
 
     this.#generateBranchIndices(indexOffset, branch);
 
+    // Deciduous trees have a terminal branch that grows out of the
+    // end of the parent branch
     if (this.params.type === 'deciduous') {
       const lastSection = sections[sections.length - 1];
 
-      if (branch.level < this.params.branch.levels) {
+      if (branch.level < this.params.levels) {
         this.branchQueue.push(
           new Branch(
             lastSection.origin,
             lastSection.orientation,
-            this.params.branch.lengthMultiplier * branch.length,
+            this.params.branch.length[branch.level + 1] / 2,
             lastSection.radius,
             branch.level + 1,
             // Section count and segment count must be same as parent branch
@@ -317,14 +249,179 @@ export class Tree extends THREE.Group {
       }
     }
 
-    this.#generateChildBranches(branch.level, sections, branch.length);
+    // If we are on the last branch level, generate leaves
+    if (branch.level === this.params.levels) {
+      this.#generateLeaves(sections);
+    } else if (branch.level < this.params.levels) {
+      this.#generateChildBranches(
+        this.params.branch.children[branch.level],
+        branch.level + 1,
+        sections);
+    }
   }
 
   /**
-   * Generates a leaves
-   * @param {THREE.Vector3} origin The starting point of the branch
-   * @param {THREE.Euler} orientation The starting orientation of the branch
+   * Generate branches from a parent branch
+   * @param {number} count The number of child branches to generate
+   * @param {number} level The level of the child branches
+   * @param {{
+   *  origin: THREE.Vector3,
+   *  orientation: THREE.Euler,
+   *  radius: number
+   * }[]} sections The parent branch's sections
+   * @returns
    */
+  #generateChildBranches(count, level, sections) {
+    const radialOffset = this.rng.random();
+
+    for (let i = 0; i < count; i++) {
+      // Determine how far along the length of the parent branch the child
+      // branch should originate from (0 to 1)
+      let childBranchStart = this.rng.random(1.0, this.params.branch.start[level]);
+
+      // Find which sections are on either side of the child branch origin point
+      // so we can determine the origin, orientation and radius of the branch
+      const sectionIndex = Math.floor(childBranchStart * (sections.length - 1));
+      let sectionA, sectionB;
+      sectionA = sections[sectionIndex];
+      if (sectionIndex === sections.length - 1) {
+        sectionB = sectionA;
+      } else {
+        sectionB = sections[sectionIndex + 1];
+      }
+
+      // Find normalized distance from section A to section B (0 to 1)
+      const alpha =
+        (childBranchStart - sectionIndex / (sections.length - 1)) /
+        (1 / (sections.length - 1));
+
+      // Linearly interpolate origin from section A to section B
+      const childBranchOrigin = new THREE.Vector3().lerpVectors(
+        sectionA.origin,
+        sectionB.origin,
+        alpha,
+      );
+
+      // Linearly interpolate radius
+      const childBranchRadius =
+        this.params.branch.radius[level] *
+        ((1 - alpha) * sectionA.radius + alpha * sectionB.radius);
+
+      // Linearlly interpolate the orientation
+      const qA = new THREE.Quaternion().setFromEuler(sectionA.orientation);
+      const qB = new THREE.Quaternion().setFromEuler(sectionB.orientation);
+      const parentOrientation = new THREE.Euler().setFromQuaternion(
+        qB.slerp(qA, alpha),
+      );
+
+      // Calculate the angle offset from the parent branch and the radial angle
+      const radialAngle = 2.0 * Math.PI * (radialOffset + i / count);
+      const q1 = new THREE.Quaternion().setFromAxisAngle(
+        new THREE.Vector3(1, 0, 0),
+        this.params.branch.angle[level] / (180 / Math.PI),
+      );
+      const q2 = new THREE.Quaternion().setFromAxisAngle(
+        new THREE.Vector3(0, 1, 0),
+        radialAngle,
+      );
+      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
+
+      const childBranchOrientation = new THREE.Euler().setFromQuaternion(
+        q3.multiply(q2.multiply(q1)),
+      );
+
+      let childBranchLength =
+        this.params.branch.length[level] *
+        (this.params.type === TreeType.Evergreen
+          ? 1.0 - childBranchStart
+          : 1.0);
+
+      this.branchQueue.push(
+        new Branch(
+          childBranchOrigin,
+          childBranchOrientation,
+          childBranchLength,
+          childBranchRadius,
+          level,
+          this.params.branch.sections[level],
+          this.params.branch.segments[level],
+        ),
+      );
+    }
+  }
+
+  /**
+   * Logic for spawning child branches from a parent branch's section
+   * @param {{
+  *  origin: THREE.Vector3,
+  *  orientation: THREE.Euler,
+  *  radius: number
+  * }[]} sections The parent branch's sections
+  * @returns
+  */
+  #generateLeaves(sections) {
+    const radialOffset = this.rng.random();
+
+    for (let i = 0; i < this.params.leaves.count; i++) {
+      // Determine how far along the length of the parent
+      // branch the leaf should originate from (0 to 1)
+      let leafStart = this.rng.random(1.0, this.params.leaves.start);
+
+      // Find which sections are on either side of the child branch origin point
+      // so we can determine the origin, orientation and radius of the branch
+      const sectionIndex = Math.floor(leafStart * (sections.length - 1));
+      let sectionA, sectionB;
+      sectionA = sections[sectionIndex];
+      if (sectionIndex === sections.length - 1) {
+        sectionB = sectionA;
+      } else {
+        sectionB = sections[sectionIndex + 1];
+      }
+
+      // Find normalized distance from section A to section B (0 to 1)
+      const alpha =
+        (leafStart - sectionIndex / (sections.length - 1)) /
+        (1 / (sections.length - 1));
+
+      // Linearly interpolate origin from section A to section B
+      const leafOrigin = new THREE.Vector3().lerpVectors(
+        sectionA.origin,
+        sectionB.origin,
+        alpha,
+      );
+
+      // Linearlly interpolate the orientation
+      const qA = new THREE.Quaternion().setFromEuler(sectionA.orientation);
+      const qB = new THREE.Quaternion().setFromEuler(sectionB.orientation);
+      const parentOrientation = new THREE.Euler().setFromQuaternion(
+        qB.slerp(qA, alpha),
+      );
+
+      // Calculate the angle offset from the parent branch and the radial angle
+      const radialAngle = 2.0 * Math.PI * (radialOffset + i / this.params.leaves.count);
+      const q1 = new THREE.Quaternion().setFromAxisAngle(
+        new THREE.Vector3(1, 0, 0),
+        this.params.leaves.angle / (180 / Math.PI),
+      );
+      const q2 = new THREE.Quaternion().setFromAxisAngle(
+        new THREE.Vector3(0, 1, 0),
+        radialAngle,
+      );
+      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
+
+      const leafOrientation = new THREE.Euler().setFromQuaternion(
+        q3.multiply(q2.multiply(q1)),
+      );
+
+      this.#generateLeaf(leafOrigin, leafOrientation);
+    }
+  }
+
+  /**
+ * Generates a leaves
+ * @param {THREE.Vector3} origin The starting point of the branch
+ * @param {THREE.Euler} orientation The starting orientation of the branch
+ */
   #generateLeaf(origin, orientation) {
     let i = this.leaves.verts.length / 3;
 
@@ -396,114 +493,6 @@ export class Tree extends THREE.Group {
   }
 
   /**
-   * Logic for spawning child branches from a parent branch's section
-   * @param {number} level The level of the parent branch
-   * @param {{
-   *  origin: THREE.Vector3,
-   *  orientation: THREE.Euler,
-   *  radius: number
-   * }[]} sections The parent branch's sections
-   * @param {number} parentLength The length of the parent branch
-   * @returns
-   */
-  #generateChildBranches(level, sections, parentLength) {
-    // Randomly determine the number of child branches to sprout from this tree
-    const childBranchCount =
-      level === this.params.branch.levels
-        ? this.params.leaves.count
-        : // One of the child branches is used to cap the parent branch
-        this.params.branch.children - 1;
-
-    const radialOffset = this.rng.random();
-
-    for (let i = 0; i < childBranchCount; i++) {
-      // Determine how far along the length of the parent branch the child
-      // branch should originate from (0 to 1)
-      let childBranchStart;
-
-      if (level === this.params.branch.levels) {
-        childBranchStart = this.rng.random(1.0, this.params.leaves.start);
-      } else {
-        childBranchStart = this.rng.random(1.0, this.params.branch.start);
-      }
-
-      // Find which sections are on either side of the child branch origin point
-      // so we can determine the origin, orientation and radius of the branch
-      const sectionIndex = Math.floor(childBranchStart * (sections.length - 1));
-      let sectionA, sectionB;
-      sectionA = sections[sectionIndex];
-      if (sectionIndex === sections.length - 1) {
-        sectionB = sectionA;
-      } else {
-        sectionB = sections[sectionIndex + 1];
-      }
-
-      // Find normalized distance from section A to section B (0 to 1)
-      const alpha =
-        (childBranchStart - sectionIndex / (sections.length - 1)) /
-        (1 / (sections.length - 1));
-
-      // Linearly interpolate origin from section A to section B
-      const childBranchOrigin = new THREE.Vector3().lerpVectors(
-        sectionA.origin,
-        sectionB.origin,
-        alpha,
-      );
-
-      // Linearly interpolate radius
-      const childBranchRadius =
-        this.params.branch.radiusMultiplier *
-        ((1 - alpha) * sectionA.radius + alpha * sectionB.radius);
-
-      // Linearlly interpolate the orientation
-      const qA = new THREE.Quaternion().setFromEuler(sectionA.orientation);
-      const qB = new THREE.Quaternion().setFromEuler(sectionB.orientation);
-      const parentOrientation = new THREE.Euler().setFromQuaternion(
-        qB.slerp(qA, alpha),
-      );
-
-      // Calculate the angle offset from the parent branch and the radial angle
-      const radialAngle = 2.0 * Math.PI * (radialOffset + i / childBranchCount);
-      const q1 = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(1, 0, 0),
-        this.params.branch.angle,
-      );
-      const q2 = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 1, 0),
-        radialAngle,
-      );
-      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
-
-      const childBranchOrientation = new THREE.Euler().setFromQuaternion(
-        q3.multiply(q2.multiply(q1)),
-      );
-
-      let childBranchLength =
-        this.params.branch.lengthMultiplier *
-        parentLength *
-        (this.params.type === TreeType.Evergreen
-          ? 1.0 - childBranchStart
-          : 1.0);
-
-      if (level === this.params.branch.levels) {
-        this.#generateLeaf(childBranchOrigin, childBranchOrientation);
-      } else {
-        this.branchQueue.push(
-          new Branch(
-            childBranchOrigin,
-            childBranchOrientation,
-            childBranchLength,
-            childBranchRadius,
-            level + 1,
-            this.params.branch.sections[level + 1],
-            this.params.branch.segments[level + 1],
-          ),
-        );
-      }
-    }
-  }
-
-  /**
    * Generates the indices for branch geometry
    * @param {Branch} branch
    */
@@ -548,11 +537,11 @@ export class Tree extends THREE.Group {
 
     const mat = new THREE.MeshLambertMaterial({
       name: 'branches',
-      flatShading: this.params.trunk.flatShading,
-      color: this.params.trunk.color,
+      flatShading: this.params.flatShading,
+      color: this.params.tint,
     });
 
-    if (this.params.trunk.textured) {
+    if (this.params.textured) {
       mat.map = barkTexture;
     }
 
@@ -585,7 +574,7 @@ export class Tree extends THREE.Group {
 
     const mat = new THREE.MeshLambertMaterial({
       name: 'leaves',
-      color: this.params.leaves.color,
+      color: this.params.leaves.tint,
       side: THREE.DoubleSide,
       map: leafTextures[this.params.leaves.type],
       transparent: true,
