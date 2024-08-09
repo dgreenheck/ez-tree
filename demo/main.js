@@ -4,8 +4,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Tree } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
 
-let clock = new THREE.Clock();
-
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
@@ -34,8 +32,13 @@ const camera = new THREE.PerspectiveCamera(
   1000,
 );
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 20, 0);
-camera.position.set(70, 20, 0);
+controls.maxPolarAngle = Math.PI / 2;
+controls.minDistance = 1;
+controls.maxDistance = 100;
+controls.target.set(0, 15, 0);
+controls.update();
+
+camera.position.set(40, 15, 0);
 
 const tree = new Tree();
 tree.generate();
