@@ -1,6 +1,6 @@
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-import { Billboard, LeafType, Tree, TreeType } from '@dgreenheck/tree-js';
+import { BarkType, Billboard, LeafType, Tree, TreeType } from '@dgreenheck/tree-js';
 
 const exporter = new GLTFExporter();
 let gui = new GUI();
@@ -15,6 +15,10 @@ export function setupUI(tree, renderer, scene, camera) {
 
   gui.add(tree.params, 'seed', 0, 65536, 1).name('Seed');
   gui.add(tree.params, 'type', TreeType).name('Tree Type');
+
+  const barkFolder = gui.addFolder('Bark').close();
+  barkFolder.add(tree.params.bark, 'type', BarkType).name('Type');
+  barkFolder.add(tree.params.bark, 'scale', 1, 10, 1).name('Scale');
 
   const branchFolder = gui.addFolder('Branches').close();
   branchFolder.addColor(tree.params, 'tint').name('Tint');

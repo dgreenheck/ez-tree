@@ -1,40 +1,25 @@
 import * as THREE from 'three';
 import RNG from './rng';
 import { Branch } from './branch';
-import { Billboard, LeafType, TreeType } from './enums';
+import { Billboard, TreeType } from './enums';
 import { TreeParams } from './treeParams';
+import * as textures from './textures/index.json';
 
-// Bark textures
-import barkSrc from './textures/bark/aspen.png';
+const textureCache = {};
 
-// Leaf textures
-import leavesAsh from './textures/leaves/ash.png';
-import leavesAspen from './textures/leaves/aspen.png';
-import leavesBeech from './textures/leaves/beech.png';
-import leavesEvergreen from './textures/leaves/evergreen.png';
-import leavesOak from './textures/leaves/oak.png';
-
-const loader = new THREE.TextureLoader();
-
-function loadTexture(path) {
-  return loader.load(
-    path,
-    /**
-     * @param {THREE.Texture} tex
-     */
-    (tex) => {
-      tex.colorSpace = THREE.SRGBColorSpace;
-    },
-  );
-}
-const barkTexture = loadTexture(barkSrc);
-
-const leafTextures = {
-  ash: loadTexture(leavesAsh),
-  aspen: loadTexture(leavesAspen),
-  beech: loadTexture(leavesBeech),
-  evergreen: loadTexture(leavesEvergreen),
-  oak: loadTexture(leavesOak),
+const textureLoader = new THREE.TextureLoader();
+const loadTexture = (path, scale = new THREE.Vector2(1, 1)) => {
+  if (textureCache[path]) {
+    const texture = textureCache[path];
+    texture.wrapS = THREE.MirroredRepeatWrapping;
+    texture.wrapT = THREE.MirroredRepeatWrapping;
+    return texture;
+  } else {
+    const url = new URL(path, import.meta.url).href;
+    const texture = textureLoader.load(url);
+    textureCache[path] = texture;
+    return texture;
+  }
 };
 
 export class Tree extends THREE.Group {
@@ -68,7 +53,7 @@ export class Tree extends THREE.Group {
   /**
    * Generate a new tree
    */
-  generate() {
+  async generate() {
     // Clean up old geometry
     this.branches = {
       verts: [],
@@ -101,11 +86,11 @@ export class Tree extends THREE.Group {
 
     while (this.branchQueue.length > 0) {
       const branch = this.branchQueue.shift();
-      this.#generateBranch(branch);
+      this.generateBranch(branch);
     }
 
-    this.#createBranchesGeometry();
-    this.#createLeavesGeometry();
+    this.createBranchesGeometry();
+    this.createLeavesGeometry();
   }
 
   /**
@@ -113,12 +98,16 @@ export class Tree extends THREE.Group {
    * @param {Branch} branch
    * @returns
    */
-  #generateBranch(branch) {
+  generateBranch(branch) {
     // Used later for geometry index generation
     const indexOffset = this.branches.verts.length / 3;
 
     let sectionOrientation = branch.orientation.clone();
     let sectionOrigin = branch.origin.clone();
+    let sectionLength =
+      branch.length /
+      branch.sectionCount /
+      (this.params.type === 'Deciduous' ? this.params.levels - 1 : 1);
 
     // This information is used for generating child branches after the branch
     // geometry has been constructed
@@ -158,7 +147,7 @@ export class Tree extends THREE.Group {
 
         const uv = new THREE.Vector2(
           j / branch.segmentCount,
-          i / branch.sectionCount,
+          (i % 2 === 0) ? 0 : 1,
         );
 
         this.branches.verts.push(...Object.values(vertex));
@@ -181,12 +170,6 @@ export class Tree extends THREE.Group {
         orientation: sectionOrientation.clone(),
         radius: sectionRadius,
       });
-
-      // Move to origin to the next section's origin
-      let sectionLength =
-        branch.length /
-        branch.sectionCount /
-        (this.params.type === 'Deciduous' ? this.params.levels - 1 : 1);
 
       sectionOrigin.add(
         new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation),
@@ -223,7 +206,7 @@ export class Tree extends THREE.Group {
       sectionOrientation.setFromQuaternion(qSection);
     }
 
-    this.#generateBranchIndices(indexOffset, branch);
+    this.generateBranchIndices(indexOffset, branch);
 
     // Deciduous trees have a terminal branch that grows out of the
     // end of the parent branch
@@ -245,15 +228,15 @@ export class Tree extends THREE.Group {
           ),
         );
       } else {
-        this.#generateLeaf(lastSection.origin, lastSection.orientation);
+        this.generateLeaf(lastSection.origin, lastSection.orientation);
       }
     }
 
     // If we are on the last branch level, generate leaves
     if (branch.level === this.params.levels) {
-      this.#generateLeaves(sections);
+      this.generateLeaves(sections);
     } else if (branch.level < this.params.levels) {
-      this.#generateChildBranches(
+      this.generateChildBranches(
         this.params.branch.children[branch.level],
         branch.level + 1,
         sections);
@@ -271,7 +254,7 @@ export class Tree extends THREE.Group {
    * }[]} sections The parent branch's sections
    * @returns
    */
-  #generateChildBranches(count, level, sections) {
+  generateChildBranches(count, level, sections) {
     const radialOffset = this.rng.random();
 
     for (let i = 0; i < count; i++) {
@@ -359,7 +342,7 @@ export class Tree extends THREE.Group {
   * }[]} sections The parent branch's sections
   * @returns
   */
-  #generateLeaves(sections) {
+  generateLeaves(sections) {
     const radialOffset = this.rng.random();
 
     for (let i = 0; i < this.params.leaves.count; i++) {
@@ -413,7 +396,7 @@ export class Tree extends THREE.Group {
         q3.multiply(q2.multiply(q1)),
       );
 
-      this.#generateLeaf(leafOrigin, leafOrientation);
+      this.generateLeaf(leafOrigin, leafOrientation);
     }
   }
 
@@ -422,7 +405,7 @@ export class Tree extends THREE.Group {
  * @param {THREE.Vector3} origin The starting point of the branch
  * @param {THREE.Euler} orientation The starting orientation of the branch
  */
-  #generateLeaf(origin, orientation) {
+  generateLeaf(origin, orientation) {
     let i = this.leaves.verts.length / 3;
 
     // Width and length of the leaf quad
@@ -496,7 +479,7 @@ export class Tree extends THREE.Group {
    * Generates the indices for branch geometry
    * @param {Branch} branch
    */
-  #generateBranchIndices(indexOffset, branch) {
+  generateBranchIndices(indexOffset, branch) {
     // Build geometry each section of the branch (cylinder without end caps)
     let v1, v2, v3, v4;
     const N = branch.segmentCount + 1;
@@ -516,7 +499,7 @@ export class Tree extends THREE.Group {
   /**
    * Generates the geometry for the branches
    */
-  #createBranchesGeometry() {
+  createBranchesGeometry() {
     const g = new THREE.BufferGeometry();
     g.setAttribute(
       'position',
@@ -535,15 +518,11 @@ export class Tree extends THREE.Group {
     );
     g.computeBoundingSphere();
 
-    const mat = new THREE.MeshLambertMaterial({
+    const mat = new THREE.MeshStandardMaterial({
       name: 'branches',
       flatShading: this.params.flatShading,
       color: this.params.tint,
     });
-
-    if (this.params.textured) {
-      mat.map = barkTexture;
-    }
 
     this.branchesMesh.geometry.dispose();
     this.branchesMesh.geometry = g;
@@ -551,12 +530,19 @@ export class Tree extends THREE.Group {
     this.branchesMesh.material = mat;
     this.branchesMesh.castShadow = true;
     this.branchesMesh.receiveShadow = true;
+
+    if (this.params.textured) {
+      this.branchesMesh.material.aoMap = loadTexture(textures.bark[this.params.bark.type].ao, this.params.bark.scale);
+      this.branchesMesh.material.map = loadTexture(textures.bark[this.params.bark.type].color, this.params.bark.scale);
+      this.branchesMesh.material.normalMap = loadTexture(textures.bark[this.params.bark.type].normal, this.params.bark.scale);
+      this.branchesMesh.material.roughnessMap = loadTexture(textures.bark[this.params.bark.type].roughness, this.params.bark.scale);
+    }
   }
 
   /**
    * Generates the geometry for the leaves
    */
-  #createLeavesGeometry() {
+  createLeavesGeometry() {
     const g = new THREE.BufferGeometry();
     g.setAttribute(
       'position',
@@ -572,11 +558,10 @@ export class Tree extends THREE.Group {
     g.computeVertexNormals();
     g.computeBoundingSphere();
 
-    const mat = new THREE.MeshLambertMaterial({
+    const mat = new THREE.MeshStandardMaterial({
       name: 'leaves',
       color: this.params.leaves.tint,
       side: THREE.DoubleSide,
-      map: leafTextures[this.params.leaves.type],
       transparent: true,
       alphaTest: this.params.leaves.alphaTest,
     });
@@ -585,6 +570,7 @@ export class Tree extends THREE.Group {
     this.leavesMesh.geometry = g;
     this.leavesMesh.material.dispose();
     this.leavesMesh.material = mat;
+    this.leavesMesh.material.map = loadTexture(textures.leaves[this.params.leaves.type]);
     this.leavesMesh.castShadow = true;
     this.leavesMesh.receiveShadow = true;
   }

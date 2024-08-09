@@ -6,7 +6,11 @@
     "declarationDir": "./build",
     "allowJs": true,
     "outDir": "./dist",
-    "sourceMap": true
+    "sourceMap": true,
+    "moduleResolution": "Node",
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*.js"]
+  "include": [
+    "src/**/*.js"
+  ]
 }

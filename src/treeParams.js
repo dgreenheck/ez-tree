@@ -13,8 +13,17 @@ export const TreeParams = {
   // Apply texture to bark
   textured: true,
 
-  // Levels of recursion
+  // Number of branch recursion levels. 0 = trunk only
   levels: 3,
+
+  // Bark parameters
+  bark: {
+    // The bark texture
+    type: 'oak',
+
+    // Texture scale
+    scale: 1
+  },
 
   // Branch parameters
   branch: {

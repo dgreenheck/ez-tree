@@ -1,5 +1,12 @@
 import * as THREE_2 from 'three';
 
+export declare namespace BarkType {
+    let Birch: string;
+    let Oak: string;
+    let Pine: string;
+    let Willow: string;
+}
+
 export declare namespace Billboard {
     let Single: string;
     let Double: string;
@@ -28,7 +35,8 @@ export declare namespace LeafType {
     let Aspen: string;
     let Beech: string;
     let Evergreen: string;
-    let Oak: string;
+    let Oak_1: string;
+        { Oak_1 as Oak };
 }
 
 declare class RNG {
@@ -53,6 +61,10 @@ export declare class Tree extends THREE_2.Group {
         flatShading: boolean;
         textured: boolean;
         levels: number;
+        bark: {
+            type: string;
+            scale: number;
+        };
         branch: {
             angle: {
                 1: number;
@@ -146,6 +158,10 @@ export declare class Tree extends THREE_2.Group {
         flatShading: boolean;
         textured: boolean;
         levels: number;
+        bark: {
+            type: string;
+            scale: number;
+        };
         branch: {
             angle: {
                 1: number;
@@ -234,7 +250,7 @@ export declare class Tree extends THREE_2.Group {
     /**
      * Generate a new tree
      */
-    generate(): void;
+    generate(): Promise<void>;
     branches: {
         verts: any[];
         normals: any[];
@@ -247,7 +263,61 @@ export declare class Tree extends THREE_2.Group {
         indices: any[];
         uvs: any[];
     };
-    #private;
+    /**
+     * Generates a new branch
+     * @param {Branch} branch
+     * @returns
+     */
+    generateBranch(branch: Branch): void;
+    /**
+     * Generate branches from a parent branch
+     * @param {number} count The number of child branches to generate
+     * @param {number} level The level of the child branches
+     * @param {{
+             *  origin: THREE.Vector3,
+             *  orientation: THREE.Euler,
+             *  radius: number
+             * }[]} sections The parent branch's sections
+     * @returns
+     */
+    generateChildBranches(count: number, level: number, sections: {
+        origin: THREE_2.Vector3;
+        orientation: THREE_2.Euler;
+        radius: number;
+    }[]): void;
+    /**
+     * Logic for spawning child branches from a parent branch's section
+     * @param {{
+             *  origin: THREE.Vector3,
+             *  orientation: THREE.Euler,
+             *  radius: number
+             * }[]} sections The parent branch's sections
+     * @returns
+     */
+    generateLeaves(sections: {
+        origin: THREE_2.Vector3;
+        orientation: THREE_2.Euler;
+        radius: number;
+    }[]): void;
+    /**
+     * Generates a leaves
+     * @param {THREE.Vector3} origin The starting point of the branch
+     * @param {THREE.Euler} orientation The starting orientation of the branch
+     */
+    generateLeaf(origin: THREE_2.Vector3, orientation: THREE_2.Euler): void;
+    /**
+     * Generates the indices for branch geometry
+     * @param {Branch} branch
+     */
+    generateBranchIndices(indexOffset: any, branch: Branch): void;
+    /**
+     * Generates the geometry for the branches
+     */
+    createBranchesGeometry(): void;
+    /**
+     * Generates the geometry for the leaves
+     */
+    createLeavesGeometry(): void;
 }
 
 export declare namespace TreeType {
@@ -265,6 +335,11 @@ export namespace TreeParams {
     let flatShading: boolean;
     let textured: boolean;
     let levels: number;
+    namespace bark {
+        let type_1: string;
+        export { type_1 as type };
+        export let scale: number;
+    }
     namespace branch {
         let angle: {
             1: number;
@@ -333,8 +408,8 @@ export namespace TreeParams {
         };
     }
     namespace leaves {
-        let type_1: string;
-        export { type_1 as type };
+        let type_2: string;
+        export { type_2 as type };
         export let billboard: string;
         let angle_1: number;
         export { angle_1 as angle };
@@ -349,17 +424,16 @@ export namespace TreeParams {
     }
 }
 
-export namespace Billboard {
-    let Single: string;
-    let Double: string;
+export namespace BarkType {
+    let Birch: string;
+    let Oak: string;
+    let Pine: string;
+    let Willow: string;
 }
 
 
-export namespace LeafType {
-    let Ash: string;
-    let Aspen: string;
-    let Beech: string;
-    let Evergreen: string;
-    let Oak: string;
+export namespace Billboard {
+    let Single: string;
+    let Double: string;
 }
 
