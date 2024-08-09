@@ -12,6 +12,7 @@ renderer.setClearColor(0);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.toneMapping = THREE.NeutralToneMapping;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -20,7 +21,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 const sunlight = new THREE.DirectionalLight();
-sunlight.intensity = 5;
+sunlight.intensity = 1;
 sunlight.position.set(50, 50, 50);
 sunlight.castShadow = true;
 scene.add(sunlight);

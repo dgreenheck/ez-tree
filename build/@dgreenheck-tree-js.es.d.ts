@@ -1,4 +1,4 @@
-import * as THREE_2 from 'three';
+import * as THREE from 'three';
 
 export declare namespace BarkType {
     let Birch: string;
@@ -20,9 +20,9 @@ declare class Branch {
      * @param {number} length The length of the branch
      * @param {number} radius The radius of the branch at its starting point
      */
-    constructor(origin?: THREE_2.Vector3, orientation?: THREE_2.Euler, length?: number, radius?: number, level?: number, sectionCount?: number, segmentCount?: number);
-    origin: THREE_2.Vector3;
-    orientation: THREE_2.Euler;
+    constructor(origin?: THREE.Vector3, orientation?: THREE.Euler, length?: number, radius?: number, level?: number, sectionCount?: number, segmentCount?: number);
+    origin: THREE.Vector3;
+    orientation: THREE.Euler;
     length: number;
     radius: number;
     level: number;
@@ -50,7 +50,7 @@ declare class RNG {
     random(max?: number, min?: number): number;
 }
 
-export declare class Tree extends THREE_2.Group {
+export declare class Tree extends THREE.Group {
     /**
      * @param {TreeParams} params
      */
@@ -245,8 +245,8 @@ export declare class Tree extends THREE_2.Group {
      * @type {Branch[]}
      */
     branchQueue: Branch[];
-    branchesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[]>;
-    leavesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[]>;
+    branchesMesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>;
+    leavesMesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>;
     /**
      * Generate a new tree
      */
@@ -281,8 +281,8 @@ export declare class Tree extends THREE_2.Group {
      * @returns
      */
     generateChildBranches(count: number, level: number, sections: {
-        origin: THREE_2.Vector3;
-        orientation: THREE_2.Euler;
+        origin: THREE.Vector3;
+        orientation: THREE.Euler;
         radius: number;
     }[]): void;
     /**
@@ -295,8 +295,8 @@ export declare class Tree extends THREE_2.Group {
      * @returns
      */
     generateLeaves(sections: {
-        origin: THREE_2.Vector3;
-        orientation: THREE_2.Euler;
+        origin: THREE.Vector3;
+        orientation: THREE.Euler;
         radius: number;
     }[]): void;
     /**
@@ -304,7 +304,7 @@ export declare class Tree extends THREE_2.Group {
      * @param {THREE.Vector3} origin The starting point of the branch
      * @param {THREE.Euler} orientation The starting orientation of the branch
      */
-    generateLeaf(origin: THREE_2.Vector3, orientation: THREE_2.Euler): void;
+    generateLeaf(origin: THREE.Vector3, orientation: THREE.Euler): void;
     /**
      * Generates the indices for branch geometry
      * @param {Branch} branch

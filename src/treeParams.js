@@ -5,7 +5,7 @@ export const TreeParams = {
   type: TreeType.Deciduous,
 
   // Tint of the tree trunk
-  tint: 0xd59d63,
+  tint: 0xffffff,
 
   // Use face normals for shading instead of vertex normals
   flatShading: false,
@@ -136,7 +136,7 @@ export const TreeParams = {
     sizeVariance: 0.7,
 
     // Tint color for the leaves
-    tint: 0x8b8f68,
+    tint: 0xffffff,
 
     // Controls transparency of leaf texture
     alphaTest: 0.5,

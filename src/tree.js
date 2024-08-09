@@ -562,7 +562,6 @@ export class Tree extends THREE.Group {
       name: 'leaves',
       color: this.params.leaves.tint,
       side: THREE.DoubleSide,
-      transparent: true,
       alphaTest: this.params.leaves.alphaTest,
     });
 

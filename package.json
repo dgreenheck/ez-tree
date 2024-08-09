@@ -34,14 +34,14 @@
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {
-    "@types/three": "^0.155.x",
+    "three": "^0.161.x",
     "prettier": "3.3.3",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.9.1",
     "vite-plugin-static-copy": "^1.0.5"
   },
   "peerDependencies": {
-    "three": ">=0.155"
+    "three": ">=0.161"
   },
   "keywords": [
     "threejs",
