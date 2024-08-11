@@ -6,6 +6,10 @@
 
 A procedural tree generator built with Three.js. Over 30 tunable parameters and support for exporting to .glb.
 
+## Live Demo
+
+https://dgreenheck.github.io/tree-js/
+
 # Installation
 
 The tree generation code is published as an npm package and can be imported into your own project.
@@ -21,8 +25,8 @@ npm i @dgreenheck/tree-js
 const tree = new Tree();
 
 // Set parameters
-tree.params.trunk.length = 20;
-tree.params.branch.levels = 3;
+tree.options.trunk.length = 20;
+tree.options.branch.levels = 3;
 
 // Generate tree and add to scene
 tree.generate();
@@ -36,10 +40,6 @@ For more info, see the demo app for an example on how to create a tree.
 # Demo
 
 The demo application is a Three.js app which allows you to tune the parameters of the tree in real-time. It also has options for exporting the generated mesh to a `.glb` file, as well as a `.png` export of the current view for 2D applications.
-
-## Live Demo
-
-https://dgreenheck.github.io/tree-js/
 
 ## Running Demo Locally
 

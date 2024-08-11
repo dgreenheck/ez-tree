@@ -13,9 +13,15 @@ export const Billboard = {
 export const LeafType = {
   Ash: 'ash',
   Aspen: 'aspen',
-  Beech: 'beech',
-  Evergreen: 'evergreen',
+  Pine: 'pine',
   Oak: 'oak',
+};
+
+export const TreePreset = {
+  Ash: 'ash',
+  Aspen: 'aspen',
+  Pine: 'pine',
+  Oak: 'oak'
 };
 
 export const TreeType = {

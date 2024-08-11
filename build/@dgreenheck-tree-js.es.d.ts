@@ -33,10 +33,21 @@ declare class Branch {
 export declare namespace LeafType {
     let Ash: string;
     let Aspen: string;
-    let Beech: string;
-    let Evergreen: string;
+    let Pine_1: string;
+        { Pine_1 as Pine };
     let Oak_1: string;
         { Oak_1 as Oak };
+}
+
+export declare namespace Presets {
+    let Ash_1: string;
+        { Ash_1 as Ash };
+    let Aspen_1: string;
+        { Aspen_1 as Aspen };
+    let Pine_2: string;
+        { Pine_2 as Pine };
+    let Oak_2: string;
+        { Oak_2 as Oak };
 }
 
 declare class RNG {
@@ -52,207 +63,28 @@ declare class RNG {
 
 export declare class Tree extends THREE_2.Group<THREE_2.Object3DEventMap> {
     /**
-     * @param {TreeParams} params
+     * @param {TreeOptions} params
      */
-    constructor(params?: {
-        seed: number;
-        type: string;
-        bark: {
-            type: string;
-            tint: number;
-            flatShading: boolean;
-            textured: boolean;
-            textureScale: {
-                x: number;
-                y: number;
-            };
-        };
-        branch: {
-            levels: number;
-            angle: {
-                1: number;
-                2: number;
-                3: number;
-            };
-            children: {
-                0: number;
-                1: number;
-                2: number;
-            };
-            force: {
-                direction: {
-                    x: number;
-                    y: number;
-                    z: number;
-                };
-                strength: number;
-            };
-            gnarliness: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            length: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            radius: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            sections: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            segments: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            start: {
-                1: number;
-                2: number;
-                3: number;
-            };
-            taper: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            twist: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-        };
-        leaves: {
-            type: string;
-            billboard: string;
-            angle: number;
-            count: number;
-            start: number;
-            size: number;
-            sizeVariance: number;
-            tint: number;
-            alphaTest: number;
-        };
-    });
+    constructor(options?: TreeOptions);
     /**
      * @type {RNG}
      */
     rng: RNG;
     /**
-     * @type {TreeParams}
+     * @type {TreeOptions}
      */
-    params: {
-        seed: number;
-        type: string;
-        bark: {
-            type: string;
-            tint: number;
-            flatShading: boolean;
-            textured: boolean;
-            textureScale: {
-                x: number;
-                y: number;
-            };
-        };
-        branch: {
-            levels: number;
-            angle: {
-                1: number;
-                2: number;
-                3: number;
-            };
-            children: {
-                0: number;
-                1: number;
-                2: number;
-            };
-            force: {
-                direction: {
-                    x: number;
-                    y: number;
-                    z: number;
-                };
-                strength: number;
-            };
-            gnarliness: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            length: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            radius: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            sections: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            segments: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            start: {
-                1: number;
-                2: number;
-                3: number;
-            };
-            taper: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-            twist: {
-                0: number;
-                1: number;
-                2: number;
-                3: number;
-            };
-        };
-        leaves: {
-            type: string;
-            billboard: string;
-            angle: number;
-            count: number;
-            start: number;
-            size: number;
-            sizeVariance: number;
-            tint: number;
-            alphaTest: number;
-        };
-    };
+    options: TreeOptions;
     /**
      * @type {Branch[]}
      */
     branchQueue: Branch[];
     branchesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[], THREE_2.Object3DEventMap>;
     leavesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[], THREE_2.Object3DEventMap>;
+    /**
+     * Loads a preset tree from JSON
+     * @param {string} preset
+     */
+    loadPreset(name: any): void;
     /**
      * Generate a new tree
      */
@@ -326,10 +158,103 @@ export declare class Tree extends THREE_2.Group<THREE_2.Object3DEventMap> {
     createLeavesGeometry(): void;
 }
 
+declare class TreeOptions {
+    seed: number;
+    type: string;
+    bark: {
+        type: string;
+        tint: number;
+        flatShading: boolean;
+        textured: boolean;
+        textureScale: {
+            x: number;
+            y: number;
+        };
+    };
+    branch: {
+        levels: number;
+        angle: {
+            1: number;
+            2: number;
+            3: number;
+        };
+        children: {
+            0: number;
+            1: number;
+            2: number;
+        };
+        force: {
+            direction: {
+                x: number;
+                y: number;
+                z: number;
+            };
+            strength: number;
+        };
+        gnarliness: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        length: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        radius: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        sections: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        segments: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        start: {
+            1: number;
+            2: number;
+            3: number;
+        };
+        taper: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+        twist: {
+            0: number;
+            1: number;
+            2: number;
+            3: number;
+        };
+    };
+    leaves: {
+        type: string;
+        billboard: string;
+        angle: number;
+        count: number;
+        start: number;
+        size: number;
+        sizeVariance: number;
+        tint: number;
+        alphaTest: number;
+    };
+}
+
 export declare namespace TreeType {
     let Deciduous: string;
-    let Evergreen_1: string;
-        { Evergreen_1 as Evergreen };
+    let Evergreen: string;
 }
 
 export { }
@@ -347,104 +272,60 @@ export namespace Billboard {
     let Double: string;
 }
 
-export namespace TreeParams {
-    let seed: number;
-    let type: string;
+
+export namespace TreeType {
+    let Deciduous: string;
+    let Evergreen: string;
+}
+
+
+declare namespace textures {
     namespace bark {
-        let type_1: string;
-        export { type_1 as type };
-        export let tint: number;
-        export let flatShading: boolean;
-        export let textured: boolean;
-        export namespace textureScale {
-            let x: number;
-            let y: number;
+        namespace birch {
+            let ao: string;
+            let color: string;
+            let normal: string;
+            let roughness: string;
         }
-    }
-    namespace branch {
-        let levels: number;
-        let angle: {
-            1: number;
-            2: number;
-            3: number;
-        };
-        let children: {
-            0: number;
-            1: number;
-            2: number;
-        };
-        namespace force {
-            namespace direction {
-                let x_1: number;
-                export { x_1 as x };
-                let y_1: number;
-                export { y_1 as y };
-                export let z: number;
-            }
-            let strength: number;
+        namespace oak {
+            let ao_1: string;
+            export { ao_1 as ao };
+            let color_1: string;
+            export { color_1 as color };
+            let normal_1: string;
+            export { normal_1 as normal };
+            let roughness_1: string;
+            export { roughness_1 as roughness };
         }
-        let gnarliness: {
-            0: number;
-            1: number;
-            2: number;
-            3: number;
-        };
-        let length: {
-            0: number;
-            1: number;
-            2: number;
-            3: number;
-        };
-        let radius: {
-            0: number;
-            1: number;
-            2: number;
-            3: number;
-        };
-        let sections: {
-            0: number;
-            1: number;
-            2: number;
-            3: number;
-        };
-        let segments: {
-            0: number;
-            1: number;
-            2: number;
-            3: number;
-        };
-        let start: {
-            1: number;
-            2: number;
-            3: number;
-        };
-        let taper: {
-            0: number;
-            1: number;
-            2: number;
-            3: number;
-        };
-        let twist: {
-            0: number;
-            1: number;
-            2: number;
-            3: number;
-        };
+        namespace pine {
+            let ao_2: string;
+            export { ao_2 as ao };
+            let color_2: string;
+            export { color_2 as color };
+            let normal_2: string;
+            export { normal_2 as normal };
+            let roughness_2: string;
+            export { roughness_2 as roughness };
+        }
+        namespace willow {
+            let ao_3: string;
+            export { ao_3 as ao };
+            let color_3: string;
+            export { color_3 as color };
+            let normal_3: string;
+            export { normal_3 as normal };
+            let roughness_3: string;
+            export { roughness_3 as roughness };
+        }
     }
     namespace leaves {
-        let type_2: string;
-        export { type_2 as type };
-        export let billboard: string;
-        let angle_1: number;
-        export { angle_1 as angle };
-        export let count: number;
-        let start_1: number;
-        export { start_1 as start };
-        export let size: number;
-        export let sizeVariance: number;
-        let tint_1: number;
-        export { tint_1 as tint };
-        export let alphaTest: number;
+        export let ash: string;
+        export let aspen: string;
+        export let beech: string;
+        let pine_1: string;
+        export { pine_1 as pine };
+        let oak_1: string;
+        export { oak_1 as oak };
     }
 }
 
