@@ -21,7 +21,7 @@ export default {
         },
       },
     },
-    sourcemap: 'inline',
+    sourcemap: 'true',
   },
   plugins: [
     dts({

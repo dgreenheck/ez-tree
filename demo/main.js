@@ -16,11 +16,11 @@ document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
 
 const sunlight = new THREE.DirectionalLight();
-sunlight.intensity = 5;
+sunlight.intensity = 2;
 sunlight.position.set(50, 50, 50);
 sunlight.castShadow = true;
 scene.add(sunlight);
@@ -62,7 +62,6 @@ document
       const reader = new FileReader();
       reader.onload = function (e) {
         try {
-          console.log(e.target.result);
           tree.params = JSON.parse(e.target.result);
           tree.generate();
           setupUI(tree, renderer, scene, camera);

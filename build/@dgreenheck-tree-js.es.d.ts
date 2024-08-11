@@ -1,5 +1,12 @@
 import * as THREE_2 from 'three';
 
+export declare namespace BarkType {
+    let Birch: string;
+    let Oak: string;
+    let Pine: string;
+    let Willow: string;
+}
+
 export declare namespace Billboard {
     let Single: string;
     let Double: string;
@@ -28,7 +35,8 @@ export declare namespace LeafType {
     let Aspen: string;
     let Beech: string;
     let Evergreen: string;
-    let Oak: string;
+    let Oak_1: string;
+        { Oak_1 as Oak };
 }
 
 declare class RNG {
@@ -42,18 +50,25 @@ declare class RNG {
     random(max?: number, min?: number): number;
 }
 
-export declare class Tree extends THREE_2.Group {
+export declare class Tree extends THREE_2.Group<THREE_2.Object3DEventMap> {
     /**
      * @param {TreeParams} params
      */
     constructor(params?: {
         seed: number;
         type: string;
-        tint: number;
-        flatShading: boolean;
-        textured: boolean;
-        levels: number;
+        bark: {
+            type: string;
+            tint: number;
+            flatShading: boolean;
+            textured: boolean;
+            textureScale: {
+                x: number;
+                y: number;
+            };
+        };
         branch: {
+            levels: number;
             angle: {
                 1: number;
                 2: number;
@@ -142,11 +157,18 @@ export declare class Tree extends THREE_2.Group {
     params: {
         seed: number;
         type: string;
-        tint: number;
-        flatShading: boolean;
-        textured: boolean;
-        levels: number;
+        bark: {
+            type: string;
+            tint: number;
+            flatShading: boolean;
+            textured: boolean;
+            textureScale: {
+                x: number;
+                y: number;
+            };
+        };
         branch: {
+            levels: number;
             angle: {
                 1: number;
                 2: number;
@@ -229,8 +251,8 @@ export declare class Tree extends THREE_2.Group {
      * @type {Branch[]}
      */
     branchQueue: Branch[];
-    branchesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[]>;
-    leavesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[]>;
+    branchesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[], THREE_2.Object3DEventMap>;
+    leavesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[], THREE_2.Object3DEventMap>;
     /**
      * Generate a new tree
      */
@@ -247,7 +269,61 @@ export declare class Tree extends THREE_2.Group {
         indices: any[];
         uvs: any[];
     };
-    #private;
+    /**
+     * Generates a new branch
+     * @param {Branch} branch
+     * @returns
+     */
+    generateBranch(branch: Branch): void;
+    /**
+     * Generate branches from a parent branch
+     * @param {number} count The number of child branches to generate
+     * @param {number} level The level of the child branches
+     * @param {{
+             *  origin: THREE.Vector3,
+             *  orientation: THREE.Euler,
+             *  radius: number
+             * }[]} sections The parent branch's sections
+     * @returns
+     */
+    generateChildBranches(count: number, level: number, sections: {
+        origin: THREE_2.Vector3;
+        orientation: THREE_2.Euler;
+        radius: number;
+    }[]): void;
+    /**
+     * Logic for spawning child branches from a parent branch's section
+     * @param {{
+             *  origin: THREE.Vector3,
+             *  orientation: THREE.Euler,
+             *  radius: number
+             * }[]} sections The parent branch's sections
+     * @returns
+     */
+    generateLeaves(sections: {
+        origin: THREE_2.Vector3;
+        orientation: THREE_2.Euler;
+        radius: number;
+    }[]): void;
+    /**
+     * Generates a leaves
+     * @param {THREE.Vector3} origin The starting point of the branch
+     * @param {THREE.Euler} orientation The starting orientation of the branch
+     */
+    generateLeaf(origin: THREE_2.Vector3, orientation: THREE_2.Euler): void;
+    /**
+     * Generates the indices for branch geometry
+     * @param {Branch} branch
+     */
+    generateBranchIndices(indexOffset: any, branch: Branch): void;
+    /**
+     * Generates the geometry for the branches
+     */
+    createBranchesGeometry(): void;
+    /**
+     * Generates the geometry for the leaves
+     */
+    createLeavesGeometry(): void;
 }
 
 export declare namespace TreeType {
@@ -258,14 +334,35 @@ export declare namespace TreeType {
 
 export { }
 
+export namespace BarkType {
+    let Birch: string;
+    let Oak: string;
+    let Pine: string;
+    let Willow: string;
+}
+
+
+export namespace Billboard {
+    let Single: string;
+    let Double: string;
+}
+
 export namespace TreeParams {
     let seed: number;
     let type: string;
-    let tint: number;
-    let flatShading: boolean;
-    let textured: boolean;
-    let levels: number;
+    namespace bark {
+        let type_1: string;
+        export { type_1 as type };
+        export let tint: number;
+        export let flatShading: boolean;
+        export let textured: boolean;
+        export namespace textureScale {
+            let x: number;
+            let y: number;
+        }
+    }
     namespace branch {
+        let levels: number;
         let angle: {
             1: number;
             2: number;
@@ -278,9 +375,11 @@ export namespace TreeParams {
         };
         namespace force {
             namespace direction {
-                let x: number;
-                let y: number;
-                let z: number;
+                let x_1: number;
+                export { x_1 as x };
+                let y_1: number;
+                export { y_1 as y };
+                export let z: number;
             }
             let strength: number;
         }
@@ -333,8 +432,8 @@ export namespace TreeParams {
         };
     }
     namespace leaves {
-        let type_1: string;
-        export { type_1 as type };
+        let type_2: string;
+        export { type_2 as type };
         export let billboard: string;
         let angle_1: number;
         export { angle_1 as angle };
@@ -347,19 +446,5 @@ export namespace TreeParams {
         export { tint_1 as tint };
         export let alphaTest: number;
     }
-}
-
-export namespace Billboard {
-    let Single: string;
-    let Double: string;
-}
-
-
-export namespace LeafType {
-    let Ash: string;
-    let Aspen: string;
-    let Beech: string;
-    let Evergreen: string;
-    let Oak: string;
 }
 
