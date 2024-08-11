@@ -256,7 +256,7 @@ export declare class Tree extends THREE_2.Group<THREE_2.Object3DEventMap> {
     /**
      * Generate a new tree
      */
-    generate(): Promise<void>;
+    generate(): void;
     branches: {
         verts: any[];
         normals: any[];

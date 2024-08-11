@@ -20,7 +20,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
 
 const sunlight = new THREE.DirectionalLight();
-sunlight.intensity = 1;
+sunlight.intensity = 2;
 sunlight.position.set(50, 50, 50);
 sunlight.castShadow = true;
 scene.add(sunlight);

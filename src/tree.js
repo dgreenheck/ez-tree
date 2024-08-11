@@ -62,7 +62,7 @@ export class Tree extends THREE.Group {
   /**
    * Generate a new tree
    */
-  async generate() {
+  generate() {
     // Clean up old geometry
     this.branches = {
       verts: [],

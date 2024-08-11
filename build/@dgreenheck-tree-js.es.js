@@ -227,7 +227,7 @@ class G extends t.Group {
   /**
    * Generate a new tree
    */
-  async generate() {
+  generate() {
     for (this.branches = {
       verts: [],
       normals: [],
