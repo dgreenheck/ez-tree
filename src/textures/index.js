@@ -1,4 +1,4 @@
-{
+const textures = {
   "bark": {
     "birch": {
       "ao": "../src/textures/bark/birch_ao_1k.jpg",
@@ -36,4 +36,6 @@
     "evergreen": "../src/textures/leaves/evergreen.png",
     "oak": "../src/textures/leaves/oak.png"
   }
-}
+};
+
+export default textures;

@@ -18,6 +18,14 @@ export const LeafType = {
   Oak: 'oak',
 };
 
+export const TreePreset = {
+  Ash: 'ash',
+  Aspen: 'aspen',
+  Beech: 'beech',
+  Pine: 'pine',
+  Oak: 'oak'
+};
+
 export const TreeType = {
   Deciduous: 'deciduous',
   Evergreen: 'evergreen',

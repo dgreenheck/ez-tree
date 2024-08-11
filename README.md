@@ -21,8 +21,8 @@ npm i @dgreenheck/tree-js
 const tree = new Tree();
 
 // Set parameters
-tree.params.trunk.length = 20;
-tree.params.branch.levels = 3;
+tree.options.trunk.length = 20;
+tree.options.branch.levels = 3;
 
 // Generate tree and add to scene
 tree.generate();

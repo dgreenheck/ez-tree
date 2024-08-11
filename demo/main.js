@@ -62,7 +62,7 @@ document
       const reader = new FileReader();
       reader.onload = function (e) {
         try {
-          tree.params = JSON.parse(e.target.result);
+          tree.options = JSON.parse(e.target.result);
           tree.generate();
           setupUI(tree, renderer, scene, camera);
         } catch (error) {

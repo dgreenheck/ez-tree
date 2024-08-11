@@ -1,6 +1,6 @@
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-import { BarkType, Billboard, LeafType, Tree, TreeType } from '@dgreenheck/tree-js';
+import { BarkType, Billboard, LeafType, Presets, Tree, TreeType } from '@dgreenheck/tree-js';
 
 const exporter = new GLTFExporter();
 let gui = new GUI();
@@ -13,181 +13,190 @@ export function setupUI(tree, renderer, scene, camera) {
   gui.destroy();
   gui = new GUI();
 
-  gui.add(tree.params, 'seed', 0, 65536, 1).name('Seed');
-  gui.add(tree.params, 'type', TreeType).name('Tree Type');
+  const guiData = {
+    selectedPreset: Presets.Ash
+  };
+
+  const presetSelect = gui.add(guiData, 'selectedPreset', Presets).name('Preset');
+  presetSelect.onChange(() => {
+    tree.loadPreset(guiData.selectedPreset);
+  });
+
+  gui.add(tree.options, 'seed', 0, 65536, 1).name('Seed');
+  gui.add(tree.options, 'type', TreeType).name('Tree Type');
 
   const barkFolder = gui.addFolder('Bark').close();
-  barkFolder.add(tree.params.bark, 'type', BarkType).name('Type');
-  barkFolder.addColor(tree.params.bark, 'tint').name('Tint');
-  barkFolder.add(tree.params.bark, 'flatShading').name('Flat Shading');
-  barkFolder.add(tree.params.bark, 'textured').name('Textured');
-  barkFolder.add(tree.params.bark.textureScale, 'x').name('Texture Scale X');
-  barkFolder.add(tree.params.bark.textureScale, 'y').name('Texture Scale Y');
+  barkFolder.add(tree.options.bark, 'type', BarkType).name('Type');
+  barkFolder.addColor(tree.options.bark, 'tint').name('Tint');
+  barkFolder.add(tree.options.bark, 'flatShading').name('Flat Shading');
+  barkFolder.add(tree.options.bark, 'textured').name('Textured');
+  barkFolder.add(tree.options.bark.textureScale, 'x').name('Texture Scale X');
+  barkFolder.add(tree.options.bark.textureScale, 'y').name('Texture Scale Y');
 
   const branchFolder = gui.addFolder('Branches').close();
-  branchFolder.add(tree.params.branch, 'levels', 0, 3, 1).name('Levels');
+  branchFolder.add(tree.options.branch, 'levels', 0, 3, 1).name('Levels');
 
   const branchAngleFolder = branchFolder.addFolder('Angle').close();
   branchAngleFolder
-    .add(tree.params.branch.angle, '1', 0, 360, 1)
+    .add(tree.options.branch.angle, '1', 0, 360, 1)
     .name('Level 1');
   branchAngleFolder
-    .add(tree.params.branch.angle, '2', 0, 360, 1)
+    .add(tree.options.branch.angle, '2', 0, 360, 1)
     .name('Level 2');
   branchAngleFolder
-    .add(tree.params.branch.angle, '3', 0, 360, 1)
+    .add(tree.options.branch.angle, '3', 0, 360, 1)
     .name('Level 3');
 
   const childrenFolder = branchFolder.addFolder('Children').close();
   childrenFolder
-    .add(tree.params.branch.children, '0', 0, 100, 1)
+    .add(tree.options.branch.children, '0', 0, 100, 1)
     .name('Trunk');
   childrenFolder
-    .add(tree.params.branch.children, '1', 0, 10, 1)
+    .add(tree.options.branch.children, '1', 0, 10, 1)
     .name('Level 1');
   childrenFolder
-    .add(tree.params.branch.children, '2', 0, 5, 1)
+    .add(tree.options.branch.children, '2', 0, 5, 1)
     .name('Level 2');
 
   const gnarlinessFolder = branchFolder.addFolder('Gnarliness').close();
   gnarlinessFolder
-    .add(tree.params.branch.gnarliness, '0', -0.5, 0.5, 0.01)
+    .add(tree.options.branch.gnarliness, '0', -0.5, 0.5, 0.01)
     .name('Trunk');
   gnarlinessFolder
-    .add(tree.params.branch.gnarliness, '1', -0.5, 0.5, 0.01)
+    .add(tree.options.branch.gnarliness, '1', -0.5, 0.5, 0.01)
     .name('Level 1');
   gnarlinessFolder
-    .add(tree.params.branch.gnarliness, '2', -0.5, 0.5, 0.01)
+    .add(tree.options.branch.gnarliness, '2', -0.5, 0.5, 0.01)
     .name('Level 2');
   gnarlinessFolder
-    .add(tree.params.branch.gnarliness, '3', -0.5, 0.5, 0.01)
+    .add(tree.options.branch.gnarliness, '3', -0.5, 0.5, 0.01)
     .name('Level 3');
 
   const forceFolder = branchFolder.addFolder('Growth Direction').close();
-  forceFolder.add(tree.params.branch.force.direction, 'x', -1, 1).name('X');
-  forceFolder.add(tree.params.branch.force.direction, 'y', -1, 1).name('Y');
-  forceFolder.add(tree.params.branch.force.direction, 'z', -1, 1).name('Z');
+  forceFolder.add(tree.options.branch.force.direction, 'x', -1, 1).name('X');
+  forceFolder.add(tree.options.branch.force.direction, 'y', -1, 1).name('Y');
+  forceFolder.add(tree.options.branch.force.direction, 'z', -1, 1).name('Z');
   forceFolder
-    .add(tree.params.branch.force, 'strength', -0.1, 0.1)
+    .add(tree.options.branch.force, 'strength', -0.1, 0.1)
     .name('Strength');
 
   const lengthFolder = branchFolder.addFolder('Length').close();
   lengthFolder
-    .add(tree.params.branch.length, '0', 0.1, 50, 0.01)
+    .add(tree.options.branch.length, '0', 0.1, 50, 0.01)
     .name('Trunk');
   lengthFolder
-    .add(tree.params.branch.length, '1', 0.1, 50, 0.01)
+    .add(tree.options.branch.length, '1', 0.1, 50, 0.01)
     .name('Level 1');
   lengthFolder
-    .add(tree.params.branch.length, '2', 0.1, 50, 0.01)
+    .add(tree.options.branch.length, '2', 0.1, 50, 0.01)
     .name('Level 2');
   lengthFolder
-    .add(tree.params.branch.length, '3', 0.1, 50, 0.01)
+    .add(tree.options.branch.length, '3', 0.1, 50, 0.01)
     .name('Level 3');
 
   const branchRadiusFolder = branchFolder.addFolder('Radius').close();
   branchRadiusFolder
-    .add(tree.params.branch.radius, '0', 0.1, 2, 0.01)
+    .add(tree.options.branch.radius, '0', 0.1, 2, 0.01)
     .name('Trunk');
   branchRadiusFolder
-    .add(tree.params.branch.radius, '1', 0.1, 2, 0.01)
+    .add(tree.options.branch.radius, '1', 0.1, 2, 0.01)
     .name('Level 1');
   branchRadiusFolder
-    .add(tree.params.branch.radius, '2', 0.1, 2, 0.01)
+    .add(tree.options.branch.radius, '2', 0.1, 2, 0.01)
     .name('Level 2');
   branchRadiusFolder
-    .add(tree.params.branch.radius, '3', 0.1, 2, 0.01)
+    .add(tree.options.branch.radius, '3', 0.1, 2, 0.01)
     .name('Level 3');
 
   const sectionsFolder = branchFolder.addFolder('Sections').close();
   sectionsFolder
-    .add(tree.params.branch.sections, '0', 1, 20, 1)
+    .add(tree.options.branch.sections, '0', 1, 20, 1)
     .name('Trunk');
   sectionsFolder
-    .add(tree.params.branch.sections, '1', 1, 20, 1)
+    .add(tree.options.branch.sections, '1', 1, 20, 1)
     .name('Level 1');
   sectionsFolder
-    .add(tree.params.branch.sections, '2', 1, 20, 1)
+    .add(tree.options.branch.sections, '2', 1, 20, 1)
     .name('Level 2');
   sectionsFolder
-    .add(tree.params.branch.sections, '3', 1, 20, 1)
+    .add(tree.options.branch.sections, '3', 1, 20, 1)
     .name('Level 3');
 
   const segmentsFolder = branchFolder.addFolder('Segments').close();
   segmentsFolder
-    .add(tree.params.branch.segments, '0', 3, 16, 1)
+    .add(tree.options.branch.segments, '0', 3, 16, 1)
     .name('Trunk');
   segmentsFolder
-    .add(tree.params.branch.segments, '1', 3, 16, 1)
+    .add(tree.options.branch.segments, '1', 3, 16, 1)
     .name('Level 1');
   segmentsFolder
-    .add(tree.params.branch.segments, '2', 3, 16, 1)
+    .add(tree.options.branch.segments, '2', 3, 16, 1)
     .name('Level 2');
   segmentsFolder
-    .add(tree.params.branch.segments, '3', 3, 16, 1)
+    .add(tree.options.branch.segments, '3', 3, 16, 1)
     .name('Level 3');
 
   const branchStartFolder = branchFolder.addFolder('Start').close();
   branchStartFolder
-    .add(tree.params.branch.start, '1', 0, 1, 0.01)
+    .add(tree.options.branch.start, '1', 0, 1, 0.01)
     .name('Level 1');
   branchStartFolder
-    .add(tree.params.branch.start, '2', 0, 1, 0.01)
+    .add(tree.options.branch.start, '2', 0, 1, 0.01)
     .name('Level 2');
   branchStartFolder
-    .add(tree.params.branch.start, '3', 0, 1, 0.01)
+    .add(tree.options.branch.start, '3', 0, 1, 0.01)
     .name('Level 3');
 
   const taperFolder = branchFolder.addFolder('Taper').close();
   taperFolder
-    .add(tree.params.branch.taper, '0', 0, 1, 0.01)
+    .add(tree.options.branch.taper, '0', 0, 1, 0.01)
     .name('Trunk');
   taperFolder
-    .add(tree.params.branch.taper, '1', 0, 1, 0.01)
+    .add(tree.options.branch.taper, '1', 0, 1, 0.01)
     .name('Level 1');
   taperFolder
-    .add(tree.params.branch.taper, '2', 0, 1, 0.01)
+    .add(tree.options.branch.taper, '2', 0, 1, 0.01)
     .name('Level 2');
   taperFolder
-    .add(tree.params.branch.taper, '3', 0, 1, 0.01)
+    .add(tree.options.branch.taper, '3', 0, 1, 0.01)
     .name('Level 3');
 
   const twistFolder = branchFolder.addFolder('Twist').close();
   twistFolder
-    .add(tree.params.branch.twist, '0', -0.5, 0.5, 0.01)
+    .add(tree.options.branch.twist, '0', -0.5, 0.5, 0.01)
     .name('Trunk');
   twistFolder
-    .add(tree.params.branch.twist, '1', -0.5, 0.5, 0.01)
+    .add(tree.options.branch.twist, '1', -0.5, 0.5, 0.01)
     .name('Level 1');
   twistFolder
-    .add(tree.params.branch.twist, '2', -0.5, 0.5, 0.01)
+    .add(tree.options.branch.twist, '2', -0.5, 0.5, 0.01)
     .name('Level 2');
   twistFolder
-    .add(tree.params.branch.twist, '3', -0.5, 0.5, 0.01)
+    .add(tree.options.branch.twist, '3', -0.5, 0.5, 0.01)
     .name('Level 3');
 
   const leavesFolder = gui.addFolder('Leaves').close();
-  leavesFolder.add(tree.params.leaves, 'type', LeafType).name('Type');
-  leavesFolder.addColor(tree.params.leaves, 'tint').name('Tint');
+  leavesFolder.add(tree.options.leaves, 'type', LeafType).name('Type');
+  leavesFolder.addColor(tree.options.leaves, 'tint').name('Tint');
   leavesFolder
-    .add(tree.params.leaves, 'billboard', Billboard)
+    .add(tree.options.leaves, 'billboard', Billboard)
     .name('Billboard');
-  leavesFolder.add(tree.params.leaves, 'angle', 0, 100, 1).name('Angle');
-  leavesFolder.add(tree.params.leaves, 'count', 0, 100, 1).name('Count');
-  leavesFolder.add(tree.params.leaves, 'start', 0, 1).name('Start');
-  leavesFolder.add(tree.params.leaves, 'size', 0, 5).name('Size');
+  leavesFolder.add(tree.options.leaves, 'angle', 0, 100, 1).name('Angle');
+  leavesFolder.add(tree.options.leaves, 'count', 0, 100, 1).name('Count');
+  leavesFolder.add(tree.options.leaves, 'start', 0, 1).name('Start');
+  leavesFolder.add(tree.options.leaves, 'size', 0, 5).name('Size');
   leavesFolder
-    .add(tree.params.leaves, 'sizeVariance', 0, 1)
+    .add(tree.options.leaves, 'sizeVariance', 0, 1)
     .name('Size Variance');
 
-  leavesFolder.add(tree.params.leaves, 'alphaTest', 0, 1).name('AlphaTest');
+  leavesFolder.add(tree.options.leaves, 'alphaTest', 0, 1).name('AlphaTest');
 
   gui
     .add(
       {
         exportParams: () => {
           const link = document.getElementById('downloadLink');
-          const json = JSON.stringify(tree.params, null, 2);
+          const json = JSON.stringify(tree.options, null, 2);
           const blob = new Blob([json], { type: 'application/json' });
           link.href = URL.createObjectURL(blob);
           link.download = 'tree.json';
@@ -196,7 +205,7 @@ export function setupUI(tree, renderer, scene, camera) {
       },
       'exportParams',
     )
-    .name('Save Parameters');
+    .name('Save Preset');
 
   gui
     .add(
@@ -207,7 +216,8 @@ export function setupUI(tree, renderer, scene, camera) {
       },
       'loadParams',
     )
-    .name('Load Parameters');
+    .name('Load Preset');
+
   gui
     .add(
       {
