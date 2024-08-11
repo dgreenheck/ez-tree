@@ -1,17 +1,25 @@
 import * as THREE from 'three';
+import * as path from 'path';
 import RNG from './rng';
 import { Branch } from './branch';
 import { Billboard, TreePreset, TreeType } from './enums';
 import TreeOptions from './options';
-import textures from './textures/index.js';
 import { loadPreset } from './presets/index.js';
 
 const textureCache = {};
 
 const textureLoader = new THREE.TextureLoader();
+
+/**
+ * 
+ * @param {string} path Path relative to the `textures` directory
+ * @param {*} scale 
+ * @param {*} colorSpace 
+ * @returns 
+ */
 const loadTexture = (path, scale = { x: 1, y: 1 }, colorSpace = null) => {
   if (!textureCache[path]) {
-    const url = new URL(path, import.meta.url).href;
+    const url = new URL('../src/textures/' + path, import.meta.url).href;
     textureCache[path] = textureLoader.load(url);
   }
 
@@ -552,10 +560,10 @@ export class Tree extends THREE.Group {
 
     if (this.options.bark.textured) {
       const scale = this.options.bark.textureScale;
-      this.branchesMesh.material.aoMap = loadTexture(textures.bark[this.options.bark.type].ao, scale);
-      this.branchesMesh.material.map = loadTexture(textures.bark[this.options.bark.type].color, scale);
-      this.branchesMesh.material.normalMap = loadTexture(textures.bark[this.options.bark.type].normal, scale);
-      this.branchesMesh.material.roughnessMap = loadTexture(textures.bark[this.options.bark.type].roughness, scale);
+      this.branchesMesh.material.aoMap = loadTexture(`bark/${this.options.bark.type}_ao_1k.jpg`, scale);
+      this.branchesMesh.material.map = loadTexture(`bark/${this.options.bark.type}_color_1k.jpg`, scale);
+      this.branchesMesh.material.normalMap = loadTexture(`bark/${this.options.bark.type}_normal_1k.jpg`, scale);
+      this.branchesMesh.material.roughnessMap = loadTexture(`bark/${this.options.bark.type}_roughness_1k.jpg`, scale);
     }
   }
 
@@ -590,7 +598,7 @@ export class Tree extends THREE.Group {
     this.leavesMesh.material.dispose();
     this.leavesMesh.material = mat;
     this.leavesMesh.material.map = loadTexture(
-      textures.leaves[this.options.leaves.type],
+      `leaves/${this.options.leaves.type}_color.png`,
       new THREE.Vector2(1, 1),
       THREE.SRGBColorSpace);
 

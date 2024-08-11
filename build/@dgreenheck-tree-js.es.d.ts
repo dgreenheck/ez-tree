@@ -33,8 +33,8 @@ declare class Branch {
 export declare namespace LeafType {
     let Ash: string;
     let Aspen: string;
-    let Beech: string;
-    let Evergreen: string;
+    let Pine_1: string;
+        { Pine_1 as Pine };
     let Oak_1: string;
         { Oak_1 as Oak };
 }
@@ -44,10 +44,8 @@ export declare namespace Presets {
         { Ash_1 as Ash };
     let Aspen_1: string;
         { Aspen_1 as Aspen };
-    let Beech_1: string;
-        { Beech_1 as Beech };
-    let Pine_1: string;
-        { Pine_1 as Pine };
+    let Pine_2: string;
+        { Pine_2 as Pine };
     let Oak_2: string;
         { Oak_2 as Oak };
 }
@@ -256,8 +254,7 @@ declare class TreeOptions {
 
 export declare namespace TreeType {
     let Deciduous: string;
-    let Evergreen_1: string;
-        { Evergreen_1 as Evergreen };
+    let Evergreen: string;
 }
 
 export { }
@@ -276,12 +273,17 @@ export namespace Billboard {
 }
 
 
+export namespace TreeType {
+    let Deciduous: string;
+    let Evergreen: string;
+}
+
+
 declare namespace textures {
     namespace bark {
         namespace birch {
             let ao: string;
             let color: string;
-            let height: string;
             let normal: string;
             let roughness: string;
         }
@@ -290,8 +292,6 @@ declare namespace textures {
             export { ao_1 as ao };
             let color_1: string;
             export { color_1 as color };
-            let height_1: string;
-            export { height_1 as height };
             let normal_1: string;
             export { normal_1 as normal };
             let roughness_1: string;
@@ -302,8 +302,6 @@ declare namespace textures {
             export { ao_2 as ao };
             let color_2: string;
             export { color_2 as color };
-            let height_2: string;
-            export { height_2 as height };
             let normal_2: string;
             export { normal_2 as normal };
             let roughness_2: string;
@@ -314,8 +312,6 @@ declare namespace textures {
             export { ao_3 as ao };
             let color_3: string;
             export { color_3 as color };
-            let height_3: string;
-            export { height_3 as height };
             let normal_3: string;
             export { normal_3 as normal };
             let roughness_3: string;
@@ -326,7 +322,8 @@ declare namespace textures {
         export let ash: string;
         export let aspen: string;
         export let beech: string;
-        export let evergreen: string;
+        let pine_1: string;
+        export { pine_1 as pine };
         let oak_1: string;
         export { oak_1 as oak };
     }

@@ -1,12 +1,12 @@
-var F = Object.defineProperty;
-var Q = (p, c, e) => c in p ? F(p, c, { enumerable: !0, configurable: !0, writable: !0, value: e }) : p[c] = e;
-var m = (p, c, e) => (Q(p, typeof c != "symbol" ? c + "" : c, e), e);
+var O = Object.defineProperty;
+var _ = (p, c, e) => c in p ? O(p, c, { enumerable: !0, configurable: !0, writable: !0, value: e }) : p[c] = e;
+var b = (p, c, e) => (_(p, typeof c != "symbol" ? c + "" : c, e), e);
 import * as t from "three";
-class O {
+class T {
   constructor(c) {
-    m(this, "m_w", 123456789);
-    m(this, "m_z", 987654321);
-    m(this, "mask", 4294967295);
+    b(this, "m_w", 123456789);
+    b(this, "m_z", 987654321);
+    b(this, "mask", 4294967295);
     this.m_w = 123456789 + c & this.mask, this.m_z = 987654321 - c & this.mask;
   }
   /**
@@ -18,7 +18,7 @@ class O {
     return n /= 4294967296, (c - e) * n + e;
   }
 }
-class A {
+class z {
   /**
    * Generates a new branch
    * @param {THREE.Vector3} origin The starting point of the branch
@@ -26,39 +26,37 @@ class A {
    * @param {number} length The length of the branch
    * @param {number} radius The radius of the branch at its starting point
    */
-  constructor(c = new t.Vector3(), e = new t.Euler(), n = 0, s = 0, u = 0, l = 0, h = 0) {
-    this.origin = c.clone(), this.orientation = e.clone(), this.length = n, this.radius = s, this.level = u, this.sectionCount = l, this.segmentCount = h;
+  constructor(c = new t.Vector3(), e = new t.Euler(), n = 0, s = 0, u = 0, h = 0, l = 0) {
+    this.origin = c.clone(), this.orientation = e.clone(), this.length = n, this.radius = s, this.level = u, this.sectionCount = h, this.segmentCount = l;
   }
 }
-const C = {
+const $ = {
   Birch: "birch",
   Oak: "oak",
   Pine: "pine",
   Willow: "willow"
-}, V = {
+}, S = {
   Single: "single",
   Double: "double"
-}, T = {
+}, C = {
   Ash: "ash",
   Aspen: "aspen",
-  Beech: "beech",
-  Evergreen: "evergreen",
-  Oak: "oak"
-}, B = {
-  Ash: "ash",
-  Aspen: "aspen",
-  Beech: "beech",
   Pine: "pine",
   Oak: "oak"
-}, M = {
+}, k = {
+  Ash: "ash",
+  Aspen: "aspen",
+  Pine: "pine",
+  Oak: "oak"
+}, A = {
   Deciduous: "deciduous",
   Evergreen: "evergreen"
 };
-class L {
+class V {
   constructor() {
-    this.seed = 0, this.type = M.Deciduous, this.bark = {
+    this.seed = 0, this.type = A.Deciduous, this.bark = {
       // The bark texture
-      type: C.Oak,
+      type: $.Oak,
       // Tint of the tree trunk
       tint: 16777215,
       // Use face normals for shading instead of vertex normals
@@ -144,9 +142,9 @@ class L {
       }
     }, this.leaves = {
       // Leaf texture to use
-      type: T.Oak,
+      type: C.Oak,
       // Whether to use single or double/perpendicular billboards
-      billboard: V.Double,
+      billboard: S.Double,
       // Angle of leaves relative to parent branch (degrees)
       angle: 10,
       // Number of leaves
@@ -164,45 +162,7 @@ class L {
     };
   }
 }
-const x = {
-  bark: {
-    birch: {
-      ao: "../src/textures/bark/birch_ao_1k.jpg",
-      color: "../src/textures/bark/birch_color_1k.jpg",
-      height: "../src/textures/bark/birch_height_1k.jpg",
-      normal: "../src/textures/bark/birch_normal_1k.jpg",
-      roughness: "../src/textures/bark/birch_roughness_1k.jpg"
-    },
-    oak: {
-      ao: "../src/textures/bark/oak_ao_1k.jpg",
-      color: "../src/textures/bark/oak_color_1k.jpg",
-      height: "../src/textures/bark/oak_height_1k.jpg",
-      normal: "../src/textures/bark/oak_normal_1k.jpg",
-      roughness: "../src/textures/bark/oak_roughness_1k.jpg"
-    },
-    pine: {
-      ao: "../src/textures/bark/pine_ao_1k.jpg",
-      color: "../src/textures/bark/pine_color_1k.jpg",
-      height: "../src/textures/bark/pine_height_1k.jpg",
-      normal: "../src/textures/bark/pine_normal_1k.jpg",
-      roughness: "../src/textures/bark/pine_roughness_1k.jpg"
-    },
-    willow: {
-      ao: "../src/textures/bark/willow_ao_1k.jpg",
-      color: "../src/textures/bark/willow_color_1k.jpg",
-      height: "../src/textures/bark/willow_height_1k.jpg",
-      normal: "../src/textures/bark/willow_normal_1k.jpg",
-      roughness: "../src/textures/bark/willow_roughness_1k.jpg"
-    }
-  },
-  leaves: {
-    ash: "../src/textures/leaves/ash.png",
-    aspen: "../src/textures/leaves/aspen.png",
-    beech: "../src/textures/leaves/beech.png",
-    evergreen: "../src/textures/leaves/evergreen.png",
-    oak: "../src/textures/leaves/oak.png"
-  }
-}, q = 31701, P = "deciduous", I = {
+const L = 31701, q = "deciduous", P = {
   type: "oak",
   tint: 13552830,
   flatShading: !1,
@@ -211,7 +171,7 @@ const x = {
     x: 1,
     y: 3
   }
-}, $ = {
+}, I = {
   levels: 3,
   angle: {
     1: 48,
@@ -278,7 +238,7 @@ const x = {
     2: 0,
     3: 0
   }
-}, G = {
+}, j = {
   type: "ash",
   billboard: "double",
   angle: 55,
@@ -288,13 +248,105 @@ const x = {
   sizeVariance: 0.717,
   tint: 16777215,
   alphaTest: 0.5
-}, D = {
-  seed: q,
-  type: P,
-  bark: I,
-  branch: $,
-  leaves: G
-}, R = 17124, U = "deciduous", W = {
+}, G = {
+  seed: L,
+  type: q,
+  bark: P,
+  branch: I,
+  leaves: j
+}, D = 18020, R = "deciduous", U = {
+  type: "birch",
+  tint: 16777215,
+  flatShading: !1,
+  textured: !0,
+  textureScale: {
+    x: 1,
+    y: 1
+  }
+}, W = {
+  levels: 2,
+  angle: {
+    1: 75,
+    2: 32,
+    3: 7
+  },
+  children: {
+    0: 10,
+    1: 3,
+    2: 3
+  },
+  force: {
+    direction: {
+      x: 0,
+      y: 1,
+      z: 0
+    },
+    strength: 0.0148
+  },
+  gnarliness: {
+    0: 0.05,
+    1: 0.12,
+    2: 0.12,
+    3: 0.02
+  },
+  length: {
+    0: 50,
+    1: 6.07,
+    2: 11.19,
+    3: 1
+  },
+  radius: {
+    0: 0.72,
+    1: 0.41,
+    2: 0.7,
+    3: 0.7
+  },
+  sections: {
+    0: 12,
+    1: 10,
+    2: 8,
+    3: 6
+  },
+  segments: {
+    0: 8,
+    1: 6,
+    2: 4,
+    3: 3
+  },
+  start: {
+    1: 0.59,
+    2: 0.35,
+    3: 0
+  },
+  taper: {
+    0: 0.37,
+    1: 0.13,
+    2: 0.7,
+    3: 0.7
+  },
+  twist: {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0
+  }
+}, N = {
+  type: "aspen",
+  billboard: "double",
+  angle: 30,
+  count: 11,
+  start: 0.124,
+  size: 2.5,
+  sizeVariance: 0.7,
+  tint: 16775778,
+  alphaTest: 0.5
+}, H = {
+  seed: D,
+  type: R,
+  bark: U,
+  branch: W,
+  leaves: N
+}, J = 17124, K = "deciduous", X = {
   type: "oak",
   tint: 11902609,
   flatShading: !1,
@@ -303,7 +355,7 @@ const x = {
     x: 1,
     y: 10
   }
-}, N = {
+}, Y = {
   levels: 3,
   angle: {
     1: 54,
@@ -370,7 +422,7 @@ const x = {
     2: 0,
     3: 0
   }
-}, H = {
+}, Z = {
   type: "oak",
   billboard: "double",
   angle: 10,
@@ -380,13 +432,13 @@ const x = {
   sizeVariance: 0.7,
   tint: 10546069,
   alphaTest: 0.5
-}, J = {
-  seed: R,
-  type: U,
-  bark: W,
-  branch: N,
-  leaves: H
-}, K = 11744, X = "evergreen", Y = {
+}, ee = {
+  seed: J,
+  type: K,
+  bark: X,
+  branch: Y,
+  leaves: Z
+}, te = 11744, se = "evergreen", ne = {
   type: "pine",
   tint: 16761758,
   flatShading: !1,
@@ -395,7 +447,7 @@ const x = {
     x: 1,
     y: 1
   }
-}, Z = {
+}, ie = {
   levels: 1,
   angle: {
     1: 117,
@@ -462,8 +514,8 @@ const x = {
     2: 0,
     3: 0
   }
-}, ee = {
-  type: "evergreen",
+}, re = {
+  type: "pine",
   billboard: "double",
   angle: 10,
   count: 21,
@@ -472,51 +524,53 @@ const x = {
   sizeVariance: 0.7,
   tint: 16777215,
   alphaTest: 0.5
-}, te = {
-  seed: K,
-  type: X,
-  bark: Y,
-  branch: Z,
-  leaves: ee
+}, ae = {
+  seed: te,
+  type: se,
+  bark: ne,
+  branch: ie,
+  leaves: re
 };
-function se(p) {
+function oe(p) {
   switch (p) {
-    case B.Ash:
-      return D;
-    case B.Oak:
-      return J;
-    case B.Pine:
-      return te;
+    case k.Ash:
+      return G;
+    case k.Aspen:
+      return H;
+    case k.Oak:
+      return ee;
+    case k.Pine:
+      return ae;
     default:
-      return null;
+      return new V();
   }
 }
-const z = {}, ne = new t.TextureLoader(), y = (p, c = { x: 1, y: 1 }, e = null) => {
-  if (!z[p]) {
-    const s = new URL(p, import.meta.url).href;
-    z[p] = ne.load(s);
+const B = {}, le = new t.TextureLoader(), x = (p, c = { x: 1, y: 1 }, e = null) => {
+  if (!B[p]) {
+    const s = new URL("../src/textures/" + p, import.meta.url).href;
+    B[p] = le.load(s);
   }
-  const n = z[p];
+  const n = B[p];
   return n.wrapS = t.MirroredRepeatWrapping, n.wrapT = t.MirroredRepeatWrapping, n.repeat.x = c.x, n.repeat.y = 1 / c.y, e && (n.colorSpace = e, n.premultiplyAlpha = !0), n;
 };
-class ie extends t.Group {
+class ce extends t.Group {
   /**
    * @param {TreeOptions} params
    */
-  constructor(e = new L()) {
+  constructor(e = new V()) {
     super();
     /**
      * @type {RNG}
      */
-    m(this, "rng");
+    b(this, "rng");
     /**
      * @type {TreeOptions}
      */
-    m(this, "options");
+    b(this, "options");
     /**
      * @type {Branch[]}
      */
-    m(this, "branchQueue", []);
+    b(this, "branchQueue", []);
     this.branchesMesh = new t.Mesh(), this.leavesMesh = new t.Mesh(), this.add(this.branchesMesh), this.add(this.leavesMesh), this.options = e;
   }
   /**
@@ -524,7 +578,7 @@ class ie extends t.Group {
    * @param {string} preset 
    */
   loadPreset(e) {
-    this.options = se(e), this.generate();
+    this.options = oe(e), this.generate();
   }
   /**
    * Generate a new tree
@@ -540,8 +594,8 @@ class ie extends t.Group {
       normals: [],
       indices: [],
       uvs: []
-    }, this.rng = new O(this.options.seed), this.branchQueue.push(
-      new A(
+    }, this.rng = new T(this.options.seed), this.branchQueue.push(
+      new z(
         new t.Vector3(),
         new t.Euler(),
         this.options.branch.length[0],
@@ -563,60 +617,60 @@ class ie extends t.Group {
    */
   generateBranch(e) {
     const n = this.branches.verts.length / 3;
-    let s = e.orientation.clone(), u = e.origin.clone(), l = e.length / e.sectionCount / (this.options.type === "Deciduous" ? this.options.branch.levels - 1 : 1), h = [];
-    for (let r = 0; r <= e.sectionCount; r++) {
-      let a = e.radius;
-      r === e.sectionCount && e.level === this.options.branch.levels ? a = 1e-3 : this.options.type === M.Deciduous ? a *= 1 - this.options.branch.taper[e.level] * (r / e.sectionCount) : this.options.type === M.Evergreen && (a *= 1 - r / e.sectionCount);
-      let i;
-      for (let d = 0; d < e.segmentCount; d++) {
-        let b = 2 * Math.PI * d / e.segmentCount;
-        const v = new t.Vector3(Math.cos(b), 0, Math.sin(b)).multiplyScalar(a).applyEuler(s).add(u), w = new t.Vector3(Math.cos(b), 0, Math.sin(b)).applyEuler(s).normalize(), _ = new t.Vector2(
-          d / e.segmentCount,
-          r % 2 === 0 ? 0 : 1
+    let s = e.orientation.clone(), u = e.origin.clone(), h = e.length / e.sectionCount / (this.options.type === "Deciduous" ? this.options.branch.levels - 1 : 1), l = [];
+    for (let i = 0; i <= e.sectionCount; i++) {
+      let o = e.radius;
+      i === e.sectionCount && e.level === this.options.branch.levels ? o = 1e-3 : this.options.type === A.Deciduous ? o *= 1 - this.options.branch.taper[e.level] * (i / e.sectionCount) : this.options.type === A.Evergreen && (o *= 1 - i / e.sectionCount);
+      let r;
+      for (let g = 0; g < e.segmentCount; g++) {
+        let m = 2 * Math.PI * g / e.segmentCount;
+        const v = new t.Vector3(Math.cos(m), 0, Math.sin(m)).multiplyScalar(o).applyEuler(s).add(u), f = new t.Vector3(Math.cos(m), 0, Math.sin(m)).applyEuler(s).normalize(), M = new t.Vector2(
+          g / e.segmentCount,
+          i % 2 === 0 ? 0 : 1
         );
-        this.branches.verts.push(...Object.values(v)), this.branches.normals.push(...Object.values(w)), this.branches.uvs.push(...Object.values(_)), d === 0 && (i = { vertex: v, normal: w, uv: _ });
+        this.branches.verts.push(...Object.values(v)), this.branches.normals.push(...Object.values(f)), this.branches.uvs.push(...Object.values(M)), g === 0 && (r = { vertex: v, normal: f, uv: M });
       }
-      this.branches.verts.push(...Object.values(i.vertex)), this.branches.normals.push(...Object.values(i.normal)), this.branches.uvs.push(1, i.uv.y), h.push({
+      this.branches.verts.push(...Object.values(r.vertex)), this.branches.normals.push(...Object.values(r.normal)), this.branches.uvs.push(1, r.uv.y), l.push({
         origin: u.clone(),
         orientation: s.clone(),
-        radius: a
+        radius: o
       }), u.add(
-        new t.Vector3(0, l, 0).applyEuler(s)
+        new t.Vector3(0, h, 0).applyEuler(s)
       );
-      const o = Math.max(1, 1 / Math.sqrt(a)) * this.options.branch.gnarliness[e.level];
-      s.x += this.rng.random(o, -o), s.z += this.rng.random(o, -o);
-      const g = new t.Quaternion().setFromEuler(s), f = new t.Quaternion().setFromAxisAngle(
+      const a = Math.max(1, 1 / Math.sqrt(o)) * this.options.branch.gnarliness[e.level];
+      s.x += this.rng.random(a, -a), s.z += this.rng.random(a, -a);
+      const d = new t.Quaternion().setFromEuler(s), w = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(0, 1, 0),
         this.options.branch.twist[e.level]
-      ), k = new t.Quaternion().setFromUnitVectors(
+      ), y = new t.Quaternion().setFromUnitVectors(
         new t.Vector3(0, 1, 0),
         new t.Vector3().copy(this.options.branch.force.direction)
       );
-      g.multiply(f), g.rotateTowards(
-        k,
-        this.options.branch.force.strength / a
-      ), s.setFromQuaternion(g);
+      d.multiply(w), d.rotateTowards(
+        y,
+        this.options.branch.force.strength / o
+      ), s.setFromQuaternion(d);
     }
     if (this.generateBranchIndices(n, e), this.options.type === "deciduous") {
-      const r = h[h.length - 1];
+      const i = l[l.length - 1];
       e.level < this.options.branch.levels ? this.branchQueue.push(
-        new A(
-          r.origin,
-          r.orientation,
+        new z(
+          i.origin,
+          i.orientation,
           this.options.branch.length[e.level + 1],
-          r.radius,
+          i.radius,
           e.level + 1,
           // Section count and segment count must be same as parent branch
           // since the child branch is growing from the end of the parent branch
           e.sectionCount,
           e.segmentCount
         )
-      ) : this.generateLeaf(r.origin, r.orientation);
+      ) : this.generateLeaf(i.origin, i.orientation);
     }
-    e.level === this.options.branch.levels ? this.generateLeaves(h) : e.level < this.options.branch.levels && this.generateChildBranches(
+    e.level === this.options.branch.levels ? this.generateLeaves(l) : e.level < this.options.branch.levels && this.generateChildBranches(
       this.options.branch.children[e.level],
       e.level + 1,
-      h
+      l
     );
   }
   /**
@@ -632,33 +686,33 @@ class ie extends t.Group {
    */
   generateChildBranches(e, n, s) {
     const u = this.rng.random();
-    for (let l = 0; l < e; l++) {
-      let h = this.rng.random(1, this.options.branch.start[n]);
-      const r = Math.floor(h * (s.length - 1));
-      let a, i;
-      a = s[r], r === s.length - 1 ? i = a : i = s[r + 1];
-      const o = (h - r / (s.length - 1)) / (1 / (s.length - 1)), g = new t.Vector3().lerpVectors(
-        a.origin,
-        i.origin,
-        o
-      ), f = this.options.branch.radius[n] * ((1 - o) * a.radius + o * i.radius), k = new t.Quaternion().setFromEuler(a.orientation), d = new t.Quaternion().setFromEuler(i.orientation), b = new t.Euler().setFromQuaternion(
-        d.slerp(k, o)
-      ), v = 2 * Math.PI * (u + l / e), w = new t.Quaternion().setFromAxisAngle(
+    for (let h = 0; h < e; h++) {
+      let l = this.rng.random(1, this.options.branch.start[n]);
+      const i = Math.floor(l * (s.length - 1));
+      let o, r;
+      o = s[i], i === s.length - 1 ? r = o : r = s[i + 1];
+      const a = (l - i / (s.length - 1)) / (1 / (s.length - 1)), d = new t.Vector3().lerpVectors(
+        o.origin,
+        r.origin,
+        a
+      ), w = this.options.branch.radius[n] * ((1 - a) * o.radius + a * r.radius), y = new t.Quaternion().setFromEuler(o.orientation), g = new t.Quaternion().setFromEuler(r.orientation), m = new t.Euler().setFromQuaternion(
+        g.slerp(y, a)
+      ), v = 2 * Math.PI * (u + h / e), f = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(1, 0, 0),
         this.options.branch.angle[n] / (180 / Math.PI)
-      ), _ = new t.Quaternion().setFromAxisAngle(
+      ), M = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(0, 1, 0),
         v
-      ), S = new t.Quaternion().setFromEuler(b), j = new t.Euler().setFromQuaternion(
-        S.multiply(_.multiply(w))
+      ), E = new t.Quaternion().setFromEuler(m), F = new t.Euler().setFromQuaternion(
+        E.multiply(M.multiply(f))
       );
-      let E = this.options.branch.length[n] * (this.options.type === M.Evergreen ? 1 - h : 1);
+      let Q = this.options.branch.length[n] * (this.options.type === A.Evergreen ? 1 - l : 1);
       this.branchQueue.push(
-        new A(
-          g,
-          j,
-          E,
-          f,
+        new z(
+          d,
+          F,
+          Q,
+          w,
           n,
           this.options.branch.sections[n],
           this.options.branch.segments[n]
@@ -679,25 +733,25 @@ class ie extends t.Group {
     const n = this.rng.random();
     for (let s = 0; s < this.options.leaves.count; s++) {
       let u = this.rng.random(1, this.options.leaves.start);
-      const l = Math.floor(u * (e.length - 1));
-      let h, r;
-      h = e[l], l === e.length - 1 ? r = h : r = e[l + 1];
-      const a = (u - l / (e.length - 1)) / (1 / (e.length - 1)), i = new t.Vector3().lerpVectors(
-        h.origin,
-        r.origin,
-        a
-      ), o = new t.Quaternion().setFromEuler(h.orientation), g = new t.Quaternion().setFromEuler(r.orientation), f = new t.Euler().setFromQuaternion(
-        g.slerp(o, a)
-      ), k = 2 * Math.PI * (n + s / this.options.leaves.count), d = new t.Quaternion().setFromAxisAngle(
+      const h = Math.floor(u * (e.length - 1));
+      let l, i;
+      l = e[h], h === e.length - 1 ? i = l : i = e[h + 1];
+      const o = (u - h / (e.length - 1)) / (1 / (e.length - 1)), r = new t.Vector3().lerpVectors(
+        l.origin,
+        i.origin,
+        o
+      ), a = new t.Quaternion().setFromEuler(l.orientation), d = new t.Quaternion().setFromEuler(i.orientation), w = new t.Euler().setFromQuaternion(
+        d.slerp(a, o)
+      ), y = 2 * Math.PI * (n + s / this.options.leaves.count), g = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(1, 0, 0),
         this.options.leaves.angle / (180 / Math.PI)
-      ), b = new t.Quaternion().setFromAxisAngle(
+      ), m = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(0, 1, 0),
-        k
-      ), v = new t.Quaternion().setFromEuler(f), w = new t.Euler().setFromQuaternion(
-        v.multiply(b.multiply(d))
+        y
+      ), v = new t.Quaternion().setFromEuler(w), f = new t.Euler().setFromQuaternion(
+        v.multiply(m.multiply(g))
       );
-      this.generateLeaf(i, w);
+      this.generateLeaf(r, f);
     }
   }
   /**
@@ -710,57 +764,57 @@ class ie extends t.Group {
       this.options.leaves.sizeVariance,
       -this.options.leaves.sizeVariance
     ));
-    const l = u, h = 1.5 * u, r = (a) => {
-      const i = [
-        new t.Vector3(-l / 2, h, 0),
-        new t.Vector3(-l / 2, 0, 0),
-        new t.Vector3(l / 2, 0, 0),
-        new t.Vector3(l / 2, h, 0)
+    const h = u, l = 1.5 * u, i = (o) => {
+      const r = [
+        new t.Vector3(-h / 2, l, 0),
+        new t.Vector3(-h / 2, 0, 0),
+        new t.Vector3(h / 2, 0, 0),
+        new t.Vector3(h / 2, l, 0)
       ].map(
-        (g) => g.applyEuler(new t.Euler(0, a, 0)).applyEuler(n).add(e)
+        (d) => d.applyEuler(new t.Euler(0, o, 0)).applyEuler(n).add(e)
       );
       this.leaves.verts.push(
-        i[0].x,
-        i[0].y,
-        i[0].z,
-        i[1].x,
-        i[1].y,
-        i[1].z,
-        i[2].x,
-        i[2].y,
-        i[2].z,
-        i[3].x,
-        i[3].y,
-        i[3].z
+        r[0].x,
+        r[0].y,
+        r[0].z,
+        r[1].x,
+        r[1].y,
+        r[1].z,
+        r[2].x,
+        r[2].y,
+        r[2].z,
+        r[3].x,
+        r[3].y,
+        r[3].z
       );
-      const o = new t.Vector3(0, 0, 1).applyEuler(n);
+      const a = new t.Vector3(0, 0, 1).applyEuler(n);
       this.leaves.normals.push(
-        o.x,
-        o.y,
-        o.z,
-        o.x,
-        o.y,
-        o.z,
-        o.x,
-        o.y,
-        o.z,
-        o.x,
-        o.y,
-        o.z
+        a.x,
+        a.y,
+        a.z,
+        a.x,
+        a.y,
+        a.z,
+        a.x,
+        a.y,
+        a.z,
+        a.x,
+        a.y,
+        a.z
       ), this.leaves.uvs.push(0, 1, 0, 0, 1, 0, 1, 1), this.leaves.indices.push(s, s + 1, s + 2, s, s + 2, s + 3), s += 4;
     };
-    r(0), this.options.leaves.billboard === V.Double && r(Math.PI / 2);
+    i(0), this.options.leaves.billboard === S.Double && i(Math.PI / 2);
   }
   /**
    * Generates the indices for branch geometry
    * @param {Branch} branch
    */
   generateBranchIndices(e, n) {
-    let s, u, l, h;
-    const r = n.segmentCount + 1;
-    for (let a = 0; a < n.sectionCount; a++)
-      for (let i = 0; i < n.segmentCount; i++)
-        s = e + a * r + i, u = e + a * r + (i + 1), l = s + r, h = u + r, this.branches.indices.push(s, l, u, u, l, h);
+    let s, u, h, l;
+    const i = n.segmentCount + 1;
+    for (let o = 0; o < n.sectionCount; o++)
+      for (let r = 0; r < n.segmentCount; r++)
+        s = e + o * i + r, u = e + o * i + (r + 1), h = s + i, l = u + i, this.branches.indices.push(s, h, u, u, h, l);
   }
   /**
    * Generates the geometry for the branches
@@ -786,7 +840,7 @@ class ie extends t.Group {
     });
     if (this.branchesMesh.geometry.dispose(), this.branchesMesh.geometry = e, this.branchesMesh.material.dispose(), this.branchesMesh.material = n, this.branchesMesh.castShadow = !0, this.branchesMesh.receiveShadow = !0, this.options.bark.textured) {
       const s = this.options.bark.textureScale;
-      this.branchesMesh.material.aoMap = y(x.bark[this.options.bark.type].ao, s), this.branchesMesh.material.map = y(x.bark[this.options.bark.type].color, s), this.branchesMesh.material.normalMap = y(x.bark[this.options.bark.type].normal, s), this.branchesMesh.material.roughnessMap = y(x.bark[this.options.bark.type].roughness, s);
+      this.branchesMesh.material.aoMap = x(`bark/${this.options.bark.type}_ao_1k.jpg`, s), this.branchesMesh.material.map = x(`bark/${this.options.bark.type}_color_1k.jpg`, s), this.branchesMesh.material.normalMap = x(`bark/${this.options.bark.type}_normal_1k.jpg`, s), this.branchesMesh.material.roughnessMap = x(`bark/${this.options.bark.type}_roughness_1k.jpg`, s);
     }
   }
   /**
@@ -809,19 +863,19 @@ class ie extends t.Group {
       side: t.DoubleSide,
       alphaTest: this.options.leaves.alphaTest
     });
-    this.leavesMesh.geometry.dispose(), this.leavesMesh.geometry = e, this.leavesMesh.material.dispose(), this.leavesMesh.material = n, this.leavesMesh.material.map = y(
-      x.leaves[this.options.leaves.type],
+    this.leavesMesh.geometry.dispose(), this.leavesMesh.geometry = e, this.leavesMesh.material.dispose(), this.leavesMesh.material = n, this.leavesMesh.material.map = x(
+      `leaves/${this.options.leaves.type}_color.png`,
       new t.Vector2(1, 1),
       t.SRGBColorSpace
     ), this.leavesMesh.castShadow = !0, this.leavesMesh.receiveShadow = !0;
   }
 }
 export {
-  C as BarkType,
-  V as Billboard,
-  T as LeafType,
-  B as Presets,
-  ie as Tree,
-  M as TreeType
+  $ as BarkType,
+  S as Billboard,
+  C as LeafType,
+  k as Presets,
+  ce as Tree,
+  A as TreeType
 };
 //# sourceMappingURL=@dgreenheck-tree-js.es.js.map

@@ -9,17 +9,18 @@ let gui = new GUI();
  * Setups the UI
  * @param {Tree} tree
  */
-export function setupUI(tree, renderer, scene, camera) {
+export function setupUI(tree, renderer, scene, camera, initialPreset = Presets.Ash) {
   gui.destroy();
   gui = new GUI();
 
   const guiData = {
-    selectedPreset: Presets.Ash
+    selectedPreset: initialPreset
   };
 
   const presetSelect = gui.add(guiData, 'selectedPreset', Presets).name('Preset');
   presetSelect.onChange(() => {
     tree.loadPreset(guiData.selectedPreset);
+    setupUI(tree, renderer, scene, camera, guiData.selectedPreset);
   });
 
   gui.add(tree.options, 'seed', 0, 65536, 1).name('Seed');
