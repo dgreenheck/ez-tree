@@ -18,13 +18,14 @@ export function setupUI(tree, renderer, scene, camera) {
 
   const barkFolder = gui.addFolder('Bark').close();
   barkFolder.add(tree.params.bark, 'type', BarkType).name('Type');
-  barkFolder.add(tree.params.bark, 'scale', 1, 10, 1).name('Scale');
+  barkFolder.addColor(tree.params.bark, 'tint').name('Tint');
+  barkFolder.add(tree.params.bark, 'flatShading').name('Flat Shading');
+  barkFolder.add(tree.params.bark, 'textured').name('Textured');
+  barkFolder.add(tree.params.bark.textureScale, 'x').name('Texture Scale X');
+  barkFolder.add(tree.params.bark.textureScale, 'y').name('Texture Scale Y');
 
   const branchFolder = gui.addFolder('Branches').close();
-  branchFolder.addColor(tree.params, 'tint').name('Tint');
-  branchFolder.add(tree.params, 'flatShading').name('Flat Shading');
-  branchFolder.add(tree.params, 'textured').name('Textured');
-  branchFolder.add(tree.params, 'levels', 0, 3, 1).name('Levels');
+  branchFolder.add(tree.params.branch, 'levels', 0, 3, 1).name('Levels');
 
   const branchAngleFolder = branchFolder.addFolder('Angle').close();
   branchAngleFolder

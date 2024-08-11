@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE_2 from 'three';
 
 export declare namespace BarkType {
     let Birch: string;
@@ -20,9 +20,9 @@ declare class Branch {
      * @param {number} length The length of the branch
      * @param {number} radius The radius of the branch at its starting point
      */
-    constructor(origin?: THREE.Vector3, orientation?: THREE.Euler, length?: number, radius?: number, level?: number, sectionCount?: number, segmentCount?: number);
-    origin: THREE.Vector3;
-    orientation: THREE.Euler;
+    constructor(origin?: THREE_2.Vector3, orientation?: THREE_2.Euler, length?: number, radius?: number, level?: number, sectionCount?: number, segmentCount?: number);
+    origin: THREE_2.Vector3;
+    orientation: THREE_2.Euler;
     length: number;
     radius: number;
     level: number;
@@ -50,22 +50,25 @@ declare class RNG {
     random(max?: number, min?: number): number;
 }
 
-export declare class Tree extends THREE.Group {
+export declare class Tree extends THREE_2.Group<THREE_2.Object3DEventMap> {
     /**
      * @param {TreeParams} params
      */
     constructor(params?: {
         seed: number;
         type: string;
-        tint: number;
-        flatShading: boolean;
-        textured: boolean;
-        levels: number;
         bark: {
             type: string;
-            scale: number;
+            tint: number;
+            flatShading: boolean;
+            textured: boolean;
+            textureScale: {
+                x: number;
+                y: number;
+            };
         };
         branch: {
+            levels: number;
             angle: {
                 1: number;
                 2: number;
@@ -154,15 +157,18 @@ export declare class Tree extends THREE.Group {
     params: {
         seed: number;
         type: string;
-        tint: number;
-        flatShading: boolean;
-        textured: boolean;
-        levels: number;
         bark: {
             type: string;
-            scale: number;
+            tint: number;
+            flatShading: boolean;
+            textured: boolean;
+            textureScale: {
+                x: number;
+                y: number;
+            };
         };
         branch: {
+            levels: number;
             angle: {
                 1: number;
                 2: number;
@@ -245,8 +251,8 @@ export declare class Tree extends THREE.Group {
      * @type {Branch[]}
      */
     branchQueue: Branch[];
-    branchesMesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>;
-    leavesMesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>;
+    branchesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[], THREE_2.Object3DEventMap>;
+    leavesMesh: THREE_2.Mesh<THREE_2.BufferGeometry<THREE_2.NormalBufferAttributes>, THREE_2.Material | THREE_2.Material[], THREE_2.Object3DEventMap>;
     /**
      * Generate a new tree
      */
@@ -281,8 +287,8 @@ export declare class Tree extends THREE.Group {
      * @returns
      */
     generateChildBranches(count: number, level: number, sections: {
-        origin: THREE.Vector3;
-        orientation: THREE.Euler;
+        origin: THREE_2.Vector3;
+        orientation: THREE_2.Euler;
         radius: number;
     }[]): void;
     /**
@@ -295,8 +301,8 @@ export declare class Tree extends THREE.Group {
      * @returns
      */
     generateLeaves(sections: {
-        origin: THREE.Vector3;
-        orientation: THREE.Euler;
+        origin: THREE_2.Vector3;
+        orientation: THREE_2.Euler;
         radius: number;
     }[]): void;
     /**
@@ -304,7 +310,7 @@ export declare class Tree extends THREE.Group {
      * @param {THREE.Vector3} origin The starting point of the branch
      * @param {THREE.Euler} orientation The starting orientation of the branch
      */
-    generateLeaf(origin: THREE.Vector3, orientation: THREE.Euler): void;
+    generateLeaf(origin: THREE_2.Vector3, orientation: THREE_2.Euler): void;
     /**
      * Generates the indices for branch geometry
      * @param {Branch} branch
@@ -328,19 +334,35 @@ export declare namespace TreeType {
 
 export { }
 
+export namespace BarkType {
+    let Birch: string;
+    let Oak: string;
+    let Pine: string;
+    let Willow: string;
+}
+
+
+export namespace Billboard {
+    let Single: string;
+    let Double: string;
+}
+
 export namespace TreeParams {
     let seed: number;
     let type: string;
-    let tint: number;
-    let flatShading: boolean;
-    let textured: boolean;
-    let levels: number;
     namespace bark {
         let type_1: string;
         export { type_1 as type };
-        export let scale: number;
+        export let tint: number;
+        export let flatShading: boolean;
+        export let textured: boolean;
+        export namespace textureScale {
+            let x: number;
+            let y: number;
+        }
     }
     namespace branch {
+        let levels: number;
         let angle: {
             1: number;
             2: number;
@@ -353,9 +375,11 @@ export namespace TreeParams {
         };
         namespace force {
             namespace direction {
-                let x: number;
-                let y: number;
-                let z: number;
+                let x_1: number;
+                export { x_1 as x };
+                let y_1: number;
+                export { y_1 as y };
+                export let z: number;
             }
             let strength: number;
         }
@@ -422,18 +446,5 @@ export namespace TreeParams {
         export { tint_1 as tint };
         export let alphaTest: number;
     }
-}
-
-export namespace BarkType {
-    let Birch: string;
-    let Oak: string;
-    let Pine: string;
-    let Willow: string;
-}
-
-
-export namespace Billboard {
-    let Single: string;
-    let Double: string;
 }
 

@@ -8,18 +8,27 @@ import * as textures from './textures/index.json';
 const textureCache = {};
 
 const textureLoader = new THREE.TextureLoader();
-const loadTexture = (path, scale = new THREE.Vector2(1, 1)) => {
-  if (textureCache[path]) {
-    const texture = textureCache[path];
-    texture.wrapS = THREE.MirroredRepeatWrapping;
-    texture.wrapT = THREE.MirroredRepeatWrapping;
-    return texture;
-  } else {
+const loadTexture = (path, scale = { x: 1, y: 1 }, colorSpace = null) => {
+  if (!textureCache[path]) {
     const url = new URL(path, import.meta.url).href;
-    const texture = textureLoader.load(url);
-    textureCache[path] = texture;
-    return texture;
+    textureCache[path] = textureLoader.load(url);
   }
+
+  /**
+   * @type {THREE.Texture}
+   */
+  const texture = textureCache[path];
+  texture.wrapS = THREE.MirroredRepeatWrapping;
+  texture.wrapT = THREE.MirroredRepeatWrapping;
+  texture.repeat.x = scale.x;
+  texture.repeat.y = 1 / scale.y;
+
+  if (colorSpace) {
+    texture.colorSpace = colorSpace;
+    texture.premultiplyAlpha = true;
+  }
+
+  return texture;
 };
 
 export class Tree extends THREE.Group {
@@ -107,7 +116,7 @@ export class Tree extends THREE.Group {
     let sectionLength =
       branch.length /
       branch.sectionCount /
-      (this.params.type === 'Deciduous' ? this.params.levels - 1 : 1);
+      (this.params.type === 'Deciduous' ? this.params.branch.levels - 1 : 1);
 
     // This information is used for generating child branches after the branch
     // geometry has been constructed
@@ -119,7 +128,7 @@ export class Tree extends THREE.Group {
       // If final section of final level, set radius to effecively zero
       if (
         i === branch.sectionCount &&
-        branch.level === this.params.levels
+        branch.level === this.params.branch.levels
       ) {
         sectionRadius = 0.001;
       } else if (this.params.type === TreeType.Deciduous) {
@@ -213,12 +222,12 @@ export class Tree extends THREE.Group {
     if (this.params.type === 'deciduous') {
       const lastSection = sections[sections.length - 1];
 
-      if (branch.level < this.params.levels) {
+      if (branch.level < this.params.branch.levels) {
         this.branchQueue.push(
           new Branch(
             lastSection.origin,
             lastSection.orientation,
-            this.params.branch.length[branch.level + 1] / 2,
+            this.params.branch.length[branch.level + 1],
             lastSection.radius,
             branch.level + 1,
             // Section count and segment count must be same as parent branch
@@ -233,9 +242,9 @@ export class Tree extends THREE.Group {
     }
 
     // If we are on the last branch level, generate leaves
-    if (branch.level === this.params.levels) {
+    if (branch.level === this.params.branch.levels) {
       this.generateLeaves(sections);
-    } else if (branch.level < this.params.levels) {
+    } else if (branch.level < this.params.branch.levels) {
       this.generateChildBranches(
         this.params.branch.children[branch.level],
         branch.level + 1,
@@ -520,8 +529,8 @@ export class Tree extends THREE.Group {
 
     const mat = new THREE.MeshStandardMaterial({
       name: 'branches',
-      flatShading: this.params.flatShading,
-      color: this.params.tint,
+      flatShading: this.params.bark.flatShading,
+      color: this.params.bark.tint,
     });
 
     this.branchesMesh.geometry.dispose();
@@ -531,11 +540,12 @@ export class Tree extends THREE.Group {
     this.branchesMesh.castShadow = true;
     this.branchesMesh.receiveShadow = true;
 
-    if (this.params.textured) {
-      this.branchesMesh.material.aoMap = loadTexture(textures.bark[this.params.bark.type].ao, this.params.bark.scale);
-      this.branchesMesh.material.map = loadTexture(textures.bark[this.params.bark.type].color, this.params.bark.scale);
-      this.branchesMesh.material.normalMap = loadTexture(textures.bark[this.params.bark.type].normal, this.params.bark.scale);
-      this.branchesMesh.material.roughnessMap = loadTexture(textures.bark[this.params.bark.type].roughness, this.params.bark.scale);
+    if (this.params.bark.textured) {
+      const scale = this.params.bark.textureScale;
+      this.branchesMesh.material.aoMap = loadTexture(textures.bark[this.params.bark.type].ao, scale);
+      this.branchesMesh.material.map = loadTexture(textures.bark[this.params.bark.type].color, scale);
+      this.branchesMesh.material.normalMap = loadTexture(textures.bark[this.params.bark.type].normal, scale);
+      this.branchesMesh.material.roughnessMap = loadTexture(textures.bark[this.params.bark.type].roughness, scale);
     }
   }
 
@@ -569,7 +579,11 @@ export class Tree extends THREE.Group {
     this.leavesMesh.geometry = g;
     this.leavesMesh.material.dispose();
     this.leavesMesh.material = mat;
-    this.leavesMesh.material.map = loadTexture(textures.leaves[this.params.leaves.type]);
+    this.leavesMesh.material.map = loadTexture(
+      textures.leaves[this.params.leaves.type],
+      new THREE.Vector2(1, 1),
+      THREE.SRGBColorSpace);
+
     this.leavesMesh.castShadow = true;
     this.leavesMesh.receiveShadow = true;
   }
