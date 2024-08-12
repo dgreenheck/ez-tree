@@ -3,6 +3,7 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Tree } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
+import { Skybox } from './skybox';
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -19,11 +20,8 @@ const scene = new THREE.Scene();
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
 
-const sunlight = new THREE.DirectionalLight();
-sunlight.intensity = 2;
-sunlight.position.set(50, 50, 50);
-sunlight.castShadow = true;
-scene.add(sunlight);
+const skybox = new Skybox();
+scene.add(skybox);
 
 const camera = new THREE.PerspectiveCamera(
   60,
@@ -32,13 +30,13 @@ const camera = new THREE.PerspectiveCamera(
   1000,
 );
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.maxPolarAngle = Math.PI / 2;
+
 controls.minDistance = 1;
 controls.maxDistance = 100;
 controls.target.set(0, 15, 0);
 controls.update();
 
-camera.position.set(40, 15, 0);
+camera.position.set(80, 15, 0);
 
 const tree = new Tree();
 tree.generate();
@@ -90,5 +88,5 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-setupUI(tree, renderer, scene, camera);
+setupUI(tree, skybox, renderer, scene, camera);
 animate();
