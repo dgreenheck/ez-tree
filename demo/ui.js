@@ -1,6 +1,7 @@
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { BarkType, Billboard, LeafType, Presets, Tree, TreeType } from '@dgreenheck/tree-js';
+import { Skybox } from './skybox';
 
 const exporter = new GLTFExporter();
 let gui = new GUI();
@@ -8,8 +9,12 @@ let gui = new GUI();
 /**
  * Setups the UI
  * @param {Tree} tree
+ * @param {Skybox} skybox
+ * @param {THREE.WebGLRenderer} renderer
+ * @param {THREE.Scene} scene
+ * @param {THREE.Camera} camera
  */
-export function setupUI(tree, renderer, scene, camera, initialPreset = Presets.Ash) {
+export function setupUI(tree, skybox, renderer, scene, camera, initialPreset = Presets.Ash) {
   gui.destroy();
   gui = new GUI();
 
@@ -20,7 +25,8 @@ export function setupUI(tree, renderer, scene, camera, initialPreset = Presets.A
   const presetSelect = gui.add(guiData, 'selectedPreset', Presets).name('Preset');
   presetSelect.onChange(() => {
     tree.loadPreset(guiData.selectedPreset);
-    setupUI(tree, renderer, scene, camera, guiData.selectedPreset);
+    // Refresh the UI to reflect the preset options
+    setupUI(tree, skybox, renderer, scene, camera, guiData.selectedPreset);
   });
 
   gui.add(tree.options, 'seed', 0, 65536, 1).name('Seed');
@@ -191,6 +197,14 @@ export function setupUI(tree, renderer, scene, camera, initialPreset = Presets.A
     .name('Size Variance');
 
   leavesFolder.add(tree.options.leaves, 'alphaTest', 0, 1).name('AlphaTest');
+
+  const skyboxFolder = gui.addFolder('Environment');
+  skyboxFolder.addColor(skybox, 'skyColorLow').name('Sky Color 1');
+  skyboxFolder.addColor(skybox, 'skyColorHigh').name('Sky Color 2');
+  skyboxFolder.addColor(skybox, 'sunColor').name('Sun Color');
+  skyboxFolder.add(skybox, 'sunSize', 1, 10).name('Sun Size');
+  skyboxFolder.add(skybox, 'sunAzimuth', 0, 360).name('Sun Azimuth');
+  skyboxFolder.add(skybox, 'sunElevation', -90, 90).name('Sun Elevation');
 
   gui
     .add(

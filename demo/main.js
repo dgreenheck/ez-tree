@@ -3,11 +3,12 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Tree } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
+import { Skybox } from './skybox';
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
-const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setClearColor(0);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -15,15 +16,21 @@ renderer.shadowMap.type = THREE.PCFShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0xffffff, 100, 200);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
 
-const sunlight = new THREE.DirectionalLight();
-sunlight.intensity = 2;
-sunlight.position.set(50, 50, 50);
-sunlight.castShadow = true;
-scene.add(sunlight);
+const skybox = new Skybox();
+scene.add(skybox);
+
+const plane = new THREE.Mesh(
+  new THREE.PlaneGeometry(1000, 1000),
+  new THREE.MeshStandardMaterial({ color: 0x60b010 })
+);
+plane.rotation.x = -Math.PI / 2;
+plane.receiveShadow = true;
+scene.add(plane);
 
 const camera = new THREE.PerspectiveCamera(
   60,
@@ -32,13 +39,13 @@ const camera = new THREE.PerspectiveCamera(
   1000,
 );
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.maxPolarAngle = Math.PI / 2;
+
 controls.minDistance = 1;
 controls.maxDistance = 100;
 controls.target.set(0, 15, 0);
 controls.update();
 
-camera.position.set(40, 15, 0);
+camera.position.set(80, 15, 0);
 
 const tree = new Tree();
 tree.generate();
@@ -90,5 +97,5 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-setupUI(tree, renderer, scene, camera);
+setupUI(tree, skybox, renderer, scene, camera);
 animate();

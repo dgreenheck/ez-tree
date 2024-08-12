@@ -19,4 +19,5 @@ export default {
       ),
     },
   },
+  assetsInclude: ['**/*.frag', '**/*.vert'],
 };
