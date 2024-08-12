@@ -3,54 +3,6 @@ import { degToRad } from 'three/src/math/MathUtils.js';
 import fragmentShader from './shaders/skybox.frag?raw';
 import vertexShader from './shaders/skybox.vert?raw';
 
-const frag = `
-precision mediump float;
-
-varying vec3 vPosition;
-
-uniform float uSunAzimuth; // Sun azimuth angle (in degrees)
-uniform float uSunElevation; // Sun elevation angle (in degrees)
-uniform vec3 uSunColor;
-uniform vec3 uSkyColorLow;
-uniform vec3 uSkyColorHigh;
-uniform float uSunSize;
-
-void main() {
-    // Convert angles from degrees to radians
-    float azimuth = radians(uSunAzimuth);
-    float elevation = radians(uSunElevation);
-
-    // Calculate the sun direction vector based on azimuth and elevation
-    vec3 sunDirection = normalize(vec3(
-        cos(elevation) * sin(azimuth),
-        sin(elevation),
-        cos(elevation) * cos(azimuth)
-    ));
-
-    // Normalize the fragment position
-    vec3 direction = normalize(vPosition);
-
-    // Gradient for the sky (simple blue gradient)
-    float t = direction.y * 0.5 + 0.5;
-    vec3 skyColor = mix(uSkyColorLow, uSkyColorHigh, t);
-
-    // Compute sun appearance
-    float sunIntensity = pow(max(dot(direction, sunDirection), 0.0), 1000.0 / uSunSize);
-    vec3 sunColor = uSunColor * sunIntensity;
-
-    // Combine sun and sky color
-    vec3 color = skyColor + sunColor;
-
-    gl_FragColor = vec4(color, 1.0);
-}`;
-
-const vert = `varying vec3 vPosition;
-
-void main() {
-    vPosition = position;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}`;
-
 export class SkyboxOptions {
   constructor() {
     /**
@@ -76,7 +28,7 @@ export class SkyboxOptions {
     /**
      * Color of the sky in the lower part of the sky
      */
-    this.skyColorLow = new THREE.Color(0.2, 0.4, 0.7);
+    this.skyColorLow = new THREE.Color(1.0, 1.0, 1.0);
 
     /**
      * Color of the sun in the higher part of the sky
@@ -97,12 +49,14 @@ export class Skybox extends THREE.Mesh {
     super();
 
     // Create a box geometry and apply the skybox material
-    this.geometry = new THREE.SphereGeometry(1000, 1000, 1000);
+    this.geometry = new THREE.SphereGeometry(100, 100, 100);
+
+    console.log(options);
 
     // Create the skybox material with the shaders
     this.material = new THREE.ShaderMaterial({
-      vertexShader: vert,
-      fragmentShader: frag,
+      vertexShader,
+      fragmentShader,
       uniforms: {
         uSunAzimuth: { value: options.sunAzimuth },
         uSunElevation: { value: options.sunElevation },
@@ -110,17 +64,19 @@ export class Skybox extends THREE.Mesh {
         uSkyColorLow: { value: options.skyColorLow },
         uSkyColorHigh: { value: options.skyColorHigh },
         uSunSize: { value: options.sunSize }
-      }
+      },
+      side: THREE.BackSide
     });
 
-    console.log(this.material.uniforms);
-
     this.sun = new THREE.DirectionalLight();
-    this.sun.intensity = 2;
+    this.sun.intensity = options.sunSize;
+    this.sun.color = options.sunColor;
     this.sun.position.set(100, 100, 100);
     this.sun.castShadow = true;
-    this.sun.color = options.sunColor;
-
+    this.sun.shadow.camera.left = -50;
+    this.sun.shadow.camera.right = 50;
+    this.sun.shadow.camera.top = 50;
+    this.sun.shadow.camera.bottom = -50;
     this.add(this.sun);
   }
 
@@ -202,5 +158,6 @@ export class Skybox extends THREE.Mesh {
 
   set sunSize(size) {
     this.material.uniforms.uSunSize.value = size;
+    this.sun.intensity = size;
   }
 }

@@ -25,7 +25,8 @@ export function setupUI(tree, skybox, renderer, scene, camera, initialPreset = P
   const presetSelect = gui.add(guiData, 'selectedPreset', Presets).name('Preset');
   presetSelect.onChange(() => {
     tree.loadPreset(guiData.selectedPreset);
-    setupUI(tree, renderer, scene, camera, guiData.selectedPreset);
+    // Refresh the UI to reflect the preset options
+    setupUI(tree, skybox, renderer, scene, camera, guiData.selectedPreset);
   });
 
   gui.add(tree.options, 'seed', 0, 65536, 1).name('Seed');
@@ -197,7 +198,7 @@ export function setupUI(tree, skybox, renderer, scene, camera, initialPreset = P
 
   leavesFolder.add(tree.options.leaves, 'alphaTest', 0, 1).name('AlphaTest');
 
-  const skyboxFolder = gui.addFolder('Skybox');
+  const skyboxFolder = gui.addFolder('Environment');
   skyboxFolder.addColor(skybox, 'skyColorLow').name('Sky Color 1');
   skyboxFolder.addColor(skybox, 'skyColorHigh').name('Sky Color 2');
   skyboxFolder.addColor(skybox, 'sunColor').name('Sun Color');
