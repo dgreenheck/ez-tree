@@ -25,16 +25,21 @@ renderer.toneMapping = NeutralToneMapping;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-//scene.fog = new THREE.Fog(0xffffff, 100, 200);
+scene.fog = new THREE.Fog(0x9dccff, 150, 500);
 
 const skybox = new Skybox();
 scene.add(skybox);
 
+const textureLoader = new THREE.TextureLoader();
+const grass = textureLoader.load('grass.jpg');
+grass.repeat = new THREE.Vector2(200, 200);
+grass.wrapS = THREE.MirroredRepeatWrapping;
+grass.wrapT = THREE.RepeatWrapping;
+
 const plane = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshStandardMaterial({ color: 0xa0f070 })
+  new THREE.PlaneGeometry(1000, 1000),
+  new THREE.MeshStandardMaterial({ map: grass })
 );
-plane.scale.set(2, 1, 2);
 plane.rotation.x = -Math.PI / 2;
 plane.receiveShadow = true;
 scene.add(plane);
@@ -132,7 +137,7 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
   stats.update();
-
+  renderer.shadowMap.needsUpdate = true;
   // Use composer for rendering
   composer.render();
 }
