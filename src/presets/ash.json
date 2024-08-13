@@ -83,11 +83,11 @@
     "type": "ash",
     "billboard": "double",
     "angle": 55,
-    "count": 6,
+    "count": 10,
     "start": 0,
     "size": 2.665,
     "sizeVariance": 0.717,
-    "tint": 16777215,
+    "tint": "0xfcffdc",
     "alphaTest": 0.5
   }
 }

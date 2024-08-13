@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as path from 'path';
 import RNG from './rng';
 import { Branch } from './branch';
 import { Billboard, TreePreset, TreeType } from './enums';

@@ -39,17 +39,6 @@ export declare namespace LeafType {
         { Oak_1 as Oak };
 }
 
-export declare namespace Presets {
-    let Ash_1: string;
-        { Ash_1 as Ash };
-    let Aspen_1: string;
-        { Aspen_1 as Aspen };
-    let Pine_2: string;
-        { Pine_2 as Pine };
-    let Oak_2: string;
-        { Oak_2 as Oak };
-}
-
 declare class RNG {
     constructor(seed: any);
     m_w: number;
@@ -250,6 +239,17 @@ declare class TreeOptions {
         tint: number;
         alphaTest: number;
     };
+}
+
+export declare namespace TreePreset {
+    let Ash_1: string;
+        { Ash_1 as Ash };
+    let Aspen_1: string;
+        { Aspen_1 as Aspen };
+    let Pine_2: string;
+        { Pine_2 as Pine };
+    let Oak_2: string;
+        { Oak_2 as Oak };
 }
 
 export declare namespace TreeType {

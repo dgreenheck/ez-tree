@@ -51,8 +51,6 @@ export class Skybox extends THREE.Mesh {
     // Create a box geometry and apply the skybox material
     this.geometry = new THREE.SphereGeometry(900, 900, 900);
 
-    console.log(options);
-
     // Create the skybox material with the shaders
     this.material = new THREE.ShaderMaterial({
       vertexShader,
@@ -69,19 +67,19 @@ export class Skybox extends THREE.Mesh {
     });
 
     this.sun = new THREE.DirectionalLight();
-    this.sun.intensity = options.sunSize;
+    this.sun.intensity = 2;
     this.sun.color = options.sunColor;
     this.sun.position.set(100, 100, 100);
     this.sun.castShadow = true;
-    this.sun.shadow.camera.left = -50;
-    this.sun.shadow.camera.right = 50;
-    this.sun.shadow.camera.top = 50;
-    this.sun.shadow.camera.bottom = -50;
+    this.sun.shadow.camera.left = -200;
+    this.sun.shadow.camera.right = 200;
+    this.sun.shadow.camera.top = 200;
+    this.sun.shadow.camera.bottom = -200;
     this.sun.shadow.bias = -0.0002
-    this.sun.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    this.sun.shadow.mapSize = new THREE.Vector2(2048, 2048);
     this.add(this.sun);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     this.add(ambientLight);
 
     this.updateSunPosition();

@@ -1,7 +1,7 @@
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-import { BarkType, Billboard, LeafType, Presets, Tree, TreeType } from '@dgreenheck/tree-js';
-import { Skybox } from './skybox';
+import { BarkType, Billboard, LeafType, TreePreset, Tree, TreeType } from '@dgreenheck/tree-js';
+import { Environment } from './environment';
 
 const exporter = new GLTFExporter();
 let gui = new GUI();
@@ -9,19 +9,19 @@ let gui = new GUI();
 /**
  * Setups the UI
  * @param {Tree} tree
- * @param {Skybox} skybox
+ * @param {Environment} environment
  * @param {THREE.WebGLRenderer} renderer
  * @param {THREE.Scene} scene
  * @param {THREE.Camera} camera
  */
 export function setupUI(
   tree,
-  skybox,
+  environment,
   renderer,
   scene,
   camera,
   bloomPass,
-  initialPreset = Presets.Ash) {
+  initialPreset = TreePreset.Ash_1) {
 
   gui.destroy();
   gui = new GUI();
@@ -30,11 +30,11 @@ export function setupUI(
     selectedPreset: initialPreset
   };
 
-  const presetSelect = gui.add(guiData, 'selectedPreset', Presets).name('Preset');
+  const presetSelect = gui.add(guiData, 'selectedPreset', TreePreset).name('Preset');
   presetSelect.onChange(() => {
     tree.loadPreset(guiData.selectedPreset);
     // Refresh the UI to reflect the preset options
-    setupUI(tree, skybox, renderer, scene, camera, bloomPass, guiData.selectedPreset);
+    setupUI(tree, environment, renderer, scene, camera, bloomPass, guiData.selectedPreset);
   });
 
   gui.add(tree.options, 'seed', 0, 65536, 1).name('Seed');
@@ -191,7 +191,7 @@ export function setupUI(
     .name('Level 3');
 
   addLeavesControls(gui, tree);
-  addEnvironmentControls(gui, skybox);
+  addEnvironmentControls(gui, environment);
   addPostProcessingControls(gui, bloomPass);
 
   gui
@@ -301,14 +301,24 @@ function addLeavesControls(gui, tree) {
   leavesFolder.add(tree.options.leaves, 'alphaTest', 0, 1).name('AlphaTest');
 }
 
-function addEnvironmentControls(gui, skybox) {
-  const skyboxFolder = gui.addFolder('Environment').close();
-  skyboxFolder.addColor(skybox, 'skyColorLow').name('Sky Color 1');
-  skyboxFolder.addColor(skybox, 'skyColorHigh').name('Sky Color 2');
-  skyboxFolder.addColor(skybox, 'sunColor').name('Sun Color');
-  skyboxFolder.add(skybox, 'sunSize', 0.1, 10).name('Sun Size');
-  skyboxFolder.add(skybox, 'sunAzimuth', 0, 360).name('Sun Azimuth');
-  skyboxFolder.add(skybox, 'sunElevation', -90, 90).name('Sun Elevation');
+function addEnvironmentControls(gui, environment) {
+  const environmentFolder = gui.addFolder('Environment').close();
+
+  const grassFolder = environmentFolder.addFolder('Grass');
+  grassFolder.add(environment.options.grass, 'samples', 0, 25000).name('Samples');
+  grassFolder.add(environment.options.grass, 'scale', 1, 100).name('Patch Size');
+  grassFolder.add(environment.options.grass, 'density', 0, 1).name('Density');
+  grassFolder.onChange(() => {
+    environment.createGrass();
+  });
+
+  const skyboxFolder = environmentFolder.addFolder('Skybox');
+  skyboxFolder.addColor(environment.options.skybox, 'skyColorLow').name('Sky Color 1');
+  skyboxFolder.addColor(environment.options.skybox, 'skyColorHigh').name('Sky Color 2');
+  skyboxFolder.addColor(environment.options.skybox, 'sunColor').name('Sun Color');
+  skyboxFolder.add(environment.options.skybox, 'sunSize', 0.1, 10).name('Sun Size');
+  skyboxFolder.add(environment.options.skybox, 'sunAzimuth', 0, 360).name('Sun Azimuth');
+  skyboxFolder.add(environment.options.skybox, 'sunElevation', -90, 90).name('Sun Elevation');
 }
 
 function addPostProcessingControls(gui, bloomPass) {

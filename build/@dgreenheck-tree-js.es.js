@@ -1,12 +1,12 @@
 var O = Object.defineProperty;
 var _ = (p, c, e) => c in p ? O(p, c, { enumerable: !0, configurable: !0, writable: !0, value: e }) : p[c] = e;
-var b = (p, c, e) => (_(p, typeof c != "symbol" ? c + "" : c, e), e);
+var f = (p, c, e) => (_(p, typeof c != "symbol" ? c + "" : c, e), e);
 import * as t from "three";
 class T {
   constructor(c) {
-    b(this, "m_w", 123456789);
-    b(this, "m_z", 987654321);
-    b(this, "mask", 4294967295);
+    f(this, "m_w", 123456789);
+    f(this, "m_z", 987654321);
+    f(this, "mask", 4294967295);
     this.m_w = 123456789 + c & this.mask, this.m_z = 987654321 - c & this.mask;
   }
   /**
@@ -242,11 +242,11 @@ const L = 31701, q = "deciduous", P = {
   type: "ash",
   billboard: "double",
   angle: 55,
-  count: 6,
+  count: 10,
   start: 0,
   size: 2.665,
   sizeVariance: 0.717,
-  tint: 16777215,
+  tint: "0xfcffdc",
   alphaTest: 0.5
 }, G = {
   seed: L,
@@ -346,9 +346,9 @@ const L = 31701, q = "deciduous", P = {
   bark: U,
   branch: W,
   leaves: N
-}, J = 17124, K = "deciduous", X = {
+}, J = 22033, K = "deciduous", X = {
   type: "oak",
-  tint: 11902609,
+  tint: 16774097,
   flatShading: !1,
   textured: !0,
   textureScale: {
@@ -358,14 +358,14 @@ const L = 31701, q = "deciduous", P = {
 }, Y = {
   levels: 3,
   angle: {
-    1: 54,
-    2: 48,
+    1: 63,
+    2: 54,
     3: 60
   },
   children: {
-    0: 5,
-    1: 7,
-    2: 5
+    0: 7,
+    1: 6,
+    2: 3
   },
   force: {
     direction: {
@@ -377,44 +377,44 @@ const L = 31701, q = "deciduous", P = {
   },
   gnarliness: {
     0: -0.04,
-    1: 0.32,
-    2: 0.29,
-    3: 0.02
+    1: 0.22,
+    2: 0.21,
+    3: -0.12
   },
   length: {
-    0: 15.59,
-    1: 12.66,
-    2: 11.93,
-    3: 1
+    0: 27.14,
+    1: 17.34,
+    2: 11.46,
+    3: 5.59
   },
   radius: {
     0: 2,
-    1: 0.69,
-    2: 0.41,
-    3: 0.7
+    1: 0.63,
+    2: 0.36,
+    3: 0.56
   },
   sections: {
     0: 16,
-    1: 16,
+    1: 9,
     2: 8,
     3: 1
   },
   segments: {
-    0: 8,
-    1: 6,
-    2: 4,
+    0: 7,
+    1: 5,
+    2: 3,
     3: 3
   },
   start: {
-    1: 0.19,
-    2: 0.21,
-    3: 0.54
+    1: 0,
+    2: 0.46,
+    3: 0.08
   },
   taper: {
     0: 0.49,
     1: 0.43,
-    2: 0.7,
-    3: 0.7
+    2: 0.69,
+    3: 0.75
   },
   twist: {
     0: 0.06,
@@ -425,12 +425,12 @@ const L = 31701, q = "deciduous", P = {
 }, Z = {
   type: "oak",
   billboard: "double",
-  angle: 10,
-  count: 3,
-  start: 0,
-  size: 2.125,
+  angle: 53,
+  count: 15,
+  start: 0.164,
+  size: 1.62,
   sizeVariance: 0.7,
-  tint: 10546069,
+  tint: "0xffffff",
   alphaTest: 0.5
 }, ee = {
   seed: J,
@@ -562,15 +562,15 @@ class ce extends t.Group {
     /**
      * @type {RNG}
      */
-    b(this, "rng");
+    f(this, "rng");
     /**
      * @type {TreeOptions}
      */
-    b(this, "options");
+    f(this, "options");
     /**
      * @type {Branch[]}
      */
-    b(this, "branchQueue", []);
+    f(this, "branchQueue", []);
     this.branchesMesh = new t.Mesh(), this.leavesMesh = new t.Mesh(), this.add(this.branchesMesh), this.add(this.leavesMesh), this.options = e;
   }
   /**
@@ -624,11 +624,11 @@ class ce extends t.Group {
       let r;
       for (let g = 0; g < e.segmentCount; g++) {
         let m = 2 * Math.PI * g / e.segmentCount;
-        const v = new t.Vector3(Math.cos(m), 0, Math.sin(m)).multiplyScalar(o).applyEuler(s).add(u), f = new t.Vector3(Math.cos(m), 0, Math.sin(m)).applyEuler(s).normalize(), M = new t.Vector2(
+        const b = new t.Vector3(Math.cos(m), 0, Math.sin(m)).multiplyScalar(o).applyEuler(s).add(u), v = new t.Vector3(Math.cos(m), 0, Math.sin(m)).applyEuler(s).normalize(), M = new t.Vector2(
           g / e.segmentCount,
           i % 2 === 0 ? 0 : 1
         );
-        this.branches.verts.push(...Object.values(v)), this.branches.normals.push(...Object.values(f)), this.branches.uvs.push(...Object.values(M)), g === 0 && (r = { vertex: v, normal: f, uv: M });
+        this.branches.verts.push(...Object.values(b)), this.branches.normals.push(...Object.values(v)), this.branches.uvs.push(...Object.values(M)), g === 0 && (r = { vertex: b, normal: v, uv: M });
       }
       this.branches.verts.push(...Object.values(r.vertex)), this.branches.normals.push(...Object.values(r.normal)), this.branches.uvs.push(1, r.uv.y), l.push({
         origin: u.clone(),
@@ -697,14 +697,14 @@ class ce extends t.Group {
         a
       ), w = this.options.branch.radius[n] * ((1 - a) * o.radius + a * r.radius), y = new t.Quaternion().setFromEuler(o.orientation), g = new t.Quaternion().setFromEuler(r.orientation), m = new t.Euler().setFromQuaternion(
         g.slerp(y, a)
-      ), v = 2 * Math.PI * (u + h / e), f = new t.Quaternion().setFromAxisAngle(
+      ), b = 2 * Math.PI * (u + h / e), v = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(1, 0, 0),
         this.options.branch.angle[n] / (180 / Math.PI)
       ), M = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(0, 1, 0),
-        v
+        b
       ), E = new t.Quaternion().setFromEuler(m), F = new t.Euler().setFromQuaternion(
-        E.multiply(M.multiply(f))
+        E.multiply(M.multiply(v))
       );
       let Q = this.options.branch.length[n] * (this.options.type === A.Evergreen ? 1 - l : 1);
       this.branchQueue.push(
@@ -748,10 +748,10 @@ class ce extends t.Group {
       ), m = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(0, 1, 0),
         y
-      ), v = new t.Quaternion().setFromEuler(w), f = new t.Euler().setFromQuaternion(
-        v.multiply(m.multiply(g))
+      ), b = new t.Quaternion().setFromEuler(w), v = new t.Euler().setFromQuaternion(
+        b.multiply(m.multiply(g))
       );
-      this.generateLeaf(r, f);
+      this.generateLeaf(r, v);
     }
   }
   /**
@@ -875,8 +875,8 @@ export {
   $ as BarkType,
   S as Billboard,
   C as LeafType,
-  k as Presets,
   ce as Tree,
+  k as TreePreset,
   A as TreeType
 };
 //# sourceMappingURL=@dgreenheck-tree-js.es.js.map

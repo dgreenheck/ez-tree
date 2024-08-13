@@ -6,10 +6,11 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { Tree } from '@dgreenheck/tree-js';
+import { Tree, TreePreset } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
 import { Skybox } from './skybox';
 import { NeutralToneMapping } from 'three/src/constants.js';
+import { Environment } from './environment';
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -24,24 +25,10 @@ renderer.toneMapping = NeutralToneMapping;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x9dccff, 150, 500);
+scene.fog = new THREE.Fog(0x9dccff, 150, 200);
 
-const skybox = new Skybox();
-scene.add(skybox);
-
-const textureLoader = new THREE.TextureLoader();
-const grass = textureLoader.load('grass.jpg');
-grass.repeat = new THREE.Vector2(200, 200);
-grass.wrapS = THREE.MirroredRepeatWrapping;
-grass.wrapT = THREE.RepeatWrapping;
-
-const plane = new THREE.Mesh(
-  new THREE.PlaneGeometry(1000, 1000),
-  new THREE.MeshStandardMaterial({ map: grass })
-);
-plane.rotation.x = -Math.PI / 2;
-plane.receiveShadow = true;
-scene.add(plane);
+const environment = new Environment();
+scene.add(environment);
 
 const camera = new THREE.PerspectiveCamera(
   60,
@@ -59,6 +46,7 @@ controls.update();
 camera.position.set(80, 15, 0);
 
 const tree = new Tree();
+tree.loadPreset(TreePreset.Ash_1);
 tree.generate();
 tree.castShadow = true;
 tree.receiveShadow = true;
@@ -129,5 +117,5 @@ function animate() {
   composer.render();
 }
 
-setupUI(tree, skybox, renderer, scene, camera, bloomPass);
+setupUI(tree, environment, renderer, scene, camera, bloomPass);
 animate();

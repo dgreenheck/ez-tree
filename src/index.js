@@ -1,2 +1,2 @@
 export { Tree } from './tree';
-export { BarkType, Billboard, LeafType, TreePreset as Presets, TreeType } from './enums';
+export { BarkType, Billboard, LeafType, TreePreset, TreeType } from './enums';
