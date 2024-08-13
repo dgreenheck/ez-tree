@@ -34,7 +34,6 @@ const loadTexture = (path, scale = { x: 1, y: 1 }, colorSpace = null) => {
 
   if (colorSpace) {
     texture.colorSpace = colorSpace;
-    texture.premultiplyAlpha = true;
   }
 
   return texture;
@@ -591,6 +590,7 @@ export class Tree extends THREE.Group {
       color: this.options.leaves.tint,
       side: THREE.DoubleSide,
       alphaTest: this.options.leaves.alphaTest,
+      premultipliedAlpha: true
     });
 
     this.leavesMesh.geometry.dispose();

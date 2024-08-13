@@ -8,17 +8,17 @@ export class SkyboxOptions {
     /**
      * Azimuth of the sun in degrees
      */
-    this.sunAzimuth = 0;
+    this.sunAzimuth = 90;
 
     /**
      * Elevation of the sun in degrees
      */
-    this.sunElevation = 45;
+    this.sunElevation = 25;
 
     /**
      * Color of the sun
      */
-    this.sunColor = new THREE.Color(1.0, 0.9, 0.4);
+    this.sunColor = new THREE.Color(0xffe5b0).convertLinearToSRGB();
 
     /**
      * Size of the sun in the sky
@@ -28,12 +28,12 @@ export class SkyboxOptions {
     /**
      * Color of the sky in the lower part of the sky
      */
-    this.skyColorLow = new THREE.Color(1.0, 1.0, 1.0);
+    this.skyColorLow = new THREE.Color(0x7fb2ff).convertLinearToSRGB();
 
     /**
      * Color of the sun in the higher part of the sky
      */
-    this.skyColorHigh = new THREE.Color(0.5, 0.7, 1.0);
+    this.skyColorHigh = new THREE.Color(0x3083ff).convertLinearToSRGB();
   }
 }
 
@@ -49,7 +49,7 @@ export class Skybox extends THREE.Mesh {
     super();
 
     // Create a box geometry and apply the skybox material
-    this.geometry = new THREE.SphereGeometry(100, 100, 100);
+    this.geometry = new THREE.SphereGeometry(900, 900, 900);
 
     console.log(options);
 
@@ -77,7 +77,14 @@ export class Skybox extends THREE.Mesh {
     this.sun.shadow.camera.right = 50;
     this.sun.shadow.camera.top = 50;
     this.sun.shadow.camera.bottom = -50;
+    this.sun.shadow.bias = -0.0002
+    this.sun.shadow.mapSize = new THREE.Vector2(1024, 1024);
     this.add(this.sun);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    this.add(ambientLight);
+
+    this.updateSunPosition();
   }
 
   updateSunPosition() {
@@ -85,9 +92,9 @@ export class Skybox extends THREE.Mesh {
     const az = degToRad(this.sunAzimuth);
 
     this.sun.position.set(
-      Math.cos(el) * Math.sin(az),
-      Math.sin(el),
-      Math.cos(el) * Math.cos(az)
+      100 * Math.cos(el) * Math.sin(az),
+      100 * Math.sin(el),
+      100 * Math.cos(el) * Math.cos(az)
     );
   }
 
@@ -158,6 +165,5 @@ export class Skybox extends THREE.Mesh {
 
   set sunSize(size) {
     this.material.uniforms.uSunSize.value = size;
-    this.sun.intensity = size;
   }
 }
