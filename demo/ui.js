@@ -21,7 +21,6 @@ export function setupUI(
   scene,
   camera,
   bloomPass,
-  bokehPass,
   initialPreset = Presets.Ash) {
 
   gui.destroy();
@@ -35,7 +34,7 @@ export function setupUI(
   presetSelect.onChange(() => {
     tree.loadPreset(guiData.selectedPreset);
     // Refresh the UI to reflect the preset options
-    setupUI(tree, skybox, renderer, scene, camera, bloomPass, bokehPass, guiData.selectedPreset);
+    setupUI(tree, skybox, renderer, scene, camera, bloomPass, guiData.selectedPreset);
   });
 
   gui.add(tree.options, 'seed', 0, 65536, 1).name('Seed');
@@ -191,40 +190,9 @@ export function setupUI(
     .add(tree.options.branch.twist, '3', -0.5, 0.5, 0.01)
     .name('Level 3');
 
-  const leavesFolder = gui.addFolder('Leaves').close();
-  leavesFolder.add(tree.options.leaves, 'type', LeafType).name('Type');
-  leavesFolder.addColor(tree.options.leaves, 'tint').name('Tint');
-  leavesFolder
-    .add(tree.options.leaves, 'billboard', Billboard)
-    .name('Billboard');
-  leavesFolder.add(tree.options.leaves, 'angle', 0, 100, 1).name('Angle');
-  leavesFolder.add(tree.options.leaves, 'count', 0, 100, 1).name('Count');
-  leavesFolder.add(tree.options.leaves, 'start', 0, 1).name('Start');
-  leavesFolder.add(tree.options.leaves, 'size', 0, 5).name('Size');
-  leavesFolder
-    .add(tree.options.leaves, 'sizeVariance', 0, 1)
-    .name('Size Variance');
-
-  leavesFolder.add(tree.options.leaves, 'alphaTest', 0, 1).name('AlphaTest');
-
-  const skyboxFolder = gui.addFolder('Environment').close();
-  skyboxFolder.addColor(skybox, 'skyColorLow').name('Sky Color 1');
-  skyboxFolder.addColor(skybox, 'skyColorHigh').name('Sky Color 2');
-  skyboxFolder.addColor(skybox, 'sunColor').name('Sun Color');
-  skyboxFolder.add(skybox, 'sunSize', 0.1, 10).name('Sun Size');
-  skyboxFolder.add(skybox, 'sunAzimuth', 0, 360).name('Sun Azimuth');
-  skyboxFolder.add(skybox, 'sunElevation', -90, 90).name('Sun Elevation');
-
-  const postprocessingFolder = gui.addFolder('Post Processing').close();
-  const bloomFolder = gui.addFolder('Bloom');
-  bloomFolder.add(bloomPass, 'threshold', 0.0, 1.0).name('Threshold');
-  bloomFolder.add(bloomPass, 'strength', 0.0, 3.0).name('Strength');
-  bloomFolder.add(bloomPass, 'radius', 0.0, 1.0).name('Radius');
-
-  const bokehFolder = postprocessingFolder.addFolder('Bokeh');
-  bokehFolder.add(bokehPass.uniforms.focus, 'value', 0.0, 200.0).name('Focus');
-  bokehFolder.add(bokehPass.uniforms.aperture, 'value', 0.0, 0.0001).name('Aperture');
-  bokehFolder.add(bokehPass.uniforms.maxblur, 'value', 0.0, 0.01).name('Max Blur');
+  addLeavesControls(gui, tree);
+  addEnvironmentControls(gui, skybox);
+  addPostProcessingControls(gui, bloomPass);
 
   gui
     .add(
@@ -313,4 +281,40 @@ export function setupUI(
     document.getElementById('model-info').innerText =
       `Vertex Count: ${vertexCount} | Triangle Count: ${triangleCount}`;
   });
+}
+
+function addLeavesControls(gui, tree) {
+  const leavesFolder = gui.addFolder('Leaves').close();
+  leavesFolder.add(tree.options.leaves, 'type', LeafType).name('Type');
+  leavesFolder.addColor(tree.options.leaves, 'tint').name('Tint');
+  leavesFolder
+    .add(tree.options.leaves, 'billboard', Billboard)
+    .name('Billboard');
+  leavesFolder.add(tree.options.leaves, 'angle', 0, 100, 1).name('Angle');
+  leavesFolder.add(tree.options.leaves, 'count', 0, 100, 1).name('Count');
+  leavesFolder.add(tree.options.leaves, 'start', 0, 1).name('Start');
+  leavesFolder.add(tree.options.leaves, 'size', 0, 5).name('Size');
+  leavesFolder
+    .add(tree.options.leaves, 'sizeVariance', 0, 1)
+    .name('Size Variance');
+
+  leavesFolder.add(tree.options.leaves, 'alphaTest', 0, 1).name('AlphaTest');
+}
+
+function addEnvironmentControls(gui, skybox) {
+  const skyboxFolder = gui.addFolder('Environment').close();
+  skyboxFolder.addColor(skybox, 'skyColorLow').name('Sky Color 1');
+  skyboxFolder.addColor(skybox, 'skyColorHigh').name('Sky Color 2');
+  skyboxFolder.addColor(skybox, 'sunColor').name('Sun Color');
+  skyboxFolder.add(skybox, 'sunSize', 0.1, 10).name('Sun Size');
+  skyboxFolder.add(skybox, 'sunAzimuth', 0, 360).name('Sun Azimuth');
+  skyboxFolder.add(skybox, 'sunElevation', -90, 90).name('Sun Elevation');
+}
+
+function addPostProcessingControls(gui, bloomPass) {
+  const postprocessingFolder = gui.addFolder('Post Processing').close();
+  const bloomFolder = postprocessingFolder.addFolder('Bloom');
+  bloomFolder.add(bloomPass, 'threshold', 0.0, 1.0).name('Threshold');
+  bloomFolder.add(bloomPass, 'strength', 0.0, 3.0).name('Strength');
+  bloomFolder.add(bloomPass, 'radius', 0.0, 1.0).name('Radius');
 }

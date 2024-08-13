@@ -5,7 +5,6 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
-import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { Tree } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
@@ -109,16 +108,6 @@ const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
 
-// Depth of field pass: Simulates camera focus
-const bokehPass = new BokehPass(scene, camera, {
-  focus: 80,
-  aperture: 0.0001,
-  maxblur: 0.001,
-  width: window.innerWidth,
-  height: window.innerHeight
-});
-composer.addPass(bokehPass);
-
 // SMAA pass: Anti-aliasing
 const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
 composer.addPass(smaaPass);
@@ -137,10 +126,8 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
   stats.update();
-  renderer.shadowMap.needsUpdate = true;
-  // Use composer for rendering
   composer.render();
 }
 
-setupUI(tree, skybox, renderer, scene, camera, bloomPass, bokehPass);
+setupUI(tree, skybox, renderer, scene, camera, bloomPass);
 animate();
