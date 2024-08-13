@@ -1,9 +1,16 @@
 import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
+import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { Tree } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
 import { Skybox } from './skybox';
+import { NeutralToneMapping } from 'three/src/constants.js';
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -12,22 +19,22 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setClearColor(0);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = NeutralToneMapping;
+
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xffffff, 100, 200);
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
-scene.add(ambientLight);
+//scene.fog = new THREE.Fog(0xffffff, 100, 200);
 
 const skybox = new Skybox();
 scene.add(skybox);
 
 const plane = new THREE.Mesh(
-  new THREE.PlaneGeometry(1000, 1000),
-  new THREE.MeshStandardMaterial({ color: 0x60b010 })
+  new THREE.PlaneGeometry(100, 100),
+  new THREE.MeshStandardMaterial({ color: 0xa0f070 })
 );
+plane.scale.set(2, 1, 2);
 plane.rotation.x = -Math.PI / 2;
 plane.receiveShadow = true;
 scene.add(plane);
@@ -36,7 +43,7 @@ const camera = new THREE.PerspectiveCamera(
   60,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000,
+  1200,
 );
 const controls = new OrbitControls(camera, renderer.domElement);
 
@@ -90,12 +97,45 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+// Post-processing setup
+const composer = new EffectComposer(renderer);
+
+// Render pass: Renders the scene normally as the first pass
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+// Depth of field pass: Simulates camera focus
+const bokehPass = new BokehPass(scene, camera, {
+  focus: 80,
+  aperture: 0.0001,
+  maxblur: 0.001,
+  width: window.innerWidth,
+  height: window.innerHeight
+});
+composer.addPass(bokehPass);
+
+// SMAA pass: Anti-aliasing
+const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
+composer.addPass(smaaPass);
+
+// Bloom pass: Adds bloom effect
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1, 0.4, 0.85);
+composer.addPass(bloomPass);
+
+// God rays pass: (Optional, requires additional setup for light shafts if needed)
+// Add your custom god rays pass here if you have implemented it
+
+const outputPass = new OutputPass();
+composer.addPass(outputPass);
+
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   stats.update();
-  renderer.render(scene, camera);
+
+  // Use composer for rendering
+  composer.render();
 }
 
-setupUI(tree, skybox, renderer, scene, camera);
+setupUI(tree, skybox, renderer, scene, camera, bloomPass, bokehPass);
 animate();

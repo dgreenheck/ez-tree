@@ -523,7 +523,7 @@ const L = 31701, q = "deciduous", P = {
   size: 0.965,
   sizeVariance: 0.7,
   tint: 16777215,
-  alphaTest: 0.5
+  alphaTest: 0.3
 }, ae = {
   seed: te,
   type: se,
@@ -551,7 +551,7 @@ const B = {}, le = new t.TextureLoader(), x = (p, c = { x: 1, y: 1 }, e = null) 
     B[p] = le.load(s);
   }
   const n = B[p];
-  return n.wrapS = t.MirroredRepeatWrapping, n.wrapT = t.MirroredRepeatWrapping, n.repeat.x = c.x, n.repeat.y = 1 / c.y, e && (n.colorSpace = e, n.premultiplyAlpha = !0), n;
+  return n.wrapS = t.MirroredRepeatWrapping, n.wrapT = t.MirroredRepeatWrapping, n.repeat.x = c.x, n.repeat.y = 1 / c.y, e && (n.colorSpace = e), n;
 };
 class ce extends t.Group {
   /**
@@ -861,7 +861,8 @@ class ce extends t.Group {
       name: "leaves",
       color: this.options.leaves.tint,
       side: t.DoubleSide,
-      alphaTest: this.options.leaves.alphaTest
+      alphaTest: this.options.leaves.alphaTest,
+      premultipliedAlpha: !0
     });
     this.leavesMesh.geometry.dispose(), this.leavesMesh.geometry = e, this.leavesMesh.material.dispose(), this.leavesMesh.material = n, this.leavesMesh.material.map = x(
       `leaves/${this.options.leaves.type}_color.png`,
