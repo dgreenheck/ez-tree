@@ -22,6 +22,9 @@ export default {
       },
     },
     sourcemap: 'true',
+    terserOptions: {
+      mangle: false
+    }
   },
   plugins: [
     dts({
