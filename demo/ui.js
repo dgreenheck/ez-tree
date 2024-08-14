@@ -313,12 +313,12 @@ function addEnvironmentControls(gui, environment) {
   });
 
   const skyboxFolder = environmentFolder.addFolder('Skybox');
-  skyboxFolder.addColor(environment.options.skybox, 'skyColorLow').name('Sky Color 1');
-  skyboxFolder.addColor(environment.options.skybox, 'skyColorHigh').name('Sky Color 2');
-  skyboxFolder.addColor(environment.options.skybox, 'sunColor').name('Sun Color');
-  skyboxFolder.add(environment.options.skybox, 'sunSize', 0.1, 10).name('Sun Size');
-  skyboxFolder.add(environment.options.skybox, 'sunAzimuth', 0, 360).name('Sun Azimuth');
-  skyboxFolder.add(environment.options.skybox, 'sunElevation', -90, 90).name('Sun Elevation');
+  skyboxFolder.addColor(environment.skybox, 'skyColorLow').name('Sky Color 1');
+  skyboxFolder.addColor(environment.skybox, 'skyColorHigh').name('Sky Color 2');
+  skyboxFolder.addColor(environment.skybox, 'sunColor').name('Sun Color');
+  skyboxFolder.add(environment.skybox, 'sunSize', 0.1, 10).name('Sun Size');
+  skyboxFolder.add(environment.skybox, 'sunAzimuth', 0, 360).name('Sun Azimuth');
+  skyboxFolder.add(environment.skybox, 'sunElevation', -90, 90).name('Sun Elevation');
 }
 
 function addPostProcessingControls(gui, bloomPass) {

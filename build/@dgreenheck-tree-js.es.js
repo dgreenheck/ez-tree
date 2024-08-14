@@ -44,10 +44,10 @@ const $ = {
   Pine: "pine",
   Oak: "oak"
 }, k = {
-  Ash: "ash",
-  Aspen: "aspen",
-  Pine: "pine",
-  Oak: "oak"
+  Ash: 0,
+  Aspen: 1,
+  Pine: 2,
+  Oak: 3
 }, A = {
   Deciduous: "deciduous",
   Evergreen: "evergreen"
@@ -198,13 +198,13 @@ const L = 31701, q = "deciduous", P = {
     3: 0.09
   },
   length: {
-    0: 20,
-    1: 18,
+    0: 30,
+    1: 25,
     2: 9.51,
     3: 4.6
   },
   radius: {
-    0: 1.5,
+    0: 2,
     1: 0.63,
     2: 0.76,
     3: 0.7
@@ -246,7 +246,7 @@ const L = 31701, q = "deciduous", P = {
   start: 0,
   size: 2.665,
   sizeVariance: 0.717,
-  tint: "0xfcffdc",
+  tint: "0xfcff8c",
   alphaTest: 0.5
 }, G = {
   seed: L,
@@ -524,14 +524,14 @@ const L = 31701, q = "deciduous", P = {
   sizeVariance: 0.7,
   tint: 16777215,
   alphaTest: 0.3
-}, ae = {
+}, oe = {
   seed: te,
   type: se,
   bark: ne,
   branch: ie,
   leaves: re
 };
-function oe(p) {
+function ae(p) {
   switch (p) {
     case k.Ash:
       return G;
@@ -540,7 +540,7 @@ function oe(p) {
     case k.Oak:
       return ee;
     case k.Pine:
-      return ae;
+      return oe;
     default:
       return new V();
   }
@@ -578,7 +578,7 @@ class ce extends t.Group {
    * @param {string} preset 
    */
   loadPreset(e) {
-    this.options = oe(e), this.generate();
+    this.options = ae(e), this.generate();
   }
   /**
    * Generate a new tree
@@ -619,12 +619,12 @@ class ce extends t.Group {
     const n = this.branches.verts.length / 3;
     let s = e.orientation.clone(), u = e.origin.clone(), h = e.length / e.sectionCount / (this.options.type === "Deciduous" ? this.options.branch.levels - 1 : 1), l = [];
     for (let i = 0; i <= e.sectionCount; i++) {
-      let o = e.radius;
-      i === e.sectionCount && e.level === this.options.branch.levels ? o = 1e-3 : this.options.type === A.Deciduous ? o *= 1 - this.options.branch.taper[e.level] * (i / e.sectionCount) : this.options.type === A.Evergreen && (o *= 1 - i / e.sectionCount);
+      let a = e.radius;
+      i === e.sectionCount && e.level === this.options.branch.levels ? a = 1e-3 : this.options.type === A.Deciduous ? a *= 1 - this.options.branch.taper[e.level] * (i / e.sectionCount) : this.options.type === A.Evergreen && (a *= 1 - i / e.sectionCount);
       let r;
       for (let g = 0; g < e.segmentCount; g++) {
         let m = 2 * Math.PI * g / e.segmentCount;
-        const b = new t.Vector3(Math.cos(m), 0, Math.sin(m)).multiplyScalar(o).applyEuler(s).add(u), v = new t.Vector3(Math.cos(m), 0, Math.sin(m)).applyEuler(s).normalize(), M = new t.Vector2(
+        const b = new t.Vector3(Math.cos(m), 0, Math.sin(m)).multiplyScalar(a).applyEuler(s).add(u), v = new t.Vector3(Math.cos(m), 0, Math.sin(m)).applyEuler(s).normalize(), M = new t.Vector2(
           g / e.segmentCount,
           i % 2 === 0 ? 0 : 1
         );
@@ -633,12 +633,12 @@ class ce extends t.Group {
       this.branches.verts.push(...Object.values(r.vertex)), this.branches.normals.push(...Object.values(r.normal)), this.branches.uvs.push(1, r.uv.y), l.push({
         origin: u.clone(),
         orientation: s.clone(),
-        radius: o
+        radius: a
       }), u.add(
         new t.Vector3(0, h, 0).applyEuler(s)
       );
-      const a = Math.max(1, 1 / Math.sqrt(o)) * this.options.branch.gnarliness[e.level];
-      s.x += this.rng.random(a, -a), s.z += this.rng.random(a, -a);
+      const o = Math.max(1, 1 / Math.sqrt(a)) * this.options.branch.gnarliness[e.level];
+      s.x += this.rng.random(o, -o), s.z += this.rng.random(o, -o);
       const d = new t.Quaternion().setFromEuler(s), w = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(0, 1, 0),
         this.options.branch.twist[e.level]
@@ -648,7 +648,7 @@ class ce extends t.Group {
       );
       d.multiply(w), d.rotateTowards(
         y,
-        this.options.branch.force.strength / o
+        this.options.branch.force.strength / a
       ), s.setFromQuaternion(d);
     }
     if (this.generateBranchIndices(n, e), this.options.type === "deciduous") {
@@ -689,14 +689,14 @@ class ce extends t.Group {
     for (let h = 0; h < e; h++) {
       let l = this.rng.random(1, this.options.branch.start[n]);
       const i = Math.floor(l * (s.length - 1));
-      let o, r;
-      o = s[i], i === s.length - 1 ? r = o : r = s[i + 1];
-      const a = (l - i / (s.length - 1)) / (1 / (s.length - 1)), d = new t.Vector3().lerpVectors(
-        o.origin,
+      let a, r;
+      a = s[i], i === s.length - 1 ? r = a : r = s[i + 1];
+      const o = (l - i / (s.length - 1)) / (1 / (s.length - 1)), d = new t.Vector3().lerpVectors(
+        a.origin,
         r.origin,
-        a
-      ), w = this.options.branch.radius[n] * ((1 - a) * o.radius + a * r.radius), y = new t.Quaternion().setFromEuler(o.orientation), g = new t.Quaternion().setFromEuler(r.orientation), m = new t.Euler().setFromQuaternion(
-        g.slerp(y, a)
+        o
+      ), w = this.options.branch.radius[n] * ((1 - o) * a.radius + o * r.radius), y = new t.Quaternion().setFromEuler(a.orientation), g = new t.Quaternion().setFromEuler(r.orientation), m = new t.Euler().setFromQuaternion(
+        g.slerp(y, o)
       ), b = 2 * Math.PI * (u + h / e), v = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(1, 0, 0),
         this.options.branch.angle[n] / (180 / Math.PI)
@@ -736,12 +736,12 @@ class ce extends t.Group {
       const h = Math.floor(u * (e.length - 1));
       let l, i;
       l = e[h], h === e.length - 1 ? i = l : i = e[h + 1];
-      const o = (u - h / (e.length - 1)) / (1 / (e.length - 1)), r = new t.Vector3().lerpVectors(
+      const a = (u - h / (e.length - 1)) / (1 / (e.length - 1)), r = new t.Vector3().lerpVectors(
         l.origin,
         i.origin,
-        o
-      ), a = new t.Quaternion().setFromEuler(l.orientation), d = new t.Quaternion().setFromEuler(i.orientation), w = new t.Euler().setFromQuaternion(
-        d.slerp(a, o)
+        a
+      ), o = new t.Quaternion().setFromEuler(l.orientation), d = new t.Quaternion().setFromEuler(i.orientation), w = new t.Euler().setFromQuaternion(
+        d.slerp(o, a)
       ), y = 2 * Math.PI * (n + s / this.options.leaves.count), g = new t.Quaternion().setFromAxisAngle(
         new t.Vector3(1, 0, 0),
         this.options.leaves.angle / (180 / Math.PI)
@@ -764,14 +764,14 @@ class ce extends t.Group {
       this.options.leaves.sizeVariance,
       -this.options.leaves.sizeVariance
     ));
-    const h = u, l = 1.5 * u, i = (o) => {
+    const h = u, l = 1.5 * u, i = (a) => {
       const r = [
         new t.Vector3(-h / 2, l, 0),
         new t.Vector3(-h / 2, 0, 0),
         new t.Vector3(h / 2, 0, 0),
         new t.Vector3(h / 2, l, 0)
       ].map(
-        (d) => d.applyEuler(new t.Euler(0, o, 0)).applyEuler(n).add(e)
+        (d) => d.applyEuler(new t.Euler(0, a, 0)).applyEuler(n).add(e)
       );
       this.leaves.verts.push(
         r[0].x,
@@ -787,20 +787,20 @@ class ce extends t.Group {
         r[3].y,
         r[3].z
       );
-      const a = new t.Vector3(0, 0, 1).applyEuler(n);
+      const o = new t.Vector3(0, 0, 1).applyEuler(n);
       this.leaves.normals.push(
-        a.x,
-        a.y,
-        a.z,
-        a.x,
-        a.y,
-        a.z,
-        a.x,
-        a.y,
-        a.z,
-        a.x,
-        a.y,
-        a.z
+        o.x,
+        o.y,
+        o.z,
+        o.x,
+        o.y,
+        o.z,
+        o.x,
+        o.y,
+        o.z,
+        o.x,
+        o.y,
+        o.z
       ), this.leaves.uvs.push(0, 1, 0, 0, 1, 0, 1, 1), this.leaves.indices.push(s, s + 1, s + 2, s, s + 2, s + 3), s += 4;
     };
     i(0), this.options.leaves.billboard === S.Double && i(Math.PI / 2);
@@ -812,9 +812,9 @@ class ce extends t.Group {
   generateBranchIndices(e, n) {
     let s, u, h, l;
     const i = n.segmentCount + 1;
-    for (let o = 0; o < n.sectionCount; o++)
+    for (let a = 0; a < n.sectionCount; a++)
       for (let r = 0; r < n.segmentCount; r++)
-        s = e + o * i + r, u = e + o * i + (r + 1), h = s + i, l = u + i, this.branches.indices.push(s, h, u, u, h, l);
+        s = e + a * i + r, u = e + a * i + (r + 1), h = s + i, l = u + i, this.branches.indices.push(s, h, u, u, h, l);
   }
   /**
    * Generates the geometry for the branches
@@ -864,11 +864,11 @@ class ce extends t.Group {
       alphaTest: this.options.leaves.alphaTest,
       premultipliedAlpha: !0
     });
-    this.leavesMesh.geometry.dispose(), this.leavesMesh.geometry = e, this.leavesMesh.material.dispose(), this.leavesMesh.material = n, this.leavesMesh.material.map = x(
+    n.map = x(
       `leaves/${this.options.leaves.type}_color.png`,
       new t.Vector2(1, 1),
       t.SRGBColorSpace
-    ), this.leavesMesh.castShadow = !0, this.leavesMesh.receiveShadow = !0;
+    ), this.leavesMesh.geometry.dispose(), this.leavesMesh.geometry = e, this.leavesMesh.material.dispose(), this.leavesMesh.material = n, this.leavesMesh.castShadow = !0, this.leavesMesh.receiveShadow = !0;
   }
 }
 export {

@@ -6,6 +6,7 @@ import { Skybox, SkyboxOptions } from './skybox';
 const simplex = new SimplexNoise();
 const gltfLoader = new GLTFLoader();
 const textureLoader = new THREE.TextureLoader();
+
 let _grassGeometry = null;
 const grassMaterial = new THREE.MeshLambertMaterial({
   side: THREE.DoubleSide
@@ -121,9 +122,9 @@ export class Environment extends THREE.Object3D {
 
       // Set scale randomly
       dummy.scale.set(
-        2 * Math.random() + 1,
-        2 * Math.random() + 2,
-        2 * Math.random() + 1
+        3 * Math.random() + 1,
+        4 * Math.random() + 1,
+        3 * Math.random() + 1
       );
 
       // Apply the transformation to the instance

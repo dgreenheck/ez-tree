@@ -8,7 +8,6 @@ import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { Tree, TreePreset } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
-import { Skybox } from './skybox';
 import { NeutralToneMapping } from 'three/src/constants.js';
 import { Environment } from './environment';
 
@@ -46,7 +45,6 @@ controls.update();
 camera.position.set(80, 15, 0);
 
 const tree = new Tree();
-tree.loadPreset(TreePreset.Ash_1);
 tree.generate();
 tree.castShadow = true;
 tree.receiveShadow = true;

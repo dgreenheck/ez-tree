@@ -242,13 +242,13 @@ declare class TreeOptions {
 }
 
 export declare namespace TreePreset {
-    let Ash_1: string;
+    let Ash_1: number;
         { Ash_1 as Ash };
-    let Aspen_1: string;
+    let Aspen_1: number;
         { Aspen_1 as Aspen };
-    let Pine_2: string;
+    let Pine_2: number;
         { Pine_2 as Pine };
-    let Oak_2: string;
+    let Oak_2: number;
         { Oak_2 as Oak };
 }
 

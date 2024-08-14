@@ -592,14 +592,16 @@ export class Tree extends THREE.Group {
       premultipliedAlpha: true
     });
 
-    this.leavesMesh.geometry.dispose();
-    this.leavesMesh.geometry = g;
-    this.leavesMesh.material.dispose();
-    this.leavesMesh.material = mat;
-    this.leavesMesh.material.map = loadTexture(
+    mat.map = loadTexture(
       `leaves/${this.options.leaves.type}_color.png`,
       new THREE.Vector2(1, 1),
       THREE.SRGBColorSpace);
+
+    this.leavesMesh.geometry.dispose();
+    this.leavesMesh.geometry = g;
+    this.leavesMesh.material.dispose();
+
+    this.leavesMesh.material = mat;
 
     this.leavesMesh.castShadow = true;
     this.leavesMesh.receiveShadow = true;
