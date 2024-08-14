@@ -1,5 +1,3 @@
-import dts from 'vite-plugin-dts';
-
 // Config file for the npm build
 /**
  * @type {import('vite').UserConfig}
@@ -22,13 +20,5 @@ export default {
       },
     },
     sourcemap: 'true',
-    terserOptions: {
-      mangle: false
-    }
-  },
-  plugins: [
-    dts({
-      rollupTypes: true,
-    }),
-  ],
+  }
 };

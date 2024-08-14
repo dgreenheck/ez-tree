@@ -141,8 +141,6 @@ export class Environment extends THREE.Object3D {
     }
     this.grassMesh.count = count;
 
-    console.log(count);
-
     // Ensure the transformation is updated in the GPU
     this.grassMesh.instanceMatrix.needsUpdate = true;
   }
