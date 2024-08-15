@@ -45,6 +45,7 @@ controls.update();
 camera.position.set(80, 15, 0);
 
 const tree = new Tree();
+tree.loadPreset(TreePreset.AshMedium);
 tree.generate();
 tree.castShadow = true;
 tree.receiveShadow = true;
@@ -115,5 +116,5 @@ function animate() {
   composer.render();
 }
 
-setupUI(tree, environment, renderer, scene, camera, bloomPass);
+setupUI(tree, environment, renderer, scene, camera, bloomPass, TreePreset.AshMedium);
 animate();

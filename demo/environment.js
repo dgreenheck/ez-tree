@@ -109,7 +109,6 @@ export class Environment extends THREE.Object3D {
         p.z / this.options.grass.scale);
 
       if (n > this.options.grass.density) { continue; }
-      count++;
 
       dummy.position.copy(p);
 
@@ -138,6 +137,7 @@ export class Environment extends THREE.Object3D {
 
       this.grassMesh.setMatrixAt(count, dummy.matrix);
       this.grassMesh.setColorAt(count, color);
+      count++;
     }
     this.grassMesh.count = count;
 
@@ -145,5 +145,6 @@ export class Environment extends THREE.Object3D {
 
     // Ensure the transformation is updated in the GPU
     this.grassMesh.instanceMatrix.needsUpdate = true;
+    this.grassMesh.instanceColor.needsUpdate = true;
   }
 }
