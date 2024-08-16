@@ -33,9 +33,6 @@
     "demo": "vite --config vite.demo.config.js --host 127.0.0.1",
     "preview": "vite preview --host 127.0.0.1"
   },
-  "dependencies": {
-    "@types/three": "^0.161.x"
-  },
   "devDependencies": {
     "three": "^0.167.x",
     "prettier": "3.3.3",

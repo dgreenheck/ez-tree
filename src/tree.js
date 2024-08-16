@@ -1,42 +1,10 @@
 import * as THREE from 'three';
 import RNG from './rng';
 import { Branch } from './branch';
-import { Billboard, TreePreset, TreeType } from './enums';
+import { Billboard, TreeType } from './enums';
 import TreeOptions from './options';
-import { loadPreset } from './presets/index.js';
-
-const textureCache = {};
-
-const textureLoader = new THREE.TextureLoader();
-
-/**
- * 
- * @param {string} path Path relative to the `textures` directory
- * @param {*} scale 
- * @param {*} colorSpace 
- * @returns 
- */
-const loadTexture = (path, scale = { x: 1, y: 1 }, colorSpace = null) => {
-  if (!textureCache[path]) {
-    const url = new URL('../src/textures/' + path, import.meta.url).href;
-    textureCache[path] = textureLoader.load(url);
-  }
-
-  /**
-   * @type {THREE.Texture}
-   */
-  const texture = textureCache[path];
-  texture.wrapS = THREE.MirroredRepeatWrapping;
-  texture.wrapT = THREE.MirroredRepeatWrapping;
-  texture.repeat.x = scale.x;
-  texture.repeat.y = 1 / scale.y;
-
-  if (colorSpace) {
-    texture.colorSpace = colorSpace;
-  }
-
-  return texture;
-};
+import { loadPreset } from './presets/index';
+import { getBarkTexture, getLeafTexture } from './textures';
 
 export class Tree extends THREE.Group {
   /**
@@ -549,20 +517,19 @@ export class Tree extends THREE.Group {
       color: this.options.bark.tint,
     });
 
+    if (this.options.bark.textured) {
+      mat.aoMap = getBarkTexture(this.options.bark.type, 'ao', this.options.bark.textureScale);
+      mat.map = getBarkTexture(this.options.bark.type, 'color', this.options.bark.textureScale);
+      mat.normalMap = getBarkTexture(this.options.bark.type, 'normal', this.options.bark.textureScale);
+      mat.roughnessMap = getBarkTexture(this.options.bark.type, 'roughness', this.options.bark.textureScale);
+    }
+
     this.branchesMesh.geometry.dispose();
     this.branchesMesh.geometry = g;
     this.branchesMesh.material.dispose();
     this.branchesMesh.material = mat;
     this.branchesMesh.castShadow = true;
     this.branchesMesh.receiveShadow = true;
-
-    if (this.options.bark.textured) {
-      const scale = this.options.bark.textureScale;
-      this.branchesMesh.material.aoMap = loadTexture(`bark/${this.options.bark.type}_ao_1k.jpg`, scale);
-      this.branchesMesh.material.map = loadTexture(`bark/${this.options.bark.type}_color_1k.jpg`, scale);
-      this.branchesMesh.material.normalMap = loadTexture(`bark/${this.options.bark.type}_normal_1k.jpg`, scale);
-      this.branchesMesh.material.roughnessMap = loadTexture(`bark/${this.options.bark.type}_roughness_1k.jpg`, scale);
-    }
   }
 
   /**
@@ -586,16 +553,12 @@ export class Tree extends THREE.Group {
 
     const mat = new THREE.MeshStandardMaterial({
       name: 'leaves',
+      map: getLeafTexture(this.options.leaves.type),
       color: this.options.leaves.tint,
       side: THREE.DoubleSide,
       alphaTest: this.options.leaves.alphaTest,
       premultipliedAlpha: true
     });
-
-    mat.map = loadTexture(
-      `leaves/${this.options.leaves.type}_color.png`,
-      new THREE.Vector2(1, 1),
-      THREE.SRGBColorSpace);
 
     this.leavesMesh.geometry.dispose();
     this.leavesMesh.geometry = g;
