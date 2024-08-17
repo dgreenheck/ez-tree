@@ -45,7 +45,7 @@ The demo application is a Three.js app which allows you to tune the parameters o
 
 ```bash
 npm install
-npm run build:npm
+npm run build:lib
 npm run demo
 ```
 

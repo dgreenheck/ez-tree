@@ -6,7 +6,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { Tree } from '@dgreenheck/tree-js';
+import { Tree, TreePreset } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
 import { NeutralToneMapping } from 'three/src/constants.js';
 import { Environment } from './environment';
@@ -49,7 +49,7 @@ tree.loadPreset(TreePreset.AshMedium);
 tree.generate();
 tree.castShadow = true;
 tree.receiveShadow = true;
-scene.add(tree);
+//scene.add(tree);
 
 // Display vertex and triangle count on UI
 const vertexCount = (tree.branches.verts.length + tree.leaves.verts.length) / 3;
