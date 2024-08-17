@@ -49,7 +49,7 @@ tree.loadPreset(TreePreset.AshMedium);
 tree.generate();
 tree.castShadow = true;
 tree.receiveShadow = true;
-//scene.add(tree);
+scene.add(tree);
 
 // Display vertex and triangle count on UI
 const vertexCount = (tree.branches.verts.length + tree.leaves.verts.length) / 3;

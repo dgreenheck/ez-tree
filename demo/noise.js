@@ -2,9 +2,9 @@ import * as THREE from 'three';
 
 function mod3(v) {
   return new THREE.Vector3(
-    v.x - Math.floor(v.x * (1.0 / 289.0)) * 289.0,
-    v.y - Math.floor(v.y * (1.0 / 289.0)) * 289.0,
-    v.z - Math.floor(v.z * (1.0 / 289.0)) * 289.0
+    v.x - Math.floor(v.x / 289.0) * 289.0,
+    v.y - Math.floor(v.y / 289.0) * 289.0,
+    v.z - Math.floor(v.z / 289.0) * 289.0
   );
 }
 
@@ -68,17 +68,26 @@ export function simplex2d(v) {
   p = permute3(p);
   p = permute3(new THREE.Vector3(
     p.x + i.x,
-    p.x + i.x + i1.x,
-    p.x + i.x + 1.0
+    p.y + i.x + i1.x,
+    p.z + i.x + 1.0
   ));
 
   let m = new THREE.Vector3(
     Math.max(0.0, 0.5 - x0.dot(x0)),
-    Math.max(0.5 - (x12.x * x12.x + x12.y * x12.y)),
-    Math.max(0.5 - (x12.z * x12.z + x12.w * x12.w))
+    Math.max(0.0, 0.5 - (x12.x * x12.x + x12.y * x12.y)),
+    Math.max(0.0, 0.5 - (x12.z * x12.z + x12.w * x12.w))
   );
-  m = new THREE.Vector3().multiplyVectors(m, m);
-  m = new THREE.Vector3().multiplyVectors(m, m);
+  m = new THREE.Vector3(
+    m.x * m.x,
+    m.y * m.y,
+    m.z * m.z
+  );
+  m = new THREE.Vector3(
+    m.x * m.x,
+    m.y * m.y,
+    m.z * m.z
+  );
+
 
   let x = new THREE.Vector3(
     2.0 * ((p.x * C.w) - Math.floor(p.x * C.w)) - 1.0,
@@ -105,9 +114,9 @@ export function simplex2d(v) {
   );
 
   m = new THREE.Vector3(
-    m.x * 1.79284291400159 - 0.85373472095314 * (a0.x * a0.x + h.x * h.x),
-    m.y * 1.79284291400159 - 0.85373472095314 * (a0.y * a0.y + h.y * h.y),
-    m.z * 1.79284291400159 - 0.85373472095314 * (a0.z * a0.z + h.z * h.z),
+    m.x * (1.79284291400159 - 0.85373472095314 * (a0.x * a0.x + h.x * h.x)),
+    m.y * (1.79284291400159 - 0.85373472095314 * (a0.y * a0.y + h.y * h.y)),
+    m.z * (1.79284291400159 - 0.85373472095314 * (a0.z * a0.z + h.z * h.z)),
   );
 
   let g = new THREE.Vector3(
