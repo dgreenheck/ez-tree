@@ -6,7 +6,7 @@ export default {
   build: {
     outDir: './build',
     lib: {
-      entry: 'src/index.js', // Entry point of your library
+      entry: 'src/lib/index.js', // Entry point of your library
       name: '@dgreenheck-tree-js', // Global variable name for your UMD build
       fileName: (format) => `@dgreenheck-tree-js.${format}.js`, // Output file name format
     },
