@@ -1,7 +1,7 @@
 # Tree.js
 
 <p align="center">
-<img src="https://github.com/dgreenheck/tree-js/assets/3814912/d42076c3-06ad-469d-bca1-f84a1a5eb2cb" width="400">
+<img src="https://github.com/user-attachments/assets/4ed61044-48f8-4f43-be0c-96ce90416a7f">
 </p>
 
 A procedural tree generator built with Three.js. Over 30 tunable parameters and support for exporting to .glb.
