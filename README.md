@@ -41,15 +41,17 @@ For more info, see the demo app for an example on how to create a tree.
 
 The demo application is a Three.js app which allows you to tune the parameters of the tree in real-time. It also has options for exporting the generated mesh to a `.glb` file, as well as a `.png` export of the current view for 2D applications.
 
-## Running Demo Locally
+## Running App Locally
+
+To run the app locally, you first need to build the Tree.js library before running the app.
 
 ```bash
 npm install
 npm run build:lib
-npm run demo
+npm run app
 ```
 
-## Running Demo with Docker
+## Running App with Docker
 
 ```bash
 docker compose build

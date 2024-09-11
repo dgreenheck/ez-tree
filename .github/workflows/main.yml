@@ -37,8 +37,10 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm install
-      - name: Build
-        run: npm run build:demo
+      - name: Build Tree.js Library
+        run: npm run build:lib
+      - name: Build Tree.js App
+        run: npm run build:app
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact

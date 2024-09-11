@@ -7,10 +7,10 @@ import path from 'path';
 export default {
   base: '/tree-js/',
   build: {
-    outDir: 'dist',
+    outDir: '../../dist',
     sourcemap: true,
   },
-  root: './demo',
+  root: './src/app',
   resolve: {
     alias: {
       '@dgreenheck/tree-js': path.resolve(

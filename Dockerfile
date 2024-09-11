@@ -13,8 +13,11 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Build the app
-RUN npm run build:demo
+# Build the Tree.js library
+RUN npm run build:lib
+
+# Build the Tree.js app
+RUN npm run build:app
 
 # Install a simple HTTP server for serving static content
 RUN npm install -g http-server

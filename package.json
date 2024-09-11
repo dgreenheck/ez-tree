@@ -21,16 +21,14 @@
     }
   },
   "files": [
-    "build",
-    "demo",
     "src",
     "index.js"
   ],
   "scripts": {
-    "build:demo": "vite build --config vite.demo.config.js",
+    "build:app": "vite build --config vite.app.config.js",
     "build:lib": "vite build --config vite.lib.config.js",
     "build:watch": "vite build --config vite.lib.config.js --watch",
-    "demo": "vite --config vite.demo.config.js --host 127.0.0.1",
+    "app": "vite --config vite.app.config.js --host 127.0.0.1",
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {
