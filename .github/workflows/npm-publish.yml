@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build project
-        run: npm run build:npm
+        run: npm run build:lib
 
   publish-npm:
     needs: build

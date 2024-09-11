@@ -6,9 +6,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { Tree } from '@dgreenheck/tree-js';
+import { Tree, TreePreset } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
-import { NeutralToneMapping } from 'three/src/constants.js';
 import { Environment } from './environment';
 
 const stats = new Stats();
@@ -17,14 +16,16 @@ document.body.appendChild(stats.dom);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setClearColor(0);
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = NeutralToneMapping;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
 
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x9dccff, 150, 200);
+//scene.fog = new THREE.Fog(0x9dccff, 150, 200);
 
 const environment = new Environment();
 scene.add(environment);
@@ -36,15 +37,19 @@ const camera = new THREE.PerspectiveCamera(
   1200,
 );
 const controls = new OrbitControls(camera, renderer.domElement);
-
-controls.minDistance = 1;
-controls.maxDistance = 100;
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.minPolarAngle = 1.3;
+controls.maxPolarAngle = 1.6;
+controls.minDistance = 50;
+controls.maxDistance = 150;
 controls.target.set(0, 15, 0);
 controls.update();
 
-camera.position.set(80, 15, 0);
+camera.position.set(80, 5, 0);
 
 const tree = new Tree();
+tree.loadPreset(TreePreset.AshMedium);
 tree.generate();
 tree.castShadow = true;
 tree.receiveShadow = true;
@@ -99,7 +104,7 @@ const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), wind
 composer.addPass(smaaPass);
 
 // Bloom pass: Adds bloom effect
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1, 0.4, 0.85);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.3, 0.4, 0.56);
 composer.addPass(bloomPass);
 
 // God rays pass: (Optional, requires additional setup for light shafts if needed)
@@ -115,5 +120,5 @@ function animate() {
   composer.render();
 }
 
-setupUI(tree, environment, renderer, scene, camera, bloomPass);
+setupUI(tree, environment, renderer, scene, camera, bloomPass, TreePreset.AshMedium);
 animate();

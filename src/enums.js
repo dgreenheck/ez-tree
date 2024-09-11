@@ -18,10 +18,14 @@ export const LeafType = {
 };
 
 export const TreePreset = {
-  Ash: 0,
-  Aspen: 1,
-  Pine: 2,
-  Oak: 3
+  AshSmall: 0,
+  AshMedium: 10,
+  AshLarge: 20,
+  Aspen: 30,
+  PineSmall: 60,
+  PineMedium: 70,
+  PineLarge: 80,
+  Oak: 90,
 };
 
 export const TreeType = {
