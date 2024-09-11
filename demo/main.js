@@ -37,13 +37,16 @@ const camera = new THREE.PerspectiveCamera(
   1200,
 );
 const controls = new OrbitControls(camera, renderer.domElement);
-
-controls.minDistance = 1;
-controls.maxDistance = 100;
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.minPolarAngle = 1.3;
+controls.maxPolarAngle = 1.6;
+controls.minDistance = 50;
+controls.maxDistance = 150;
 controls.target.set(0, 15, 0);
 controls.update();
 
-camera.position.set(80, 15, 0);
+camera.position.set(80, 5, 0);
 
 const tree = new Tree();
 tree.loadPreset(TreePreset.AshMedium);
