@@ -8,7 +8,6 @@ import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { Tree, TreePreset } from '@dgreenheck/tree-js';
 import { setupUI } from './ui';
-import { NeutralToneMapping } from 'three/src/constants.js';
 import { Environment } from './environment';
 
 const stats = new Stats();
@@ -17,14 +16,16 @@ document.body.appendChild(stats.dom);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setClearColor(0);
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = NeutralToneMapping;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
 
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x9dccff, 150, 200);
+//scene.fog = new THREE.Fog(0x9dccff, 150, 200);
 
 const environment = new Environment();
 scene.add(environment);
@@ -100,7 +101,7 @@ const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), wind
 composer.addPass(smaaPass);
 
 // Bloom pass: Adds bloom effect
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1, 0.4, 0.85);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.3, 0.4, 0.56);
 composer.addPass(bloomPass);
 
 // God rays pass: (Optional, requires additional setup for light shafts if needed)

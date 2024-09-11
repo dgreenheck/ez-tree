@@ -36,6 +36,8 @@ const textureLoader = new THREE.TextureLoader();
  */
 export function getBarkTexture(barkType, fileType, scale = { x: 1, y: 1 }) {
   const texture = textures.bark[barkType][fileType];
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.x = scale.x;
   texture.repeat.y = 1 / scale.y;
   return texture;
@@ -59,9 +61,7 @@ export function getLeafTexture(leafType) {
  */
 const loadTexture = (url, srgb = true) => {
   const texture = textureLoader.load(url);
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-
+  texture.premultiplyAlpha = true;
   if (srgb) {
     texture.colorSpace = THREE.SRGBColorSpace;
   }

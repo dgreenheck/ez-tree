@@ -191,8 +191,6 @@ export function setupUI(
     .name('Level 3');
 
   addLeavesControls(gui, tree);
-  addEnvironmentControls(gui, environment);
-  addPostProcessingControls(gui, bloomPass);
 
   gui
     .add(
@@ -299,41 +297,4 @@ function addLeavesControls(gui, tree) {
     .name('Size Variance');
 
   leavesFolder.add(tree.options.leaves, 'alphaTest', 0, 1).name('AlphaTest');
-}
-
-function addEnvironmentControls(gui, environment) {
-  const environmentFolder = gui.addFolder('Environment').close();
-
-  const grassFolder = environmentFolder.addFolder('Grass');
-  grassFolder.addColor(environment.options.grass, 'grassColor').name('Grass Color');
-  grassFolder.addColor(environment.options.grass, 'dirtColor').name('Dirt Color');
-  grassFolder.add(environment.options.grass, 'samples', 0, 25000).name('Samples');
-  grassFolder.add(environment.options.grass, 'patchiness', 0, 1).name('Patchiness');
-  grassFolder.add(environment.options.grass, 'scale', 0, 100).name('Patch Size');
-  grassFolder.add(environment.options.grass.size, 'x', 0, 10).name('X Size');
-  grassFolder.add(environment.options.grass.size, 'y', 0, 10).name('Y Size');
-  grassFolder.add(environment.options.grass.size, 'z', 0, 10).name('Z Size');
-  grassFolder.add(environment.options.grass.sizeVariation, 'x', 0, 10).name('X Size Variation');
-  grassFolder.add(environment.options.grass.sizeVariation, 'y', 0, 10).name('Y Size Variation');
-  grassFolder.add(environment.options.grass.sizeVariation, 'z', 0, 10).name('Z Size Variation');
-
-  grassFolder.onChange(() => {
-    environment.grass.update();
-  });
-
-  const skyboxFolder = environmentFolder.addFolder('Skybox');
-  skyboxFolder.addColor(environment.skybox, 'skyColorLow').name('Sky Color 1');
-  skyboxFolder.addColor(environment.skybox, 'skyColorHigh').name('Sky Color 2');
-  skyboxFolder.addColor(environment.skybox, 'sunColor').name('Sun Color');
-  skyboxFolder.add(environment.skybox, 'sunSize', 0.1, 10).name('Sun Size');
-  skyboxFolder.add(environment.skybox, 'sunAzimuth', 0, 360).name('Sun Azimuth');
-  skyboxFolder.add(environment.skybox, 'sunElevation', -90, 90).name('Sun Elevation');
-}
-
-function addPostProcessingControls(gui, bloomPass) {
-  const postprocessingFolder = gui.addFolder('Post Processing').close();
-  const bloomFolder = postprocessingFolder.addFolder('Bloom');
-  bloomFolder.add(bloomPass, 'threshold', 0.0, 1.0).name('Threshold');
-  bloomFolder.add(bloomPass, 'strength', 0.0, 3.0).name('Strength');
-  bloomFolder.add(bloomPass, 'radius', 0.0, 1.0).name('Radius');
 }

@@ -4,62 +4,68 @@ import { simplex2d } from './noise';
 import fragmentShader from './shaders/grass.frag?raw';
 import vertexShader from './shaders/grass.vert?raw'
 
-const gltfLoader = new GLTFLoader();
-
-let _grassGeometry = null;
-const grassMaterial = new THREE.MeshLambertMaterial({
-  side: THREE.DoubleSide
-});
+let loaded = false;
+let _grassMesh = null;
+let _grassTexture = null;
+let _dirtTexture = null;
 
 /**
  * 
  * @returns {Promise<THREE.Geometry>}
  */
-async function fetchGrassGeometry() {
-  if (_grassGeometry) return _grassGeometry;
+async function fetchAssets() {
+  if (loaded) return;
+
+  const textureLoader = new THREE.TextureLoader();
+  const gltfLoader = new GLTFLoader();
 
   const gltf = await gltfLoader.loadAsync('grass.glb');
-  _grassGeometry = gltf.scene.children[0].geometry;
-  _grassGeometry.applyMatrix4(gltf.scene.children[0].matrix);
+  _grassMesh = gltf.scene.children[0];
+  _grassMesh.material.map.colorSpace = THREE.SRGBColorSpace;
+  _grassMesh.material.map.premultiplyAlpha = true;
+  _grassMesh.material.transparent = false;
+  _grassMesh.material.alphaTest = 0.5;
+  _grassMesh.material.depthTest = true;
+  _grassMesh.material.depthWrite = true;
 
-  return _grassGeometry;
+  _grassTexture = await textureLoader.loadAsync('grass.png');
+  _grassTexture.wrapS = THREE.RepeatWrapping;
+  _grassTexture.wrapT = THREE.RepeatWrapping;
+  _grassTexture.colorSpace = THREE.SRGBColorSpace;
+
+  _dirtTexture = await textureLoader.loadAsync('dirt.png');
+  _dirtTexture.wrapS = THREE.RepeatWrapping;
+  _dirtTexture.wrapT = THREE.RepeatWrapping;
+  _dirtTexture.colorSpace = THREE.SRGBColorSpace;
+
+  loaded = true;
 }
 
 export class GrassOptions {
   /**
-   * Color of the dirt
-   */
-  dirtColor = new THREE.Color(0x693712).convertLinearToSRGB();
-
-  /**
-   * Color of the grass
-   */
-  grassColor = new THREE.Color(0x0d1809).convertLinearToSRGB();
-
-  /**
    * Number of samples to take when creating grass
    */
-  samples = 20000;
+  samples = 15000;
 
   /**
    * Size of the grass patches
    */
-  scale = 50;
+  scale = 60;
 
   /**
    * Patchiness of the grass
    */
-  patchiness = 0.4;
+  patchiness = 0.7;
 
   /**
    * Scale factor for the grass model
    */
-  size = { x: 3, y: 3, z: 3 };
+  size = { x: 6, y: 4, z: 6 };
 
   /**
    * Maximum variation in the grass size
    */
-  sizeVariation = { x: 3, y: 3, z: 3 };
+  sizeVariation = { x: 1, y: 1, z: 1 };
 }
 
 export class Grass extends THREE.Object3D {
@@ -76,28 +82,31 @@ export class Grass extends THREE.Object3D {
      */
     this.maxInstanceCount = 25000;
 
-    // Ground plane with procedural grass/dirt texture
-    const material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      uniforms: {
-        uNoiseScale: { value: this.options.scale },
-        uPatchiness: { value: this.options.patchiness },
-        uGrassColor: { value: this.options.grassColor },
-        uDirtColor: { value: this.options.dirtColor }
-      }
-    });
+    fetchAssets().then(() => {
+      // Ground plane with procedural grass/dirt texture
+      const groundMaterial = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+          uNoiseScale: { value: this.options.scale },
+          uPatchiness: { value: this.options.patchiness },
+          uGrassTexture: { value: _grassTexture },
+          uDirtTexture: { value: _dirtTexture }
+        },
+        shadowSide: THREE.DoubleSide
+      });
 
-    this.ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(500, 500),
-      material
-    );
-    this.ground.rotation.x = -Math.PI / 2;
-    this.add(this.ground);
+      this.ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(500, 500),
+        groundMaterial
+      );
+      this.ground.rotation.x = -Math.PI / 2;
+      this.ground.receiveShadow = true;
+      this.add(this.ground);
 
-    fetchGrassGeometry().then((geometry) => {
-      this.grassMesh = new THREE.InstancedMesh(geometry, grassMaterial, this.maxInstanceCount);
-      this.grassMesh.castShadow = true;
+      console.log(_grassMesh.material);
+
+      this.grassMesh = new THREE.InstancedMesh(_grassMesh.geometry, _grassMesh.material, this.maxInstanceCount);
       this.add(this.grassMesh);
       this.update();
     });
@@ -126,9 +135,7 @@ export class Grass extends THREE.Object3D {
         p.z / this.options.scale
       ));
 
-      console.log(n);
-
-      if (n > this.options.patchiness) { continue; }
+      if (n > this.options.patchiness && Math.random() + 0.6 > this.options.patchiness) { continue; }
 
       dummy.position.copy(p);
 
@@ -150,13 +157,11 @@ export class Grass extends THREE.Object3D {
       dummy.updateMatrix();
 
       const color = new THREE.Color(
-        0.3 + 0.1 * Math.random(),
-        0.5 + 0.1 * Math.random(),
-        0.2
-      );
+        0.3 * Math.random() + 0.7,
+        0.3 * Math.random() + 0.7,
+        0);
 
       this.grassMesh.setMatrixAt(count, dummy.matrix);
-
       this.grassMesh.setColorAt(count, color);
       count++;
     }

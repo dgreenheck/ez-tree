@@ -3,7 +3,7 @@
   "type": "evergreen",
   "bark": {
     "type": "pine",
-    "tint": 16761758,
+    "tint": 16777215,
     "flatShading": false,
     "textured": true,
     "textureScale": {

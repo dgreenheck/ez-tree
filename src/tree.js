@@ -556,8 +556,7 @@ export class Tree extends THREE.Group {
       map: getLeafTexture(this.options.leaves.type),
       color: this.options.leaves.tint,
       side: THREE.DoubleSide,
-      alphaTest: this.options.leaves.alphaTest,
-      premultipliedAlpha: true
+      alphaTest: this.options.leaves.alphaTest
     });
 
     this.leavesMesh.geometry.dispose();

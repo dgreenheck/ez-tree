@@ -5,8 +5,8 @@ varying vec3 vWorldPosition;
 uniform float uNoiseScale;
 uniform float uPatchiness;
 
-uniform vec3 uGrassColor;
-uniform vec3 uDirtColor;
+uniform sampler2D uGrassTexture;
+uniform sampler2D uDirtTexture;
 
 vec3 mod289(vec3 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -50,13 +50,16 @@ float simplex2d(vec2 v) {
 }
 
 void main() {
-  vec2 uv = vec2(vWorldPosition.x / uNoiseScale, vWorldPosition.z / uNoiseScale);
+  vec2 uv = vec2(vWorldPosition.x, vWorldPosition.z);
+
+  vec3 grassColor = texture2D(uGrassTexture, uv / 30.0).rgb;
+  vec3 dirtColor = texture2D(uDirtTexture, uv / 15.0).rgb;
 
         // Generate base noise for the texture
-  float n = 0.5 + 0.5 * simplex2d(uv);
+  float n = 0.5 + 0.5 * simplex2d(uv / uNoiseScale);
 
         // Blend between grass and dirt based on the noise value
-  vec3 color = mix(uGrassColor, uDirtColor, smoothstep(uPatchiness - 0.1, uPatchiness + 0.1, n));
+  vec3 color = mix(grassColor, dirtColor, smoothstep(uPatchiness - 0.2, uPatchiness + 0.2, n));
 
         // Output the final color
   gl_FragColor = vec4(color, 1.0);

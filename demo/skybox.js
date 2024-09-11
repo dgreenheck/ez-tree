@@ -13,7 +13,7 @@ export class SkyboxOptions {
     /**
      * Elevation of the sun in degrees
      */
-    this.sunElevation = 25;
+    this.sunElevation = 45;
 
     /**
      * Color of the sun
@@ -67,16 +67,16 @@ export class Skybox extends THREE.Mesh {
     });
 
     this.sun = new THREE.DirectionalLight();
-    this.sun.intensity = 2;
+    this.sun.intensity = 3;
     this.sun.color = options.sunColor;
-    this.sun.position.set(100, 100, 100);
+    this.sun.position.set(50, 100, 50);
     this.sun.castShadow = true;
     this.sun.shadow.camera.left = -200;
     this.sun.shadow.camera.right = 200;
     this.sun.shadow.camera.top = 200;
     this.sun.shadow.camera.bottom = -200;
     this.sun.shadow.bias = -0.0002
-    this.sun.shadow.mapSize = new THREE.Vector2(2048, 2048);
+    this.sun.shadow.mapSize = new THREE.Vector2(1024, 1024);
     this.add(this.sun);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
