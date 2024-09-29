@@ -13,7 +13,7 @@ export class SkyboxOptions {
     /**
      * Elevation of the sun in degrees
      */
-    this.sunElevation = 45;
+    this.sunElevation = 25;
 
     /**
      * Color of the sun
@@ -28,12 +28,12 @@ export class SkyboxOptions {
     /**
      * Color of the sky in the lower part of the sky
      */
-    this.skyColorLow = new THREE.Color(0x7fb2ff).convertLinearToSRGB();
+    this.skyColorLow = new THREE.Color(0x6fa2ef).convertLinearToSRGB();
 
     /**
      * Color of the sun in the higher part of the sky
      */
-    this.skyColorHigh = new THREE.Color(0x3083ff).convertLinearToSRGB();
+    this.skyColorHigh = new THREE.Color(0x2053ff).convertLinearToSRGB();
   }
 }
 
