@@ -28,8 +28,8 @@
     "build:app": "vite build --config vite.app.config.js",
     "build:lib": "vite build --config vite.lib.config.js",
     "build:watch": "vite build --config vite.lib.config.js --watch",
-    "app": "vite --config vite.app.config.js --host 127.0.0.1",
-    "preview": "vite preview --host 127.0.0.1"
+    "app": "vite --config vite.app.config.js",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "three": "^0.167.x",

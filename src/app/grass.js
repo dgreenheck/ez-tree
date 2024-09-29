@@ -157,9 +157,9 @@ export class Grass extends THREE.Object3D {
       dummy.updateMatrix();
 
       const color = new THREE.Color(
-        0.3 * Math.random() + 0.7,
-        0.3 * Math.random() + 0.7,
-        0);
+        0.2 + Math.random() * 0.1,
+        0.4 + Math.random() * 0.1,
+        0.1);
 
       this.grassMesh.setMatrixAt(count, dummy.matrix);
       this.grassMesh.setColorAt(count, color);

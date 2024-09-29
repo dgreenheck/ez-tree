@@ -20,7 +20,7 @@ renderer.setPixelRatio(devicePixelRatio);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.NeutralToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.toneMappingExposure = 1.3;
 
 document.body.appendChild(renderer.domElement);
 
@@ -104,8 +104,8 @@ const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), wind
 composer.addPass(smaaPass);
 
 // Bloom pass: Adds bloom effect
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.3, 0.4, 0.56);
-composer.addPass(bloomPass);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.1, 0.4);
+//composer.addPass(bloomPass);
 
 // God rays pass: (Optional, requires additional setup for light shafts if needed)
 // Add your custom god rays pass here if you have implemented it
