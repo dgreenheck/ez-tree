@@ -514,7 +514,7 @@ export class Tree extends THREE.Group {
     const mat = new THREE.MeshStandardMaterial({
       name: 'branches',
       flatShading: this.options.bark.flatShading,
-      color: this.options.bark.tint,
+      color: new THREE.Color(this.options.bark.tint),
     });
 
     if (this.options.bark.textured) {
@@ -554,7 +554,7 @@ export class Tree extends THREE.Group {
     const mat = new THREE.MeshStandardMaterial({
       name: 'leaves',
       map: getLeafTexture(this.options.leaves.type),
-      color: this.options.leaves.tint,
+      color: new THREE.Color(this.options.leaves.tint),
       side: THREE.DoubleSide,
       alphaTest: this.options.leaves.alphaTest
     });

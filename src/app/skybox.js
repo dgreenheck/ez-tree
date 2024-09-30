@@ -13,7 +13,7 @@ export class SkyboxOptions {
     /**
      * Elevation of the sun in degrees
      */
-    this.sunElevation = 25;
+    this.sunElevation = 60;
 
     /**
      * Color of the sun
@@ -67,7 +67,7 @@ export class Skybox extends THREE.Mesh {
     });
 
     this.sun = new THREE.DirectionalLight();
-    this.sun.intensity = 3;
+    this.sun.intensity = 4;
     this.sun.color = options.sunColor;
     this.sun.position.set(50, 100, 50);
     this.sun.castShadow = true;

@@ -7,6 +7,7 @@ import path from 'path';
 export default {
   base: '/tree-js/',
   build: {
+    emptyOutDir: true,
     outDir: '../../dist',
     sourcemap: true,
   },

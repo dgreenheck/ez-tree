@@ -12,4 +12,4 @@ services:
       - ./public:/usr/src/app/public
     environment:
       - NODE_ENV=development
-    command: npm run demo -- --host 0.0.0.0
+    command: npm run app -- --host 0.0.0.0

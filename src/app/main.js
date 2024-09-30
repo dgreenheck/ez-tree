@@ -20,12 +20,11 @@ renderer.setPixelRatio(devicePixelRatio);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.NeutralToneMapping;
-renderer.toneMappingExposure = 1.3;
+renderer.toneMappingExposure = 1.5;
 
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-//scene.fog = new THREE.Fog(0x9dccff, 150, 200);
 
 const environment = new Environment();
 scene.add(environment);
@@ -38,7 +37,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.enablePan = false;
+controls.enablePan = true;
 controls.minPolarAngle = 1.3;
 controls.maxPolarAngle = 1.6;
 controls.minDistance = 50;
@@ -49,11 +48,27 @@ controls.update();
 camera.position.set(80, 5, 0);
 
 const tree = new Tree();
-tree.loadPreset(TreePreset.AshMedium);
+tree.loadPreset('Ash Large');
 tree.generate();
 tree.castShadow = true;
 tree.receiveShadow = true;
 scene.add(tree);
+
+for (let i = 0; i < 100; i++) {
+  const r = 150 + Math.random() * 100;
+  const theta = 2 * Math.PI * Math.random();
+  const presets = Object.keys(TreePreset);
+  const index = Math.floor(Math.random() * presets.length);
+
+  const t = new Tree();
+  t.position.set(r * Math.cos(theta), 0, r * Math.sin(theta));
+  t.loadPreset(presets[index]);
+  t.options.seed = 10000 * Math.random();
+  t.generate();
+  t.castShadow = true;
+  t.receiveShadow = true;
+  scene.add(t);
+}
 
 // Display vertex and triangle count on UI
 const vertexCount = (tree.branches.verts.length + tree.leaves.verts.length) / 3;
@@ -103,10 +118,6 @@ composer.addPass(renderPass);
 const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
 composer.addPass(smaaPass);
 
-// Bloom pass: Adds bloom effect
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.1, 0.4);
-//composer.addPass(bloomPass);
-
 // God rays pass: (Optional, requires additional setup for light shafts if needed)
 // Add your custom god rays pass here if you have implemented it
 
@@ -120,5 +131,5 @@ function animate() {
   composer.render();
 }
 
-setupUI(tree, environment, renderer, scene, camera, bloomPass, TreePreset.AshMedium);
+setupUI(tree, environment, renderer, scene, camera, TreePreset.AshMedium);
 animate();

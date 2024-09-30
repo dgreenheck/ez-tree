@@ -13,9 +13,6 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Build the Tree.js library
-RUN npm run build:lib
-
 # Build the Tree.js app
 RUN npm run build:app
 
@@ -26,4 +23,4 @@ RUN npm install -g http-server
 EXPOSE 8080
 
 # Run the app when the container launches
-CMD ["http-server", "demo/dist"]
+CMD ["http-server", "dist"]

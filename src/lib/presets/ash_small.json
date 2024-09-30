@@ -87,7 +87,7 @@
     "start": 0.384,
     "size": 2.4,
     "sizeVariance": 0,
-    "tint": "0xfcff8c",
+    "tint": 16777215,
     "alphaTest": 0.371
   }
 }
