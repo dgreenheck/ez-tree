@@ -1,23 +1,23 @@
 {
-  "name": "@dgreenheck/tree-js",
+  "name": "eztree",
   "author": "Daniel Greenheck",
   "version": "0.4.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dgreenheck/tree-js.git"
+    "url": "git+https://github.com/dgreenheck/eztree.git"
   },
-  "homepage": "https://dgreenheck.github.io/tree-js/",
+  "homepage": "https://dgreenheck.github.io/eztree/",
   "bugs": {
-    "url": "https://github.com/dgreenheck/tree-js/issues"
+    "url": "https://github.com/dgreenheck/eztree/issues"
   },
   "type": "module",
-  "main": "build/@dgreenheck-tree-js.umd.js",
-  "module": "build/@dgreenheck-tree-js.es.js",
+  "main": "build/eztree.umd.js",
+  "module": "build/eztree.es.js",
   "exports": {
     ".": {
-      "import": "./build/@dgreenheck-tree-js.es.js",
-      "require": "./build/@dgreenheck-tree-js.umd.js"
+      "import": "./build/eztree.es.js",
+      "require": "./build/eztree.umd.js"
     }
   },
   "files": [
