@@ -5,7 +5,6 @@ import path from 'path';
  * @type {import('vite').UserConfig}
  */
 export default {
-  base: '/eztree/',
   build: {
     emptyOutDir: true,
     outDir: '../../dist',
