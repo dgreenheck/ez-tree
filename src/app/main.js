@@ -26,7 +26,7 @@ document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 
-const environment = new Environment(renderer);
+const environment = new Environment();
 scene.add(environment);
 
 const camera = new THREE.PerspectiveCamera(

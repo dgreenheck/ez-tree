@@ -67,7 +67,7 @@ export class GrassOptions {
 }
 
 export class Grass extends THREE.Object3D {
-  constructor(renderer, options = new GrassOptions()) {
+  constructor(options = new GrassOptions()) {
     super();
 
     /**

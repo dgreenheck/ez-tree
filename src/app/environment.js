@@ -4,11 +4,11 @@ import { Grass } from './grass';
 import { Rocks } from './rocks';
 
 export class Environment extends THREE.Object3D {
-  constructor(renderer) {
+  constructor() {
     super();
 
     // Grass texture for ground plane
-    this.grass = new Grass(renderer);
+    this.grass = new Grass();
     this.add(this.grass);
 
     // Skybox
