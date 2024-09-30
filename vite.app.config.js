@@ -13,9 +13,9 @@ export default {
   root: './src/app',
   resolve: {
     alias: {
-      'eztree': path.resolve(
+      '@dgreenheck/ez-tree': path.resolve(
         __dirname,
-        'build/eztree.es.js',
+        'build/@dgreenheck/ez-tree.es.js',
       ),
     },
   },

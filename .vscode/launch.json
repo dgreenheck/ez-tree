@@ -11,7 +11,7 @@
       "skipFiles": [
         "${workspaceFolder}/node_modules/**/*.js"
       ],
-      "url": "http://127.0.0.1:5173/eztree/",
+      "url": "http://127.0.0.1:5173",
       "webRoot": "${workspaceFolder}/src"
     }
   ]

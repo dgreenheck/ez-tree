@@ -1,6 +1,6 @@
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-import { BarkType, Billboard, LeafType, TreePreset, Tree, TreeType } from 'eztree';
+import { BarkType, Billboard, LeafType, TreePreset, Tree, TreeType } from '@dgreenheck/ez-tree';
 import { Environment } from './environment';
 
 const exporter = new GLTFExporter();

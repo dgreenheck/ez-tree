@@ -1,15 +1,15 @@
-# EZ Tree
+# EZ-Tree
 
 <p align="center">
 <img src="https://github.com/user-attachments/assets/4ed61044-48f8-4f43-be0c-96ce90416a7f">
 </p>
 
-EZ Tree is a procedural tree generator with dozens of tunable parameters. The standalone tree generation code is published as a library and can be imported into your own application for dynamically generating trees on demand. Additionally, there is a [standalone web app](www.eztree.dev) which allows you to create trees within the browser and export as .PNG or .GLB files.
+EZ-Tree is a procedural tree generator with dozens of tunable parameters. The standalone tree generation code is published as a library and can be imported into your own application for dynamically generating trees on demand. Additionally, there is a [standalone web app](www.eztree.dev) which allows you to create trees within the browser and export as .PNG or .GLB files.
 
 # Installation
 
 ```js
-npm i eztree
+npm i @dgreenheck/ez-tree
 ```
 
 # Usage
@@ -32,7 +32,7 @@ Any time the tree parameters are changed, you must call `generate()` to regenera
 
 # Running Standalone App Locally
 
-To run the standalone app locally, you first need to build the EZ Tree library before running the app.
+To run the standalone app locally, you first need to build the EZ-Tree library before running the app.
 
 ```bash
 npm install

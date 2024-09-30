@@ -7,8 +7,8 @@ export default {
     outDir: './build',
     lib: {
       entry: 'src/lib/index.js', // Entry point of your library
-      name: 'eztree', // Global variable name for your UMD build
-      fileName: (format) => `eztree.${format}.js`, // Output file name format
+      name: '@dgreenheck/ez-tree', // Global variable name for your UMD build
+      fileName: (format) => `@dgreenheck/ez-tree.${format}.js`, // Output file name format
     },
     rollupOptions: {
       // Ensure to externalize dependencies you don't want to bundle into your library

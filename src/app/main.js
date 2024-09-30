@@ -6,7 +6,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { Tree, TreePreset } from 'eztree';
+import { Tree, TreePreset } from '@dgreenheck/ez-tree';
 import { setupUI } from './ui';
 import { Environment } from './environment';
 
