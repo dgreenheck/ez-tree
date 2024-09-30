@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 import { simplex2d } from './noise';
-import fragmentShader from './shaders/grass.frag?raw';
-import vertexShader from './shaders/grass.vert?raw'
 
 let loaded = false;
 let _grassMesh = null;
@@ -69,7 +67,7 @@ export class GrassOptions {
 }
 
 export class Grass extends THREE.Object3D {
-  constructor(options = new GrassOptions()) {
+  constructor(renderer, options = new GrassOptions()) {
     super();
 
     /**
@@ -84,17 +82,104 @@ export class Grass extends THREE.Object3D {
 
     fetchAssets().then(() => {
       // Ground plane with procedural grass/dirt texture
-      const groundMaterial = new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        uniforms: {
-          uNoiseScale: { value: this.options.scale },
-          uPatchiness: { value: this.options.patchiness },
-          uGrassTexture: { value: _grassTexture },
-          uDirtTexture: { value: _dirtTexture }
-        },
-        shadowSide: THREE.DoubleSide
+      const groundMaterial = new THREE.MeshPhongMaterial({
+        shininess: 0
       });
+
+      groundMaterial.onBeforeCompile = (shader) => {
+        shader.uniforms.uNoiseScale = { value: this.options.scale };
+        shader.uniforms.uPatchiness = { value: this.options.patchiness };
+        shader.uniforms.uGrassTexture = { value: _grassTexture };
+        shader.uniforms.uDirtTexture = { value: _dirtTexture };
+
+        shader.vertexShader = `
+          varying vec3 vWorldPosition;
+          ` + shader.vertexShader;
+
+        shader.fragmentShader = `
+          varying vec3 vWorldPosition;
+          uniform float uNoiseScale;
+          uniform float uPatchiness;
+          uniform sampler2D uGrassTexture;
+          uniform sampler2D uDirtTexture;
+          ` + shader.fragmentShader;
+
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <worldpos_vertex>',
+          `#include <worldpos_vertex>
+            vWorldPosition = worldPosition.xyz;
+            `
+        );
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          `void main() {`,
+          `
+          vec3 mod289(vec3 x) {
+            return x - floor(x * (1.0 / 289.0)) * 289.0;
+          }
+
+          vec2 mod289(vec2 x) {
+            return x - floor(x * (1.0 / 289.0)) * 289.0;
+          }
+
+          vec3 permute(vec3 x) {
+            return mod289(((x * 34.0) + 1.0) * x);
+          }
+
+          float simplex2d(vec2 v) {
+            const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+            vec2 i = floor(v + dot(v, C.yy));
+            vec2 x0 = v - i + dot(i, C.xx);
+            vec2 i1;
+            i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+            vec4 x12 = x0.xyxy + C.xxzz;
+            x12.xy -= i1;
+
+            i = mod289(i);
+            vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+
+            vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+            m = m * m;
+            m = m * m;
+
+            vec3 x = 2.0 * fract(p * C.www) - 1.0;
+            vec3 h = abs(x) - 0.5;
+            vec3 ox = floor(x + 0.5);
+            vec3 a0 = x - ox;
+
+            m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+
+            vec3 g;
+            g.x = a0.x * x0.x + h.x * x0.y;
+            g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+            return 130.0 * dot(m, g);
+          }
+          
+          void main() {`,
+        );
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <map_fragment>',
+          `
+          vec2 uv = vec2(vWorldPosition.x, vWorldPosition.z);
+          vec3 grassColor = texture2D(uGrassTexture, uv / 30.0).rgb;
+          vec3 dirtColor = texture2D(uDirtTexture, uv / 15.0).rgb;
+
+          // Generate base noise for the texture
+          float n = 0.5 + 0.5 * simplex2d(uv / uNoiseScale);
+          float s = smoothstep(uPatchiness - 0.2, uPatchiness + 0.2, n);
+
+          // Blend between grass and dirt based on the noise value
+          vec4 sampledDiffuseColor = vec4(mix(grassColor, dirtColor, s), 1.0);
+          diffuseColor *= sampledDiffuseColor;
+          `
+        );
+
+        groundMaterial.userData.shader = shader;
+      };
+
+      // Make sure WebGLRenderer doesnt reuse a single program
+      groundMaterial.customProgramCacheKey = () => 'ground';
 
       this.ground = new THREE.Mesh(
         new THREE.PlaneGeometry(500, 500),
@@ -104,18 +189,23 @@ export class Grass extends THREE.Object3D {
       this.ground.receiveShadow = true;
       this.add(this.ground);
 
-      console.log(_grassMesh.material);
-
       this.grassMesh = new THREE.InstancedMesh(_grassMesh.geometry, _grassMesh.material, this.maxInstanceCount);
+      _grassMesh.material.color.multiplyScalar(0.6); // Global grass brightness
       this.add(this.grassMesh);
+
       this.update();
     });
   }
 
   update() {
     this.generateGrassInstances();
-    this.ground.material.uniforms.uNoiseScale.value = this.options.scale;
-    this.ground.material.uniforms.uPatchiness.value = this.options.patchiness;
+
+    const shader = this.ground.material.userData.shader;
+    if (shader) {
+      shader.uniforms.uNoiseScale.value = this.options.scale;
+      shader.uniforms.uPatchiness.value = this.options.patchiness;
+      console.log(shader);
+    }
   }
 
   generateGrassInstances() {
@@ -158,7 +248,7 @@ export class Grass extends THREE.Object3D {
 
       const color = new THREE.Color(
         0.2 + Math.random() * 0.1,
-        0.4 + Math.random() * 0.1,
+        0.3 + Math.random() * 0.3,
         0.1);
 
       this.grassMesh.setMatrixAt(count, dummy.matrix);
@@ -166,6 +256,9 @@ export class Grass extends THREE.Object3D {
       count++;
     }
     this.grassMesh.count = count;
+
+    this.grassMesh.receiveShadow = true;
+    this.grassMesh.castShadow = true;
 
     // Ensure the transformation is updated in the GPU
     this.grassMesh.instanceMatrix.needsUpdate = true;

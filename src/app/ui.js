@@ -20,8 +20,7 @@ export function setupUI(
   renderer,
   scene,
   camera,
-  bloomPass,
-  initialPreset = TreePreset.Ash_1) {
+  initialPreset = 'Ash Large') {
 
   gui.destroy();
   gui = new GUI();
@@ -30,11 +29,11 @@ export function setupUI(
     selectedPreset: initialPreset
   };
 
-  const presetSelect = gui.add(guiData, 'selectedPreset', TreePreset).name('Preset');
+  const presetSelect = gui.add(guiData, 'selectedPreset', Object.keys(TreePreset)).name('Preset');
   presetSelect.onChange(() => {
     tree.loadPreset(guiData.selectedPreset);
     // Refresh the UI to reflect the preset options
-    setupUI(tree, environment, renderer, scene, camera, bloomPass, guiData.selectedPreset);
+    setupUI(tree, environment, renderer, scene, camera, guiData.selectedPreset);
   });
 
   gui.add(tree.options, 'seed', 0, 65536, 1).name('Seed');
@@ -97,30 +96,30 @@ export function setupUI(
 
   const lengthFolder = branchFolder.addFolder('Length').close();
   lengthFolder
-    .add(tree.options.branch.length, '0', 0.1, 50, 0.01)
+    .add(tree.options.branch.length, '0', 0.1, 100, 0.01)
     .name('Trunk');
   lengthFolder
-    .add(tree.options.branch.length, '1', 0.1, 50, 0.01)
+    .add(tree.options.branch.length, '1', 0.1, 100, 0.01)
     .name('Level 1');
   lengthFolder
-    .add(tree.options.branch.length, '2', 0.1, 50, 0.01)
+    .add(tree.options.branch.length, '2', 0.1, 100, 0.01)
     .name('Level 2');
   lengthFolder
-    .add(tree.options.branch.length, '3', 0.1, 50, 0.01)
+    .add(tree.options.branch.length, '3', 0.1, 100, 0.01)
     .name('Level 3');
 
   const branchRadiusFolder = branchFolder.addFolder('Radius').close();
   branchRadiusFolder
-    .add(tree.options.branch.radius, '0', 0.1, 2, 0.01)
+    .add(tree.options.branch.radius, '0', 0.1, 5, 0.01)
     .name('Trunk');
   branchRadiusFolder
-    .add(tree.options.branch.radius, '1', 0.1, 2, 0.01)
+    .add(tree.options.branch.radius, '1', 0.1, 5, 0.01)
     .name('Level 1');
   branchRadiusFolder
-    .add(tree.options.branch.radius, '2', 0.1, 2, 0.01)
+    .add(tree.options.branch.radius, '2', 0.1, 5, 0.01)
     .name('Level 2');
   branchRadiusFolder
-    .add(tree.options.branch.radius, '3', 0.1, 2, 0.01)
+    .add(tree.options.branch.radius, '3', 0.1, 5, 0.01)
     .name('Level 3');
 
   const sectionsFolder = branchFolder.addFolder('Sections').close();

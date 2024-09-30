@@ -29,14 +29,14 @@ async function fetchAssets() {
 
 export class RockOptions {
   /**
-   * Scale factor for the grass model
+   * Scale factor 
    */
-  size = { x: 6, y: 4, z: 6 };
+  size = { x: 2, y: 2, z: 2 };
 
   /**
-   * Maximum variation in the grass size
+   * Maximum variation in the rock size
    */
-  sizeVariation = { x: 1, y: 1, z: 1 };
+  sizeVariation = { x: 2, y: 2, z: 2 };
 }
 
 export class Rocks extends THREE.Group {
@@ -49,9 +49,9 @@ export class Rocks extends THREE.Group {
     this.options = options;
 
     fetchAssets().then(() => {
-
       this.add(this.generateInstances(_rock1Mesh));
-      this.add(this.rock1Mesh);
+      this.add(this.generateInstances(_rock2Mesh));
+      this.add(this.generateInstances(_rock3Mesh));
     });
   }
 
@@ -65,7 +65,7 @@ export class Rocks extends THREE.Group {
       // Set position randomly
       const p = new THREE.Vector3(
         2 * (Math.random() - 0.5) * 250,
-        0,
+        0.3,
         2 * (Math.random() - 0.5) * 250
       );
 
@@ -95,6 +95,8 @@ export class Rocks extends THREE.Group {
 
     // Ensure the transformation is updated in the GPU
     instancedMesh.instanceMatrix.needsUpdate = true;
+
+    instancedMesh.castShadow = true;
 
     return instancedMesh;
   }

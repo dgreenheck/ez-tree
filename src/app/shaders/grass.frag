@@ -1,4 +1,10 @@
-precision mediump float;
+#define PHONG
+
+uniform vec3 diffuse;
+uniform vec3 emissive;
+uniform vec3 specular;
+uniform float shininess;
+uniform float opacity;
 
 varying vec3 vWorldPosition;
 
@@ -7,6 +13,32 @@ uniform float uPatchiness;
 
 uniform sampler2D uGrassTexture;
 uniform sampler2D uDirtTexture;
+
+#include <common>
+#include <packing>
+#include <dithering_pars_fragment>
+#include <color_pars_fragment>
+#include <uv_pars_fragment>
+#include <map_pars_fragment>
+#include <alphamap_pars_fragment>
+#include <alphatest_pars_fragment>
+#include <alphahash_pars_fragment>
+#include <aomap_pars_fragment>
+#include <lightmap_pars_fragment>
+#include <emissivemap_pars_fragment>
+#include <envmap_common_pars_fragment>
+#include <envmap_pars_fragment>
+#include <fog_pars_fragment>
+#include <bsdfs>
+#include <lights_pars_begin>
+#include <normal_pars_fragment>
+#include <lights_phong_pars_fragment>
+#include <shadowmap_pars_fragment>
+#include <bumpmap_pars_fragment>
+#include <normalmap_pars_fragment>
+#include <specularmap_pars_fragment>
+#include <logdepthbuf_pars_fragment>
+#include <clipping_planes_pars_fragment>
 
 vec3 mod289(vec3 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -50,17 +82,50 @@ float simplex2d(vec2 v) {
 }
 
 void main() {
-  vec2 uv = vec2(vWorldPosition.x, vWorldPosition.z);
+  vec4 diffuseColor = vec4(1, 1, 1, 1);
 
+  ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+  vec3 totalEmissiveRadiance = vec3(0, 0, 0);
+
+	#include <logdepthbuf_fragment>
+  #include <color_fragment>
+
+  vec2 uv = vec2(vWorldPosition.x, vWorldPosition.z);
   vec3 grassColor = texture2D(uGrassTexture, uv / 30.0).rgb;
   vec3 dirtColor = texture2D(uDirtTexture, uv / 15.0).rgb;
 
-        // Generate base noise for the texture
+  // Generate base noise for the texture
   float n = 0.5 + 0.5 * simplex2d(uv / uNoiseScale);
+  float s = smoothstep(uPatchiness - 0.2, uPatchiness + 0.2, n);
 
-        // Blend between grass and dirt based on the noise value
-  vec3 color = mix(grassColor, dirtColor, smoothstep(uPatchiness - 0.2, uPatchiness + 0.2, n));
+  // Blend between grass and dirt based on the noise value
+  vec4 sampledDiffuseColor = vec4(mix(grassColor, dirtColor, s), 1.0);
+  diffuseColor *= sampledDiffuseColor;
 
-        // Output the final color
-  gl_FragColor = vec4(color, 1.0);
+	#include <alphamap_fragment>
+	#include <alphatest_fragment>
+	#include <alphahash_fragment>
+	#include <specularmap_fragment>
+	#include <normal_fragment_begin>
+	#include <normal_fragment_maps>
+	#include <emissivemap_fragment>
+
+	// accumulation
+	#include <lights_phong_fragment>
+	#include <lights_fragment_begin>
+	#include <lights_fragment_maps>
+	#include <lights_fragment_end>
+
+	// modulation
+	#include <aomap_fragment>
+
+  vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
+
+	#include <envmap_fragment>
+	#include <opaque_fragment>
+	#include <tonemapping_fragment>
+	#include <colorspace_fragment>
+	#include <fog_fragment>
+	#include <premultiplied_alpha_fragment>
+	#include <dithering_fragment>
 }
