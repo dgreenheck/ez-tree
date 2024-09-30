@@ -5,7 +5,7 @@ import path from 'path';
  * @type {import('vite').UserConfig}
  */
 export default {
-  base: '/tree-js/',
+  base: '/eztree/',
   build: {
     emptyOutDir: true,
     outDir: '../../dist',
@@ -14,9 +14,9 @@ export default {
   root: './src/app',
   resolve: {
     alias: {
-      '@dgreenheck/tree-js': path.resolve(
+      'eztree': path.resolve(
         __dirname,
-        'build/@dgreenheck-tree-js.es.js',
+        'build/eztree.es.js',
       ),
     },
   },

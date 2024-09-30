@@ -6,7 +6,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { Tree, TreePreset } from '@dgreenheck/tree-js';
+import { Tree, TreePreset } from 'eztree';
 import { setupUI } from './ui';
 import { Environment } from './environment';
 
@@ -35,17 +35,16 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1200,
 );
+camera.position.set(100, 20, 0);
+
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.enablePan = true;
-controls.minPolarAngle = 1.3;
+controls.enablePan = false;
 controls.maxPolarAngle = 1.6;
-controls.minDistance = 50;
+controls.minDistance = 10;
 controls.maxDistance = 150;
-controls.target.set(0, 15, 0);
+controls.target.set(0, 25, 0);
 controls.update();
-
-camera.position.set(80, 5, 0);
 
 const tree = new Tree();
 tree.loadPreset('Ash Large');
@@ -54,6 +53,7 @@ tree.castShadow = true;
 tree.receiveShadow = true;
 scene.add(tree);
 
+/*
 for (let i = 0; i < 100; i++) {
   const r = 150 + Math.random() * 100;
   const theta = 2 * Math.PI * Math.random();
@@ -69,6 +69,7 @@ for (let i = 0; i < 100; i++) {
   t.receiveShadow = true;
   scene.add(t);
 }
+*/
 
 // Display vertex and triangle count on UI
 const vertexCount = (tree.branches.verts.length + tree.leaves.verts.length) / 3;

@@ -1,21 +1,15 @@
-# Tree.js
+# EZ Tree
 
 <p align="center">
 <img src="https://github.com/user-attachments/assets/4ed61044-48f8-4f43-be0c-96ce90416a7f">
 </p>
 
-A procedural tree generator built with Three.js. Over 30 tunable parameters and support for exporting to .glb.
-
-## Live Demo
-
-https://dgreenheck.github.io/tree-js/
+EZ Tree is a procedural tree generator with dozens of tunable parameters. The standalone tree generation code is published as a library and can be imported into your own application for dynamically generating trees on demand. Additionally, there is a [standalone web app](www.eztree.dev) which allows you to create trees within the browser and export as .PNG or .GLB files.
 
 # Installation
 
-The tree generation code is published as an npm package and can be imported into your own project.
-
 ```js
-npm i @dgreenheck/tree-js
+npm i eztree
 ```
 
 # Usage
@@ -25,25 +19,20 @@ npm i @dgreenheck/tree-js
 const tree = new Tree();
 
 // Set parameters
+tree.options.seed = 12345;
 tree.options.trunk.length = 20;
 tree.options.branch.levels = 3;
 
-// Generate tree and add to scene
+// Generate tree and add to your Three.js scene
 tree.generate();
 scene.add(tree);
 ```
 
-Any time the tree parametes are changed, you must call `generate()` to regenerate the geometry.
+Any time the tree parameters are changed, you must call `generate()` to regenerate the geometry.
 
-For more info, see the demo app for an example on how to create a tree.
+# Running Standalone App Locally
 
-# Demo
-
-The demo application is a Three.js app which allows you to tune the parameters of the tree in real-time. It also has options for exporting the generated mesh to a `.glb` file, as well as a `.png` export of the current view for 2D applications.
-
-## Running App Locally
-
-To run the app locally, you first need to build the Tree.js library before running the app.
+To run the standalone app locally, you first need to build the EZ Tree library before running the app.
 
 ```bash
 npm install
@@ -51,14 +40,14 @@ npm run build:lib
 npm run app
 ```
 
-## Running App with Docker
+# Running App with Docker
 
 ```bash
 docker compose build
 docker compose up -d
 ```
 
-# Parameters
+# Tree Parameters
 
 - `seed` - Seed for RNG
 
