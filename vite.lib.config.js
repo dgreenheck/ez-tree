@@ -9,7 +9,7 @@ export default {
     lib: {
       entry: './src/lib/index.js',
       name: '@dgreenheck/ez-tree',
-      fileName: (format) => `@dgreenheck/ez-tree.${format}.js`,
+      fileName: (format) => `ez-tree.${format}.js`,
     },
     rollupOptions: {
       external: ['three'],
@@ -23,11 +23,10 @@ export default {
   },
   plugins: [
     dts({
-      outDir: './build/@dgreenheck',  // All types will be placed under 'build/types'
-      insertTypesEntry: true, // Automatically add types field in package.json
+      outDir: './build',
+      insertTypesEntry: true,
       rollupTypes: true,
-      tsconfigPath: "./tsconfig.json",
-      copyDtsFiles: false
+      tsconfigPath: "./tsconfig.json"
     }),
   ],
 };
