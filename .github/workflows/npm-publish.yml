@@ -8,22 +8,7 @@ on:
     types: [created]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - name: Install dependencies
-        run: npm install
-      - name: Build project
-        run: npm run build:lib
-
   publish-npm:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -35,6 +20,8 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Install dependencies
         run: npm install
+      - name: Build project
+        run: npm run build:lib
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
