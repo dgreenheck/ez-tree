@@ -32,7 +32,7 @@
     "build:app": "vite build --config vite.app.config.js",
     "build:lib": "vite build --config vite.lib.config.js",
     "build:watch": "vite build --config vite.lib.config.js --watch",
-    "app": "vite --config vite.app.config.js",
+    "app": "npm run build:lib && vite --config vite.app.config.js",
     "preview": "vite preview"
   },
   "devDependencies": {

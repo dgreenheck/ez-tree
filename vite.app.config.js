@@ -15,7 +15,7 @@ export default {
     alias: {
       '@dgreenheck/ez-tree': path.resolve(
         __dirname,
-        'build/@dgreenheck/ez-tree.es.js',
+        'build/ez-tree.es.js',
       ),
     },
   },
