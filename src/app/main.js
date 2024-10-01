@@ -40,7 +40,8 @@ camera.position.set(100, 20, 0);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.maxPolarAngle = 1.6;
+controls.minPolarAngle = Math.PI / 3;
+controls.maxPolarAngle = Math.PI / 2;
 controls.minDistance = 10;
 controls.maxDistance = 150;
 controls.target.set(0, 25, 0);
@@ -102,6 +103,7 @@ document
   });
 
 // Resize camera aspect ratio and renderer size to the new window size
+
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -115,10 +117,6 @@ const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
 
-// SMAA pass: Anti-aliasing
-const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
-composer.addPass(smaaPass);
-
 // God rays pass: (Optional, requires additional setup for light shafts if needed)
 // Add your custom god rays pass here if you have implemented it
 
@@ -127,8 +125,8 @@ composer.addPass(outputPass);
 
 function animate() {
   requestAnimationFrame(animate);
-  controls.update();
   stats.update();
+  controls.update();
   composer.render();
 }
 

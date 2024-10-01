@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./build",
+    "allowJs": true,
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "module": "ESNext"
+  },
+  "include": [
+    "src/lib/**/*"
+  ]
+}

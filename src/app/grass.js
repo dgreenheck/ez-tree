@@ -43,7 +43,7 @@ export class GrassOptions {
   /**
    * Number of samples to take when creating grass
    */
-  samples = 15000;
+  samples = 10000;
 
   /**
    * Size of the grass patches
@@ -258,7 +258,9 @@ export class Grass extends THREE.Object3D {
     this.grassMesh.count = count;
 
     this.grassMesh.receiveShadow = true;
-    this.grassMesh.castShadow = true;
+
+    // Causes a big performance hit on most machines
+    //this.grassMesh.castShadow = true;
 
     // Ensure the transformation is updated in the GPU
     this.grassMesh.instanceMatrix.needsUpdate = true;
