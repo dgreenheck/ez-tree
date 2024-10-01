@@ -25,6 +25,7 @@ renderer.toneMappingExposure = 1.5;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x94b9f8, 0.0015);
 
 const environment = new Environment();
 scene.add(environment);
@@ -54,9 +55,8 @@ tree.castShadow = true;
 tree.receiveShadow = true;
 scene.add(tree);
 
-/*
 for (let i = 0; i < 100; i++) {
-  const r = 150 + Math.random() * 100;
+  const r = 250 + Math.random() * 150;
   const theta = 2 * Math.PI * Math.random();
   const presets = Object.keys(TreePreset);
   const index = Math.floor(Math.random() * presets.length);
@@ -70,7 +70,6 @@ for (let i = 0; i < 100; i++) {
   t.receiveShadow = true;
   scene.add(t);
 }
-*/
 
 // Display vertex and triangle count on UI
 const vertexCount = (tree.branches.verts.length + tree.leaves.verts.length) / 3;
@@ -117,6 +116,8 @@ const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
 
+const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
+composer.addPass(smaaPass);
 // God rays pass: (Optional, requires additional setup for light shafts if needed)
 // Add your custom god rays pass here if you have implemented it
 

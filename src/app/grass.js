@@ -182,7 +182,7 @@ export class Grass extends THREE.Object3D {
       groundMaterial.customProgramCacheKey = () => 'ground';
 
       this.ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(500, 500),
+        new THREE.PlaneGeometry(2000, 2000),
         groundMaterial
       );
       this.ground.rotation.x = -Math.PI / 2;
@@ -213,11 +213,14 @@ export class Grass extends THREE.Object3D {
 
     let count = 0;
     for (let i = 0; i < this.options.samples; i++) {
+      const r = 10 + Math.random() * 500;
+      const theta = Math.random() * 2.0 * Math.PI;
+
       // Set position randomly
       const p = new THREE.Vector3(
-        2 * (Math.random() - 0.5) * 250,
+        r * Math.cos(theta),
         0,
-        2 * (Math.random() - 0.5) * 250
+        r * Math.sin(theta)
       );
 
       const n = 0.5 + 0.5 * simplex2d(new THREE.Vector2(
@@ -260,7 +263,7 @@ export class Grass extends THREE.Object3D {
     this.grassMesh.receiveShadow = true;
 
     // Causes a big performance hit on most machines
-    //this.grassMesh.castShadow = true;
+    this.grassMesh.castShadow = true;
 
     // Ensure the transformation is updated in the GPU
     this.grassMesh.instanceMatrix.needsUpdate = true;
