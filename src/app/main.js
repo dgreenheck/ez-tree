@@ -34,7 +34,7 @@ const camera = new THREE.PerspectiveCamera(
   60,
   window.innerWidth / window.innerHeight,
   0.1,
-  1200,
+  2000,
 );
 camera.position.set(100, 20, 0);
 
@@ -56,7 +56,7 @@ tree.receiveShadow = true;
 scene.add(tree);
 
 for (let i = 0; i < 100; i++) {
-  const r = 250 + Math.random() * 150;
+  const r = 200 + Math.random() * 200;
   const theta = 2 * Math.PI * Math.random();
   const presets = Object.keys(TreePreset);
   const index = Math.floor(Math.random() * presets.length);
