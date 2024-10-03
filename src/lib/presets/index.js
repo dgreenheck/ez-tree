@@ -1,7 +1,9 @@
 import ashSmall from './ash_small.json';
 import ashMedium from './ash_medium.json';
 import ashLarge from './ash_large.json';
-import aspen from './aspen.json';
+import aspenSmall from './aspen_small.json';
+import aspenMedium from './aspen_medium.json';
+import aspenLarge from './aspen_large.json';
 import oakSmall from './oak_small.json';
 import oakMedium from './oak_medium.json';
 import oakLarge from './oak_large.json';
@@ -14,7 +16,9 @@ export const TreePreset = {
   'Ash Small': ashSmall,
   'Ash Medium': ashMedium,
   'Ash Large': ashLarge,
-  'Aspen': aspen,
+  'Aspen Small': aspenSmall,
+  'Aspen Medium': aspenMedium,
+  'Aspen Large': aspenLarge,
   'Oak Small': oakSmall,
   'Oak Medium': oakMedium,
   'Oak Large': oakLarge,
@@ -23,6 +27,10 @@ export const TreePreset = {
   'Pine Large': pineLarge,
 };
 
+/**
+ * @param {string} name The name of the preset to load
+ * @returns {TreeOptions}
+ */
 export function loadPreset(name) {
   const preset = TreePreset[name];
   return preset ? structuredClone(preset) : new TreeOptions();

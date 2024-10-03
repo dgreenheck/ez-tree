@@ -10,9 +10,6 @@ import { Tree, TreePreset } from '@dgreenheck/ez-tree';
 import { setupUI } from './ui';
 import { Environment } from './environment';
 
-const stats = new Stats();
-document.body.appendChild(stats.dom);
-
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setClearColor(0);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -20,7 +17,7 @@ renderer.setPixelRatio(devicePixelRatio);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.NeutralToneMapping;
-renderer.toneMappingExposure = 1.5;
+renderer.toneMappingExposure = 2;
 
 document.body.appendChild(renderer.domElement);
 
@@ -49,14 +46,14 @@ controls.target.set(0, 25, 0);
 controls.update();
 
 const tree = new Tree();
-tree.loadPreset('Ash Large');
+tree.loadPreset('Ash Medium');
 tree.generate();
 tree.castShadow = true;
 tree.receiveShadow = true;
 scene.add(tree);
 
 for (let i = 0; i < 100; i++) {
-  const r = 200 + Math.random() * 200;
+  const r = 200 + Math.random() * 500;
   const theta = 2 * Math.PI * Math.random();
   const presets = Object.keys(TreePreset);
   const index = Math.floor(Math.random() * presets.length);
@@ -70,13 +67,6 @@ for (let i = 0; i < 100; i++) {
   t.receiveShadow = true;
   scene.add(t);
 }
-
-// Display vertex and triangle count on UI
-const vertexCount = (tree.branches.verts.length + tree.leaves.verts.length) / 3;
-const triangleCount =
-  (tree.branches.indices.length + tree.leaves.indices.length) / 3;
-document.getElementById('model-info').innerText =
-  `Vertex Count: ${vertexCount} | Triangle Count: ${triangleCount}`;
 
 // Read tree parameters from JSON
 document
@@ -128,10 +118,9 @@ const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
   environment.update(clock.getElapsedTime());
-  stats.update();
   controls.update();
   composer.render();
 }
 
-setupUI(tree, environment, renderer, scene, camera, TreePreset.AshMedium);
+setupUI(tree, environment, renderer, scene, camera, 'Ash Medium');
 animate();

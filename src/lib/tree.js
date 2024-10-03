@@ -39,7 +39,24 @@ export class Tree extends THREE.Group {
    * @param {string} preset 
    */
   loadPreset(name) {
-    this.options = loadPreset(name);
+    /**
+     * Performs a deep copy of target into source
+     * @param {TreeOptions} source 
+     * @param {TreeOptions} target 
+     */
+    function copyValues(source, target) {
+      for (let key in source) {
+        if (source.hasOwnProperty(key) && target.hasOwnProperty(key)) {
+          if (typeof source[key] === 'object' && source[key] !== null) {
+            copyValues(source[key], target[key]);
+          } else {
+            target[key] = source[key];
+          }
+        }
+      }
+    }
+
+    copyValues(loadPreset(name), this.options);
     this.generate();
   }
 
@@ -411,7 +428,7 @@ export class Tree extends THREE.Group {
         ));
 
     const W = leafSize;
-    const L = 1.5 * leafSize;
+    const L = leafSize;
 
     const createLeaf = (rotation) => {
       // Create quad vertices
@@ -567,5 +584,13 @@ export class Tree extends THREE.Group {
 
     this.leavesMesh.castShadow = true;
     this.leavesMesh.receiveShadow = true;
+  }
+
+  get vertexCount() {
+    return (this.branches.verts.length + this.leaves.verts.length) / 3;
+  }
+
+  get triangleCount() {
+    return (this.branches.indices.length + this.leaves.indices.length) / 3;
   }
 }

@@ -36,7 +36,7 @@ export class RockOptions {
   /**
    * Maximum variation in the rock size
    */
-  sizeVariation = { x: 1, y: 1, z: 1 };
+  sizeVariation = { x: 3, y: 3, z: 3 };
 }
 
 export class Rocks extends THREE.Group {
@@ -56,7 +56,7 @@ export class Rocks extends THREE.Group {
   }
 
   generateInstances(mesh) {
-    const instancedMesh = new THREE.InstancedMesh(mesh.geometry, mesh.material, 100);
+    const instancedMesh = new THREE.InstancedMesh(mesh.geometry, mesh.material, 200);
 
     const dummy = new THREE.Object3D();
 
@@ -80,9 +80,9 @@ export class Rocks extends THREE.Group {
 
       // Set scale randomly
       dummy.scale.set(
-        this.options.sizeVariation.x * (2 * Math.random() - 1) + this.options.size.x,
-        this.options.sizeVariation.y * (2 * Math.random() - 1) + this.options.size.y,
-        this.options.sizeVariation.z * (2 * Math.random() - 1) + this.options.size.z
+        this.options.sizeVariation.x * Math.random() + this.options.size.x,
+        this.options.sizeVariation.y * Math.random() + this.options.size.y,
+        this.options.sizeVariation.z * Math.random() + this.options.size.z
       );
 
       // Apply the transformation to the instance

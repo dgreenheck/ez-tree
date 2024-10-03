@@ -84,10 +84,10 @@
     "billboard": "double",
     "angle": 42,
     "count": 14,
-    "start": 0.164,
-    "size": 1.375,
+    "start": 0.16,
+    "size": 1.38,
     "sizeVariance": 0.7,
-    "tint": 16777215,
+    "tint": 14013901,
     "alphaTest": 0.5
   }
 }

@@ -29,7 +29,7 @@
         "y": 1,
         "z": 0
       },
-      "strength": -0.04
+      "strength": -0.015
     },
     "gnarliness": {
       "0": -0.04,
@@ -63,7 +63,7 @@
     },
     "start": {
       "1": 0.27,
-      "2": 0.37,
+      "2": 0.1,
       "3": 0.12
     },
     "taper": {
@@ -84,10 +84,10 @@
     "billboard": "double",
     "angle": 36,
     "count": 10,
-    "start": 0.164,
+    "start": 0.16,
     "size": 3.22,
     "sizeVariance": 0.7,
-    "tint": 16777215,
+    "tint": 14013901,
     "alphaTest": 0.5
   }
 }

@@ -18,7 +18,7 @@ export class Environment extends THREE.Object3D {
     this.add(this.rocks);
 
     this.clouds = new Clouds();
-    this.clouds.position.set(0, 100, 0);
+    this.clouds.position.set(0, 200, 0);
     this.clouds.rotation.x = Math.PI / 2;
     this.add(this.clouds);
   }

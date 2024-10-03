@@ -69,8 +69,8 @@ export class Clouds extends THREE.Mesh {
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <map_fragment>',
         `
-        float n = snoise(vUv * 5.0 + uTime / 50.0) + snoise(vUv * 15.0 + uTime / 50.0); 
-        float cloud = smoothstep(0.1, 1.0, 0.5 * n + 0.3);
+        float n = snoise(vUv * 5.0 + uTime / 40.0) + snoise(vUv * 10.0 + uTime / 40.0); 
+        float cloud = smoothstep(0.2, 0.8, 0.5 * n + 0.2);
         vec4 cloudColor = vec4(1.0, 1.0, 1.0, 1.0); 
         diffuseColor = vec4(1.0, 1.0, 1.0, cloud * opacity / (0.01 * length(vWorldPosition)));
         `
