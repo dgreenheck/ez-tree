@@ -6,6 +6,7 @@ let loaded = false;
 let _grassMesh = null;
 let _grassTexture = null;
 let _dirtTexture = null;
+let _dirtNormal = null;
 
 /**
  * 
@@ -31,10 +32,14 @@ async function fetchAssets() {
   _grassTexture.wrapT = THREE.RepeatWrapping;
   _grassTexture.colorSpace = THREE.SRGBColorSpace;
 
-  _dirtTexture = await textureLoader.loadAsync('dirt.png');
+  _dirtTexture = await textureLoader.loadAsync('dirt_color.png');
   _dirtTexture.wrapS = THREE.RepeatWrapping;
   _dirtTexture.wrapT = THREE.RepeatWrapping;
   _dirtTexture.colorSpace = THREE.SRGBColorSpace;
+
+  _dirtNormal = await textureLoader.loadAsync('dirt_normal.png');
+  _dirtNormal.wrapS = THREE.RepeatWrapping;
+  _dirtNormal.wrapT = THREE.RepeatWrapping;
 
   loaded = true;
 }
@@ -83,7 +88,10 @@ export class Grass extends THREE.Object3D {
     fetchAssets().then(() => {
       // Ground plane with procedural grass/dirt texture
       const groundMaterial = new THREE.MeshPhongMaterial({
-        shininess: 0
+        emissive: new THREE.Color(0xffffff),
+        emissiveIntensity: 0.01,
+        normalMap: _dirtNormal,
+        shininess: 0.1
       });
 
       groundMaterial.onBeforeCompile = (shader) => {
@@ -163,7 +171,7 @@ export class Grass extends THREE.Object3D {
           `
           vec2 uv = vec2(vWorldPosition.x, vWorldPosition.z);
           vec3 grassColor = texture2D(uGrassTexture, uv / 30.0).rgb;
-          vec3 dirtColor = texture2D(uDirtTexture, uv / 15.0).rgb;
+          vec3 dirtColor = texture2D(uDirtTexture, uv / 30.0).rgb;
 
           // Generate base noise for the texture
           float n = 0.5 + 0.5 * simplex2d(uv / uNoiseScale);
@@ -175,11 +183,18 @@ export class Grass extends THREE.Object3D {
           `
         );
 
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <normal_fragment_maps>',
+          `
+          vec3 mapN = texture2D( normalMap, uv / 30.0 ).xyz * 2.0 - 1.0;
+          mapN.xy *= normalScale;
+
+          normal = normalize( tbn * mapN );
+          `
+        );
+
         groundMaterial.userData.shader = shader;
       };
-
-      // Make sure WebGLRenderer doesnt reuse a single program
-      groundMaterial.customProgramCacheKey = () => 'ground';
 
       this.ground = new THREE.Mesh(
         new THREE.PlaneGeometry(2000, 2000),
@@ -189,12 +204,16 @@ export class Grass extends THREE.Object3D {
       this.ground.receiveShadow = true;
       this.add(this.ground);
 
+      document.ground = this.ground;
+
       this.grassMesh = new THREE.InstancedMesh(_grassMesh.geometry, _grassMesh.material, this.maxInstanceCount);
       _grassMesh.material.color.multiplyScalar(0.6); // Global grass brightness
       this.add(this.grassMesh);
 
       this.update();
     });
+
+
   }
 
   update() {
@@ -204,7 +223,6 @@ export class Grass extends THREE.Object3D {
     if (shader) {
       shader.uniforms.uNoiseScale.value = this.options.scale;
       shader.uniforms.uPatchiness.value = this.options.patchiness;
-      console.log(shader);
     }
   }
 

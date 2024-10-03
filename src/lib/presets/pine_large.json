@@ -29,7 +29,7 @@
         "y": 1,
         "z": 0
       },
-      "strength": 0.0006
+      "strength": -0.01
     },
     "gnarliness": {
       "0": 0.05,

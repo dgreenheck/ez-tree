@@ -22,4 +22,8 @@ export class Environment extends THREE.Object3D {
     this.clouds.rotation.x = Math.PI / 2;
     this.add(this.clouds);
   }
+
+  update(elapsedTime) {
+    this.clouds.update(elapsedTime);
+  }
 }

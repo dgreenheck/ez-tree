@@ -124,8 +124,10 @@ composer.addPass(smaaPass);
 const outputPass = new OutputPass();
 composer.addPass(outputPass);
 
+const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
+  environment.update(clock.getElapsedTime());
   stats.update();
   controls.update();
   composer.render();

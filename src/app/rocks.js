@@ -36,7 +36,7 @@ export class RockOptions {
   /**
    * Maximum variation in the rock size
    */
-  sizeVariation = { x: 2, y: 2, z: 2 };
+  sizeVariation = { x: 1, y: 1, z: 1 };
 }
 
 export class Rocks extends THREE.Group {

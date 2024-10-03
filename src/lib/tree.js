@@ -511,7 +511,7 @@ export class Tree extends THREE.Group {
     );
     g.computeBoundingSphere();
 
-    const mat = new THREE.MeshStandardMaterial({
+    const mat = new THREE.MeshPhongMaterial({
       name: 'branches',
       flatShading: this.options.bark.flatShading,
       color: new THREE.Color(this.options.bark.tint),
@@ -551,12 +551,12 @@ export class Tree extends THREE.Group {
     g.computeVertexNormals();
     g.computeBoundingSphere();
 
-    const mat = new THREE.MeshStandardMaterial({
+    const mat = new THREE.MeshPhongMaterial({
       name: 'leaves',
       map: getLeafTexture(this.options.leaves.type),
       color: new THREE.Color(this.options.leaves.tint),
       side: THREE.DoubleSide,
-      alphaTest: this.options.leaves.alphaTest
+      alphaTest: this.options.leaves.alphaTest,
     });
 
     this.leavesMesh.geometry.dispose();

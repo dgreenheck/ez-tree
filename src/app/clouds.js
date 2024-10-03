@@ -7,16 +7,19 @@ export class Clouds extends THREE.Mesh {
     this.material = new THREE.MeshBasicMaterial({
       transparent: true, // Allow alpha blending if needed
       opacity: 0.9,
-      fog: true
+      fog: true,
     });
 
     this.material.onBeforeCompile = (shader) => {
+      shader.uniforms.uTime = { value: 0.0 };
+
       shader.vertexShader = `
         varying vec2 vUv;
         varying vec3 vWorldPosition;
         ` + shader.vertexShader;
 
       shader.fragmentShader = `
+        uniform float uTime;
         varying vec2 vUv;
         varying vec3 vWorldPosition;
         ` + shader.fragmentShader;
@@ -66,8 +69,8 @@ export class Clouds extends THREE.Mesh {
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <map_fragment>',
         `
-        float n = snoise(vUv * 5.0) + snoise(vUv * 10.0); 
-        float cloud = smoothstep(0.0, 1.0, 0.5 * n + 0.5);
+        float n = snoise(vUv * 5.0 + uTime / 50.0) + snoise(vUv * 15.0 + uTime / 50.0); 
+        float cloud = smoothstep(0.1, 1.0, 0.5 * n + 0.3);
         vec4 cloudColor = vec4(1.0, 1.0, 1.0, 1.0); 
         diffuseColor = vec4(1.0, 1.0, 1.0, cloud * opacity / (0.01 * length(vWorldPosition)));
         `
@@ -78,5 +81,12 @@ export class Clouds extends THREE.Mesh {
 
     // Create a quad to apply the cloud shader to
     this.geometry = new THREE.PlaneGeometry(2000, 2000);
+  }
+
+  update(elapsedTime) {
+    const shader = this.material.userData.shader;
+    if (shader) {
+      shader.uniforms.uTime.value = elapsedTime;
+    }
   }
 }
