@@ -185,6 +185,9 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
         link.download = 'tree.glb';
         link.click();
       },
+      (err) => {
+        console.error(err);
+      },
       { binary: true }
     );
   });
