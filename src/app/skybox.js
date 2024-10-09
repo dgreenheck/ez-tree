@@ -73,12 +73,13 @@ export class Skybox extends THREE.Mesh {
     this.sun.color = options.sunColor;
     this.sun.position.set(50, 100, 50);
     this.sun.castShadow = true;
-    this.sun.shadow.camera.left = -200;
-    this.sun.shadow.camera.right = 200;
-    this.sun.shadow.camera.top = 200;
-    this.sun.shadow.camera.bottom = -200;
-    this.sun.shadow.bias = -0.0002
-    this.sun.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    this.sun.shadow.camera.left = -100;
+    this.sun.shadow.camera.right = 100;
+    this.sun.shadow.camera.top = 100;
+    this.sun.shadow.camera.bottom = -100;
+    this.sun.shadow.mapSize = new THREE.Vector2(512, 512);
+    this.sun.shadow.bias = -0.001;
+    this.sun.shadow.normalBias = 0.2;
     this.add(this.sun);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);

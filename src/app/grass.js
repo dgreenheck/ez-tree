@@ -207,7 +207,11 @@ export class Grass extends THREE.Object3D {
       document.ground = this.ground;
 
       this.grassMesh = new THREE.InstancedMesh(_grassMesh.geometry, _grassMesh.material, this.maxInstanceCount);
-      _grassMesh.material.color.multiplyScalar(0.6); // Global grass brightness
+      // Decrease grass brightness
+      _grassMesh.material.color.multiplyScalar(0.6);
+      // Add some emission so grass has some color when not lit
+      _grassMesh.material.emissive = new THREE.Color(0x308040);
+      _grassMesh.material.emissiveIntensity = 0.05;
       this.add(this.grassMesh);
 
       this.update();

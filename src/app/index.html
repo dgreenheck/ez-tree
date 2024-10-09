@@ -9,12 +9,80 @@
   <style>
     body {
       margin: 0;
+      background-color: #273940;
+    }
+
+    #root {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    #app {
+      height: 100%;
+    }
+
+    #ui-container {
+      position: fixed;
+      top: 8px;
+      right: 8px;
+      width: 300px;
+    }
+
+    @media (max-width: 800px) {
+      #root {
+        display: flex;
+        flex-direction: column;
+      }
+
+      #app {
+        height: 60vh;
+      }
+
+      #ui-container {
+        position: relative;
+        width: 100%;
+        overflow-y: auto;
+        zoom: 1.5;
+        top: auto;
+        right: auto;
+      }
+    }
+
+    /* Tweakpane theme */
+    :root {
+      --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
+      --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
+      --tp-button-background-color: hsla(0, 0%, 80%, 1.00);
+      --tp-button-background-color-active: hsla(0, 0%, 100%, 1.00);
+      --tp-button-background-color-focus: hsla(0, 0%, 95%, 1.00);
+      --tp-button-background-color-hover: hsla(0, 0%, 85%, 1.00);
+      --tp-button-foreground-color: hsla(0, 0%, 0%, 0.80);
+      --tp-container-background-color: hsla(0, 0%, 0%, 0.30);
+      --tp-container-background-color-active: hsla(0, 0%, 0%, 0.60);
+      --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.50);
+      --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.40);
+      --tp-container-foreground-color: hsla(0, 0%, 100%, 0.50);
+      --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.20);
+      --tp-input-background-color: hsla(0, 0%, 0%, 0.30);
+      --tp-input-background-color-active: hsla(0, 0%, 0%, 0.60);
+      --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.50);
+      --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.40);
+      --tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
+      --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
+      --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
+      --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);
     }
   </style>
 </head>
 
 <body>
-  <div id="app"></div>
+  <div id="root">
+    <div id="app"></div>
+    <div id="ui-container"></div>
+  </div>
   <script type="module" src="./main.js"></script>
   <a id="downloadLink" style="display: none"></a>
   <input type="file" id="fileInput" accept=".json" style="display: none" />

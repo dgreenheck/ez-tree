@@ -6,42 +6,52 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { setupUI } from './ui';
 import { createScene } from './scene';
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setClearColor(0);
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(devicePixelRatio);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.NeutralToneMapping;
-renderer.toneMappingExposure = 2;
-document.body.appendChild(renderer.domElement);
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('app')
 
-const { scene, environment, tree, camera, controls } = createScene(renderer);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setClearColor(0);
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.toneMappingExposure = 2;
+  container.appendChild(renderer.domElement);
 
-const composer = new EffectComposer(renderer);
+  const { scene, environment, tree, camera, controls } = createScene(renderer);
 
-composer.addPass(new RenderPass(scene, camera));
+  const composer = new EffectComposer(renderer);
 
-const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
-composer.addPass(smaaPass);
+  composer.addPass(new RenderPass(scene, camera));
 
-composer.addPass(new OutputPass());
+  const smaaPass = new SMAAPass(
+    container.clientWidth * renderer.getPixelRatio(),
+    container.clientHeight * renderer.getPixelRatio());
+  composer.addPass(smaaPass);
 
-const clock = new THREE.Clock();
-function animate() {
-  requestAnimationFrame(animate);
-  environment.update(clock.getElapsedTime());
-  controls.update();
-  composer.render();
-}
+  composer.addPass(new OutputPass());
 
-setupUI(tree, environment, renderer, scene, camera, 'Ash Medium');
-animate();
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    environment.update(clock.getElapsedTime());
+    controls.update();
+    composer.render();
+  }
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  smaaPass.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
+
+  function resize() {
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    smaaPass.setSize(container.clientWidth, container.clientHeight);
+    composer.setSize(container.clientWidth, container.clientHeight);
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+  }
+
+  window.addEventListener('resize', resize);
+
+  setupUI(tree, environment, renderer, scene, camera, 'Ash Medium');
+  animate();
+  resize();
 });

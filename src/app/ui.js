@@ -45,7 +45,7 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
   pane?.off('change');
   pane?.dispose();
 
-  pane = new Pane();
+  pane = new Pane({ container: document.getElementById('ui-container'), title: 'EZ Tree' });
 
   const onChange = () => {
     tree.generate();
@@ -167,6 +167,13 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
   leavesFolder.addBinding(tree.options.leaves, 'size', { min: 0, max: 5 });
   leavesFolder.addBinding(tree.options.leaves, 'sizeVariance', { min: 0, max: 1 });
   leavesFolder.addBinding(tree.options.leaves, 'alphaTest', { min: 0, max: 1 });
+
+  /** ENVIRONMENT */
+
+  const environmentFolder = tab.pages[0].addFolder({ title: 'Environment', expanded: false });
+
+  const sunFolder = environmentFolder.addFolder({ title: 'Sun', expanded: false });
+  sunFolder.addBinding(environment.skybox, 'sunElevation', { label: 'elevation', min: 10, max: 90 });
 
   /** STATISTICS  */
 
