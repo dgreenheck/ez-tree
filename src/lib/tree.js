@@ -27,6 +27,7 @@ export class Tree extends THREE.Group {
    */
   constructor(options = new TreeOptions()) {
     super();
+    this.name = 'Tree';
     this.branchesMesh = new THREE.Mesh();
     this.leavesMesh = new THREE.Mesh();
     this.add(this.branchesMesh);

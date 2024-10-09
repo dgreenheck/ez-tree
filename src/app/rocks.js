@@ -61,7 +61,7 @@ export class Rocks extends THREE.Group {
     const dummy = new THREE.Object3D();
 
     let count = 0;
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 50; i++) {
       // Set position randomly
       const p = new THREE.Vector3(
         2 * (Math.random() - 0.5) * 250,

@@ -7,6 +7,29 @@ import { Environment } from './environment';
 const exporter = new GLTFExporter();
 let pane = null;
 
+// Read tree parameters from JSON
+document
+  .getElementById('fileInput')
+  .addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          tree.options = JSON.parse(e.target.result);
+          tree.generate();
+          setupUI(tree, renderer, scene, camera);
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+        }
+      };
+      reader.onerror = function (e) {
+        console.error('Error reading file:', e);
+      };
+      reader.readAsText(file);
+    }
+  });
+
 /**
  * Setups the UI
  * @param {Tree} tree
@@ -62,8 +85,8 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
   barkFolder.addBinding(tree.options.bark, 'tint', { view: 'color' });
   barkFolder.addBinding(tree.options.bark, 'flatShading');
   barkFolder.addBinding(tree.options.bark, 'textured');
-  barkFolder.addBinding(tree.options.bark.textureScale, 'x', { min: 0, max: 10 });
-  barkFolder.addBinding(tree.options.bark.textureScale, 'y', { min: 0, max: 10 });
+  barkFolder.addBinding(tree.options.bark.textureScale, 'x', { min: 0.5, max: 5 });
+  barkFolder.addBinding(tree.options.bark.textureScale, 'y', { min: 0.5, max: 5 });
 
   // Branch folder
   const branchFolder = tab.pages[0].addFolder({ title: 'Branches', expanded: false });
@@ -147,14 +170,16 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
 
   /** STATISTICS  */
 
-  const statsFolder = tab.pages[0].addFolder({ title: 'Statistics', expanded: true });
+  const statsFolder = tab.pages[0].addFolder({ title: 'Info', expanded: false });
 
   statsFolder.addBinding(tree, 'vertexCount', {
+    label: 'vertices',
     format: (v) => v.toFixed(0),
     readonly: true,
   });
 
   statsFolder.addBinding(tree, 'triangleCount', {
+    label: 'triangles',
     format: (v) => v.toFixed(0),
     readonly: true,
   });
@@ -194,6 +219,23 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
 
   tab.pages[1].addButton({ title: 'Export PNG' }).on('click', () => {
     renderer.setClearColor(0, 0); // Set background to transparent
+
+    // Disable fog
+    const fog = scene.fog;
+    scene.fog = null;
+
+    // Hide all objects in the scene except for the tree
+    scene.traverse((o) => {
+      if (o.name === 'Skybox') {
+        // Temporarily flip the skybox so it doesn't render
+        o.material.side = THREE.FrontSide;
+      } else if (o.isMesh) {
+        o.visible = false
+      }
+    });
+    tree.traverse((o) => o.visible = true);
+
+    // Render the scene to texture
     renderer.render(scene, camera);
 
     const link = document.getElementById('downloadLink');
@@ -201,6 +243,14 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
     link.download = 'tree.png';
     link.click();
 
-    renderer.setClearColor(0); // Restore original background color
+    // Restore defaults
+    renderer.setClearColor(0);
+    scene.fog = fog;
+    scene.traverse((o) => {
+      if (o.name === 'Skybox') {
+        o.material.side = THREE.BackSide;
+      }
+      o.visible = true;
+    });
   });
 }

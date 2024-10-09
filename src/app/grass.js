@@ -48,12 +48,12 @@ export class GrassOptions {
   /**
    * Number of samples to take when creating grass
    */
-  samples = 10000;
+  samples = 7500;
 
   /**
    * Size of the grass patches
    */
-  scale = 60;
+  scale = 100;
 
   /**
    * Patchiness of the grass
