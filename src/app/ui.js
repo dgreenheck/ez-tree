@@ -45,8 +45,10 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
     ]
   });
 
+  const treeFolder = tab.pages[0].addFolder({ title: 'Tree', expanded: true });
+
   // Preset dropdown
-  tab.pages[0].addBlade({
+  treeFolder.addBlade({
     view: 'list',
     label: 'preset',
     options: Object.keys(TreePreset).map(p => ({ text: p, value: p })),
@@ -56,10 +58,10 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
     pane.refresh();
   });
 
-  tab.pages[0].addBinding(tree.options, 'seed', { min: 0, max: 65536, step: 1 });
+  treeFolder.addBinding(tree.options, 'seed', { min: 0, max: 65536, step: 1 });
 
   // Bark folder
-  const barkFolder = tab.pages[0].addFolder({ title: 'Bark', expanded: false });
+  const barkFolder = treeFolder.addFolder({ title: 'Bark', expanded: false });
   barkFolder.addBinding(tree.options.bark, 'type', { options: BarkType });
   barkFolder.addBinding(tree.options.bark, 'tint', { view: 'color' });
   barkFolder.addBinding(tree.options.bark, 'flatShading');
@@ -68,7 +70,7 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   barkFolder.addBinding(tree.options.bark.textureScale, 'y', { min: 0.5, max: 5 });
 
   // Branch folder
-  const branchFolder = tab.pages[0].addFolder({ title: 'Branches', expanded: false });
+  const branchFolder = treeFolder.addFolder({ title: 'Branches', expanded: false });
 
   branchFolder.addBinding(tree.options, 'type', { options: TreeType });
   branchFolder.addBinding(tree.options.branch, 'levels', { min: 0, max: 3, step: 1 });
@@ -136,7 +138,7 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   twistFolder.addBinding(tree.options.branch.twist, '2', { min: -0.5, max: 0.5 });
   twistFolder.addBinding(tree.options.branch.twist, '3', { min: -0.5, max: 0.5 });
 
-  const leavesFolder = tab.pages[0].addFolder({ title: 'Leaves', expanded: false });
+  const leavesFolder = treeFolder.addFolder({ title: 'Leaves', expanded: false });
   leavesFolder.addBinding(tree.options.leaves, 'type', { options: LeafType });
   leavesFolder.addBinding(tree.options.leaves, 'tint', { view: 'color' });
   leavesFolder.addBinding(tree.options.leaves, 'billboard', { options: Billboard });

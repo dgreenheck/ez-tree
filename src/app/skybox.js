@@ -13,7 +13,7 @@ export class SkyboxOptions {
     /**
      * Elevation of the sun in degrees
      */
-    this.sunElevation = 20;
+    this.sunElevation = 30;
 
     /**
      * Color of the sun
