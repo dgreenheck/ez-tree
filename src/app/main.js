@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     composer.render();
   }
 
-
   function resize() {
     renderer.setSize(container.clientWidth, container.clientHeight);
     smaaPass.setSize(container.clientWidth, container.clientHeight);
@@ -51,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('resize', resize);
 
-  setupUI(tree, environment, renderer, scene, camera, 'Ash Medium');
+  setupUI(tree, environment, renderer, scene, camera, controls, 'Ash Medium');
   animate();
   resize();
 });

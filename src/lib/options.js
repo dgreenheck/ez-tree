@@ -142,4 +142,20 @@ export default class TreeOptions {
       alphaTest: 0.5,
     };
   }
+
+  /**
+   * Copies the values from source into this object
+   * @param {TreeOptions} source 
+   */
+  copy(source, target = this) {
+    for (let key in source) {
+      if (source.hasOwnProperty(key) && target.hasOwnProperty(key)) {
+        if (typeof source[key] === 'object' && source[key] !== null) {
+          this.copy(source[key], target[key]);
+        } else {
+          target[key] = source[key];
+        }
+      }
+    }
+  }
 }

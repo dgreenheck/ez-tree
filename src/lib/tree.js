@@ -40,24 +40,17 @@ export class Tree extends THREE.Group {
    * @param {string} preset 
    */
   loadPreset(name) {
-    /**
-     * Performs a deep copy of target into source
-     * @param {TreeOptions} source 
-     * @param {TreeOptions} target 
-     */
-    function copyValues(source, target) {
-      for (let key in source) {
-        if (source.hasOwnProperty(key) && target.hasOwnProperty(key)) {
-          if (typeof source[key] === 'object' && source[key] !== null) {
-            copyValues(source[key], target[key]);
-          } else {
-            target[key] = source[key];
-          }
-        }
-      }
-    }
+    const json = loadPreset(name);
+    this.loadFromJson(json);
+  }
 
-    copyValues(loadPreset(name), this.options);
+  /**
+   * Loads a tree from JSON
+   * @param {TreeOptions} json 
+   */
+  loadFromJson(json) {
+    console.log(json);
+    this.options.copy(json);
     this.generate();
   }
 
@@ -412,10 +405,10 @@ export class Tree extends THREE.Group {
   }
 
   /**
- * Generates a leaves
- * @param {THREE.Vector3} origin The starting point of the branch
- * @param {THREE.Euler} orientation The starting orientation of the branch
- */
+  * Generates a leaves
+  * @param {THREE.Vector3} origin The starting point of the branch
+  * @param {THREE.Euler} orientation The starting orientation of the branch
+  */
   generateLeaf(origin, orientation) {
     let i = this.leaves.verts.length / 3;
 

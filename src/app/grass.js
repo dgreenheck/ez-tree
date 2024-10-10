@@ -46,9 +46,14 @@ async function fetchAssets() {
 
 export class GrassOptions {
   /**
-   * Number of samples to take when creating grass
+   * Number of grass instances
    */
-  samples = 7500;
+  instanceCount = 5000;
+
+  /**
+   * Maximum number of grass instances
+   */
+  maxInstanceCount = 25000;
 
   /**
    * Size of the grass patches
@@ -79,11 +84,6 @@ export class Grass extends THREE.Object3D {
      * @type {GrassOptions}
      */
     this.options = options;
-
-    /**
-     * Maximum number of instances of grass
-     */
-    this.maxInstanceCount = 25000;
 
     fetchAssets().then(() => {
       // Ground plane with procedural grass/dirt texture
@@ -204,20 +204,32 @@ export class Grass extends THREE.Object3D {
       this.ground.receiveShadow = true;
       this.add(this.ground);
 
-      document.ground = this.ground;
+      this.grassMesh = new THREE.InstancedMesh(
+        _grassMesh.geometry,
+        _grassMesh.material,
+        this.options.maxInstanceCount);
 
-      this.grassMesh = new THREE.InstancedMesh(_grassMesh.geometry, _grassMesh.material, this.maxInstanceCount);
       // Decrease grass brightness
       _grassMesh.material.color.multiplyScalar(0.6);
+
       // Add some emission so grass has some color when not lit
       _grassMesh.material.emissive = new THREE.Color(0x308040);
       _grassMesh.material.emissiveIntensity = 0.05;
+
       this.add(this.grassMesh);
 
       this.update();
     });
 
 
+  }
+
+  get instanceCount() {
+    return this.grassMesh?.count ?? this.options.instanceCount;
+  }
+
+  set instanceCount(value) {
+    this.grassMesh.count = value;
   }
 
   update() {
@@ -234,7 +246,7 @@ export class Grass extends THREE.Object3D {
     const dummy = new THREE.Object3D();
 
     let count = 0;
-    for (let i = 0; i < this.options.samples; i++) {
+    for (let i = 0; i < this.options.maxInstanceCount; i++) {
       const r = 10 + Math.random() * 500;
       const theta = Math.random() * 2.0 * Math.PI;
 
@@ -280,11 +292,11 @@ export class Grass extends THREE.Object3D {
       this.grassMesh.setColorAt(count, color);
       count++;
     }
-    this.grassMesh.count = count;
+
+    // Set count to only show up to `instanceCount` instances
+    this.grassMesh.count = this.options.instanceCount;
 
     this.grassMesh.receiveShadow = true;
-
-    // Causes a big performance hit on most machines
     this.grassMesh.castShadow = true;
 
     // Ensure the transformation is updated in the GPU

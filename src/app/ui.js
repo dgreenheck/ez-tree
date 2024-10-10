@@ -3,32 +3,10 @@ import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { Pane } from 'tweakpane';
 import { BarkType, Billboard, LeafType, TreePreset, Tree, TreeType } from '@dgreenheck/ez-tree';
 import { Environment } from './environment';
+import { OrbitControls } from 'three/examples/jsm/Addons.js';
 
 const exporter = new GLTFExporter();
 let pane = null;
-
-// Read tree parameters from JSON
-document
-  .getElementById('fileInput')
-  .addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          tree.options = JSON.parse(e.target.result);
-          tree.generate();
-          setupUI(tree, renderer, scene, camera);
-        } catch (error) {
-          console.error('Error parsing JSON:', error);
-        }
-      };
-      reader.onerror = function (e) {
-        console.error('Error reading file:', e);
-      };
-      reader.readAsText(file);
-    }
-  });
 
 /**
  * Setups the UI
@@ -37,9 +15,10 @@ document
  * @param {THREE.WebGLRenderer} renderer
  * @param {THREE.Scene} scene
  * @param {THREE.Camera} camera
+ * @param {OrbitControls} controls
  * @param {String} initialPreset
  */
-export function setupUI(tree, environment, renderer, scene, camera, initialPreset) {
+export function setupUI(tree, environment, renderer, scene, camera, controls, initialPreset) {
 
   // Remove old event listener and dispose old pane
   pane?.off('change');
@@ -168,12 +147,16 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
   leavesFolder.addBinding(tree.options.leaves, 'sizeVariance', { min: 0, max: 1 });
   leavesFolder.addBinding(tree.options.leaves, 'alphaTest', { min: 0, max: 1 });
 
+  /** CAMERA  */
+  const cameraFolder = tab.pages[0].addFolder({ title: 'Camera', expanded: false });
+  cameraFolder.addBinding(controls, 'autoRotate');
+  cameraFolder.addBinding(controls, 'autoRotateSpeed', { min: 0, max: 5 });
+
   /** ENVIRONMENT */
 
   const environmentFolder = tab.pages[0].addFolder({ title: 'Environment', expanded: false });
-
-  const sunFolder = environmentFolder.addFolder({ title: 'Sun', expanded: false });
-  sunFolder.addBinding(environment.skybox, 'sunElevation', { label: 'elevation', min: 10, max: 90 });
+  environmentFolder.addBinding(environment.skybox, 'sunAzimuth', { label: 'sunAngle', min: 0, max: 360 });
+  environmentFolder.addBinding(environment.grass, 'instanceCount', { label: 'grassCount', min: 0, max: 25000, step: 1 });
 
   /** STATISTICS  */
 
@@ -260,4 +243,27 @@ export function setupUI(tree, environment, renderer, scene, camera, initialPrese
       o.visible = true;
     });
   });
+
+  // Read tree parameters from JSON
+  document
+    .getElementById('fileInput')
+    .addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            tree.options = JSON.parse(e.target.result);
+            tree.generate();
+            setupUI(tree, environment, renderer, scene, camera, controls, initialPreset)
+          } catch (error) {
+            console.error('Error parsing JSON:', error);
+          }
+        };
+        reader.onerror = function (e) {
+          console.error('Error reading file:', e);
+        };
+        reader.readAsText(file);
+      }
+    });
 }
