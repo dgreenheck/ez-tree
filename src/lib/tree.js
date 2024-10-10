@@ -49,7 +49,6 @@ export class Tree extends THREE.Group {
    * @param {TreeOptions} json 
    */
   loadFromJson(json) {
-    console.log(json);
     this.options.copy(json);
     this.generate();
   }
