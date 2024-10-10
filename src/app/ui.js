@@ -4,6 +4,7 @@ import { Pane } from 'tweakpane';
 import { BarkType, Billboard, LeafType, TreePreset, Tree, TreeType } from '@dgreenheck/ez-tree';
 import { Environment } from './environment';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
+import { version } from '../../package.json';
 
 const exporter = new GLTFExporter();
 let pane = null;
@@ -160,20 +161,27 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   environmentFolder.addBinding(environment.skybox, 'sunAzimuth', { label: 'sunAngle', min: 0, max: 360 });
   environmentFolder.addBinding(environment.grass, 'instanceCount', { label: 'grassCount', min: 0, max: 25000, step: 1 });
 
-  /** STATISTICS  */
+  /** INFO  */
 
-  const statsFolder = tab.pages[0].addFolder({ title: 'Info', expanded: false });
+  const infoFolder = tab.pages[0].addFolder({ title: 'Info', expanded: false });
 
-  statsFolder.addBinding(tree, 'vertexCount', {
+  infoFolder.addBinding(tree, 'vertexCount', {
     label: 'vertices',
     format: (v) => v.toFixed(0),
     readonly: true,
   });
 
-  statsFolder.addBinding(tree, 'triangleCount', {
+  infoFolder.addBinding(tree, 'triangleCount', {
     label: 'triangles',
     format: (v) => v.toFixed(0),
     readonly: true,
+  });
+
+  infoFolder.addBlade({
+    view: 'text',
+    label: 'version',
+    parse: (v) => String(v),
+    value: version,
   });
 
   /** Export **/
