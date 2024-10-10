@@ -28,6 +28,7 @@ export class Environment extends THREE.Object3D {
   }
 
   update(elapsedTime) {
+    this.grass.update(elapsedTime);
     this.clouds.update(elapsedTime);
   }
 }

@@ -44,8 +44,8 @@ export function createScene(renderer) {
   const forest = new THREE.Group();
   forest.name = 'Forest';
 
-  for (let i = 0; i < 10; i++) {
-    const r = 200 + Math.random() * 500;
+  for (let i = 0; i < 100; i++) {
+    const r = 175 + Math.random() * 500;
     const theta = 2 * Math.PI * Math.random();
     const presets = Object.keys(TreePreset);
     const index = Math.floor(Math.random() * presets.length);

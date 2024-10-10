@@ -4,7 +4,6 @@ import { simplex2d } from './noise';
 
 let loaded = false;
 let _grassMesh = null;
-let _grassTexture = null;
 
 /**
  * 
@@ -17,12 +16,6 @@ async function fetchAssets() {
 
   const gltf = await gltfLoader.loadAsync('grass.glb');
   _grassMesh = gltf.scene.children[0];
-  _grassMesh.material.map.colorSpace = THREE.SRGBColorSpace;
-  _grassMesh.material.map.premultiplyAlpha = true;
-  _grassMesh.material.transparent = false;
-  _grassMesh.material.alphaTest = 0.5;
-  _grassMesh.material.depthTest = true;
-  _grassMesh.material.depthWrite = true;
 
   loaded = true;
 }
@@ -51,12 +44,27 @@ export class GrassOptions {
   /**
    * Scale factor for the grass model
    */
-  size = { x: 6, y: 4, z: 6 };
+  size = { x: 5, y: 4, z: 5 };
 
   /**
    * Maximum variation in the grass size
    */
-  sizeVariation = { x: 1, y: 1, z: 1 };
+  sizeVariation = { x: 1, y: 2, z: 1 };
+
+  /**
+   * Strength of wind along each axis
+   */
+  windStrength = { x: 0.6, y: 0, z: 0.6 };
+
+  /**
+   * Oscillation frequency for wind movement
+   */
+  windFrequency = 1;
+
+  /**
+   * Controls how localized wind effects are
+   */
+  windScale = 400.0;
 }
 
 export class Grass extends THREE.Object3D {
@@ -69,21 +77,123 @@ export class Grass extends THREE.Object3D {
     this.options = options;
 
     fetchAssets().then(() => {
-      this.grassMesh = new THREE.InstancedMesh(
-        _grassMesh.geometry,
-        _grassMesh.material,
-        this.options.maxInstanceCount);
+      // Ground plane with procedural grass/dirt texture
+      const material = new THREE.MeshPhongMaterial({
+        map: _grassMesh.material.map,
+        // Add some emission so grass has some color when not lit
+        emissive: new THREE.Color(0x308040),
+        emissiveIntensity: 0.05,
+        transparent: false,
+        alphaTest: 0.5,
+        depthTest: true,
+        depthWrite: true,
+        side: THREE.DoubleSide
+      });
+
+      material.onBeforeCompile = (shader) => {
+        shader.uniforms.uTime = { value: 0 };
+        shader.uniforms.uWindStrength = { value: this.options.windStrength };
+        shader.uniforms.uWindFrequency = { value: this.options.windFrequency };
+        shader.uniforms.uWindScale = { value: this.options.windScale };
+
+        shader.vertexShader = `
+        uniform float uTime;
+        uniform vec3 uWindStrength;
+        uniform float uWindFrequency;
+        uniform float uWindScale;
+        ` + shader.vertexShader;
+
+        // Add code for simplex noise
+        shader.vertexShader = shader.vertexShader.replace(
+          `void main() {`,
+          `
+          vec3 mod289(vec3 x) {
+            return x - floor(x * (1.0 / 289.0)) * 289.0;
+          }
+
+          vec2 mod289(vec2 x) {
+            return x - floor(x * (1.0 / 289.0)) * 289.0;
+          }
+
+          vec3 permute(vec3 x) {
+            return mod289(((x * 34.0) + 1.0) * x);
+          }
+
+          float simplex2d(vec2 v) {
+            const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+            vec2 i = floor(v + dot(v, C.yy));
+            vec2 x0 = v - i + dot(i, C.xx);
+            vec2 i1;
+            i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+            vec4 x12 = x0.xyxy + C.xxzz;
+            x12.xy -= i1;
+
+            i = mod289(i);
+            vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+
+            vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+            m = m * m;
+            m = m * m;
+
+            vec3 x = 2.0 * fract(p * C.www) - 1.0;
+            vec3 h = abs(x) - 0.5;
+            vec3 ox = floor(x + 0.5);
+            vec3 a0 = x - ox;
+
+            m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+
+            vec3 g;
+            g.x = a0.x * x0.x + h.x * x0.y;
+            g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+            return 130.0 * dot(m, g);
+          }
+          
+          void main() {`,
+        );
+
+        // worldPosition = modelMatrix * instanceMatrix * position;
+        // worldWindDirection = model
+        shader.vertexShader = shader.vertexShader.replace(
+          `#include <project_vertex>`,
+          `
+          vec4 mvPosition = instanceMatrix * vec4(transformed, 1.0);
+
+          float windOffset = 2.0 * 3.14 * simplex2d((modelMatrix * mvPosition).xz / uWindScale);
+          vec3 windSway = position.y * uWindStrength * 
+            sin(uTime * uWindFrequency + windOffset) *
+            sin(uTime * 1.4 * uWindFrequency + windOffset);
+
+
+          mvPosition.xyz += windSway;
+
+          mvPosition = modelViewMatrix * mvPosition;
+
+          gl_Position = projectionMatrix * mvPosition;
+          `
+        );
+
+        shader.fragmentShader = `
+          varying vec3 vWorldPosition;
+          uniform float uNoiseScale;
+          uniform float uPatchiness;
+          uniform sampler2D uGrassTexture;
+          uniform sampler2D uDirtTexture;
+          ` + shader.fragmentShader;
+
+        material.userData.shader = shader;
+      };
 
       // Decrease grass brightness
-      _grassMesh.material.color.multiplyScalar(0.6);
+      material.color.multiplyScalar(0.6);
 
-      // Add some emission so grass has some color when not lit
-      _grassMesh.material.emissive = new THREE.Color(0x308040);
-      _grassMesh.material.emissiveIntensity = 0.05;
-
-      this.add(this.grassMesh);
+      this.grassMesh = new THREE.InstancedMesh(
+        _grassMesh.geometry,
+        material,
+        this.options.maxInstanceCount);
 
       this.generateGrassInstances();
+
+      this.add(this.grassMesh);
     });
   }
 
@@ -93,6 +203,13 @@ export class Grass extends THREE.Object3D {
 
   set instanceCount(value) {
     this.grassMesh.count = value;
+  }
+
+  update(elapsedTime) {
+    const shader = this.grassMesh?.material.userData.shader;
+    if (shader) {
+      shader.uniforms.uTime.value = elapsedTime;
+    }
   }
 
   generateGrassInstances() {
@@ -128,9 +245,9 @@ export class Grass extends THREE.Object3D {
 
       // Set scale randomly
       dummy.scale.set(
-        this.options.sizeVariation.x * (2 * Math.random() - 1) + this.options.size.x,
-        this.options.sizeVariation.y * (2 * Math.random() - 1) + this.options.size.y,
-        this.options.sizeVariation.z * (2 * Math.random() - 1) + this.options.size.z
+        this.options.sizeVariation.x * Math.random() + this.options.size.x,
+        this.options.sizeVariation.y * Math.random() + this.options.size.y,
+        this.options.sizeVariation.z * Math.random() + this.options.size.z
       );
 
       // Apply the transformation to the instance
