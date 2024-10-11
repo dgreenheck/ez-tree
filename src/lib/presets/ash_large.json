@@ -51,9 +51,9 @@
     },
     "sections": {
       "0": 12,
-      "1": 10,
-      "2": 10,
-      "3": 10
+      "1": 8,
+      "2": 6,
+      "3": 4
     },
     "segments": {
       "0": 8,
@@ -83,7 +83,7 @@
     "type": "ash",
     "billboard": "double",
     "angle": 30,
-    "count": 12,
+    "count": 10,
     "start": 0.01,
     "size": 4.62,
     "sizeVariance": 0.72,

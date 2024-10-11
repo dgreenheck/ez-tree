@@ -15,17 +15,17 @@ async function fetchAssets() {
 
   const textureLoader = new THREE.TextureLoader();
 
-  _grassTexture = await textureLoader.loadAsync('grass.png');
+  _grassTexture = await textureLoader.loadAsync('grass.jpg');
   _grassTexture.wrapS = THREE.RepeatWrapping;
   _grassTexture.wrapT = THREE.RepeatWrapping;
   _grassTexture.colorSpace = THREE.SRGBColorSpace;
 
-  _dirtTexture = await textureLoader.loadAsync('dirt_color.png');
+  _dirtTexture = await textureLoader.loadAsync('dirt_color.jpg');
   _dirtTexture.wrapS = THREE.RepeatWrapping;
   _dirtTexture.wrapT = THREE.RepeatWrapping;
   _dirtTexture.colorSpace = THREE.SRGBColorSpace;
 
-  _dirtNormal = await textureLoader.loadAsync('dirt_normal.png');
+  _dirtNormal = await textureLoader.loadAsync('dirt_normal.jpg');
   _dirtNormal.wrapS = THREE.RepeatWrapping;
   _dirtNormal.wrapT = THREE.RepeatWrapping;
 

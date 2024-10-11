@@ -26,7 +26,7 @@ export function createScene(renderer) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.enablePan = false;
-  controls.minPolarAngle = Math.PI / 2;
+  controls.minPolarAngle = Math.PI / 3;
   controls.maxPolarAngle = Math.PI / 2;
   controls.minDistance = 10;
   controls.maxDistance = 150;
@@ -44,7 +44,7 @@ export function createScene(renderer) {
   const forest = new THREE.Group();
   forest.name = 'Forest';
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 200; i++) {
     const r = 175 + Math.random() * 500;
     const theta = 2 * Math.PI * Math.random();
     const presets = Object.keys(TreePreset);

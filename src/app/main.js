@@ -53,4 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
   setupUI(tree, environment, renderer, scene, camera, controls, 'Ash Medium');
   animate();
   resize();
+
+  toggleAudio();
+  document.getElementById('audio-status').style.display = 'block';
 });
+
+window.toggleAudio = function () {
+  if (window.isAudioPlaying) {
+    window.isAudioPlaying = false;
+    document.getElementById('audio-status').src = "icon_muted.png";
+    document.getElementById('background-audio').pause();
+  } else {
+    window.isAudioPlaying = true;
+    document.getElementById('audio-status').src = "icon_playing.png";
+    document.getElementById('background-audio').play();
+  }
+}

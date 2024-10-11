@@ -76,17 +76,34 @@
       --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
       --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);
     }
+
+    .audio-icon {
+      display: none;
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      width: 40px;
+      height: 40px;
+    }
   </style>
 </head>
 
 <body>
   <div id="root">
+    <img id="audio-status" class="audio-icon" src="icon_playing.png" onclick="toggleAudio()">
     <div id="app"></div>
     <div id="ui-container"></div>
   </div>
   <script type="module" src="./main.js"></script>
   <a id="downloadLink" style="display: none"></a>
+
+  <!-- Used for file uploads -->
   <input type="file" id="fileInput" accept=".json" style="display: none" />
+
+  <audio id="background-audio" loop>
+    <source src="ambience.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
 </body>
 
 </html>

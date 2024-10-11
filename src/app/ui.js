@@ -146,7 +146,7 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   leavesFolder.addBinding(tree.options.leaves, 'angle', { min: 0, max: 100, step: 1 });
   leavesFolder.addBinding(tree.options.leaves, 'count', { min: 0, max: 100, step: 1 });
   leavesFolder.addBinding(tree.options.leaves, 'start', { min: 0, max: 1 });
-  leavesFolder.addBinding(tree.options.leaves, 'size', { min: 0, max: 5 });
+  leavesFolder.addBinding(tree.options.leaves, 'size', { min: 0, max: 10 });
   leavesFolder.addBinding(tree.options.leaves, 'sizeVariance', { min: 0, max: 1 });
   leavesFolder.addBinding(tree.options.leaves, 'alphaTest', { min: 0, max: 1 });
 
