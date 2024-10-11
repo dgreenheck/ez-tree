@@ -19,5 +19,8 @@ export default {
       ),
     },
   },
+  server: {
+    hmr: true,
+  },
   assetsInclude: ['**/*.frag', '**/*.vert'],
 };

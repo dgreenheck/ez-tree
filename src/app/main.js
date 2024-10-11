@@ -6,7 +6,7 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { setupUI } from './ui';
 import { createScene } from './scene';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('app')
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderer.toneMappingExposure = 2;
   container.appendChild(renderer.domElement);
 
-  const { scene, environment, tree, camera, controls } = createScene(renderer);
+  const { scene, environment, tree, camera, controls } = await createScene(renderer);
 
   const composer = new EffectComposer(renderer);
 

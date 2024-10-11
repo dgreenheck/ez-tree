@@ -6,95 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <title>EZ-Tree</title>
-  <style>
-    html,
-    body {
-      margin: 0;
-      background-color: #273940;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    #root {
-      width: 100%;
-      height: 100%;
-    }
-
-    #app {
-      height: 100%;
-    }
-
-    #ui-container {
-      position: fixed;
-      top: 8px;
-      right: 8px;
-      width: 300px;
-    }
-
-    @media (max-width: 800px) {
-      #root {
-        display: flex;
-        flex-direction: column;
-      }
-
-      #app {
-        height: 60vh;
-      }
-
-      #ui-container {
-        position: relative;
-        width: 100%;
-        overflow-y: auto;
-        overscroll-behavior: none;
-        top: auto;
-        right: auto;
-      }
-    }
-
-    /* Tweakpane theme */
-    :root {
-      --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
-      --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
-      --tp-button-background-color: hsla(0, 0%, 80%, 1.00);
-      --tp-button-background-color-active: hsla(0, 0%, 100%, 1.00);
-      --tp-button-background-color-focus: hsla(0, 0%, 95%, 1.00);
-      --tp-button-background-color-hover: hsla(0, 0%, 85%, 1.00);
-      --tp-button-foreground-color: hsla(0, 0%, 0%, 0.80);
-      --tp-container-background-color: hsla(0, 0%, 0%, 0.30);
-      --tp-container-background-color-active: hsla(0, 0%, 0%, 0.60);
-      --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.50);
-      --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.40);
-      --tp-container-foreground-color: hsla(0, 0%, 100%, 0.50);
-      --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.20);
-      --tp-input-background-color: hsla(0, 0%, 0%, 0.30);
-      --tp-input-background-color-active: hsla(0, 0%, 0%, 0.60);
-      --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.50);
-      --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.40);
-      --tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
-      --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
-      --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
-      --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);
-    }
-
-    .audio-icon {
-      display: none;
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      width: 40px;
-      height: 40px;
-    }
-  </style>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 
 <body>
+  <div id="loading-screen">
+    <img id="logo" src="logo.png">
+    <div id="loading-text">LOADING... 0%</div>
+  </div>
+
   <div id="root">
     <img id="audio-status" class="audio-icon" src="icon_playing.png" onclick="toggleAudio()">
     <div id="app"></div>
     <div id="ui-container"></div>
   </div>
-  <script type="module" src="./main.js"></script>
+
   <a id="downloadLink" style="display: none"></a>
 
   <!-- Used for file uploads -->
@@ -104,6 +30,8 @@
     <source src="ambience.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
+
+  <script type="module" src="./main.js"></script>
 </body>
 
 </html>

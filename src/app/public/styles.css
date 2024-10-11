@@ -1,0 +1,136 @@
+@font-face {
+  font-family: 'Dumbeldor';
+  src: url('/dumbeldor.ttf'), format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html,
+body {
+  margin: 0;
+  background-color: #273940;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+
+#ui-container {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  width: 300px;
+}
+
+@media (max-width: 800px) {
+  #root {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #app {
+    height: 60vh;
+  }
+
+  #ui-container {
+    position: relative;
+    width: 100%;
+    overflow-y: auto;
+    overscroll-behavior: none;
+    top: auto;
+    right: auto;
+  }
+}
+
+/* Tweakpane theme */
+:root {
+  --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
+  --tp-button-background-color: hsla(0, 0%, 80%, 1.00);
+  --tp-button-background-color-active: hsla(0, 0%, 100%, 1.00);
+  --tp-button-background-color-focus: hsla(0, 0%, 95%, 1.00);
+  --tp-button-background-color-hover: hsla(0, 0%, 85%, 1.00);
+  --tp-button-foreground-color: hsla(0, 0%, 0%, 0.80);
+  --tp-container-background-color: hsla(0, 0%, 0%, 0.30);
+  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.60);
+  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.50);
+  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.40);
+  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.50);
+  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.20);
+  --tp-input-background-color: hsla(0, 0%, 0%, 0.30);
+  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.60);
+  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.50);
+  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.40);
+  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
+  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
+  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
+  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);
+}
+
+.audio-icon {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+}
+
+#loading-screen {
+  background-image: url("/background.webp");
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: 9999;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 64px;
+  box-sizing: border-box;
+}
+
+#logo {
+  position: relative;
+  margin: 64px;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1 / 1;
+  clip-path: inset(100% 0 0 0);
+  will-change: clip-path;
+}
+
+#loading-text {
+  font-size: 5em;
+  color: white;
+  font-family: 'Dumbeldor', serif;
+}
+
+@media (max-width: 650px) {
+  #loading-text {
+    font-size: 4em;
+  }
+}
+
+@media (max-width: 550px) {
+  #loading-text {
+    font-size: 3em;
+  }
+}
+
+@media (max-width: 450px) {
+  #loading-text {
+    font-size: 2em;
+  }
+}
