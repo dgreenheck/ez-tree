@@ -34,8 +34,8 @@ export async function createScene(renderer) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.enablePan = false;
-  controls.minPolarAngle = Math.PI / 3;
-  controls.maxPolarAngle = Math.PI / 2;
+  controls.minPolarAngle = Math.PI / 2 - 0.2;
+  controls.maxPolarAngle = Math.PI / 2 + 0.13;
   controls.minDistance = 10;
   controls.maxDistance = 150;
   controls.target.set(0, 25, 0);
@@ -58,7 +58,7 @@ export async function createScene(renderer) {
   logoElement.style.clipPath = `inset(100% 0% 0% 0%)`;
   progressElement.innerHTML = 'LOADING... 0%';
 
-  const treeCount = 200;
+  const treeCount = 1;
   const minDistance = 175;
   const maxDistance = 500;
 

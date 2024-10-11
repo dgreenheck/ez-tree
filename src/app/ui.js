@@ -153,7 +153,7 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   /** CAMERA  */
   const cameraFolder = tab.pages[0].addFolder({ title: 'Camera', expanded: false });
   cameraFolder.addBinding(controls, 'autoRotate');
-  cameraFolder.addBinding(controls, 'autoRotateSpeed', { min: 0, max: 5 });
+  cameraFolder.addBinding(controls, 'autoRotateSpeed', { min: 0, max: 2 });
 
   /** ENVIRONMENT */
 

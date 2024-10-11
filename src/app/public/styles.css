@@ -37,7 +37,7 @@ body {
   }
 
   #app {
-    height: 60vh;
+    height: 50vh;
   }
 
   #ui-container {
@@ -47,6 +47,7 @@ body {
     overscroll-behavior: none;
     top: auto;
     right: auto;
+    zoom: 1.3;
   }
 }
 
@@ -117,19 +118,19 @@ body {
   font-family: 'Dumbeldor', serif;
 }
 
-@media (max-width: 650px) {
+@media (max-width: 675px) {
   #loading-text {
     font-size: 4em;
   }
 }
 
-@media (max-width: 550px) {
+@media (max-width: 575px) {
   #loading-text {
     font-size: 3em;
   }
 }
 
-@media (max-width: 450px) {
+@media (max-width: 475px) {
   #loading-text {
     font-size: 2em;
   }

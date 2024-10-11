@@ -9,6 +9,9 @@ import { createScene } from './scene';
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('app')
 
+  // User needs to interact with the page before audio will play
+  container.addEventListener('click', toggleAudio);
+
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setClearColor(0);
   renderer.setSize(container.clientWidth, container.clientHeight);
@@ -54,11 +57,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   animate();
   resize();
 
-  toggleAudio();
   document.getElementById('audio-status').style.display = 'block';
 });
 
 window.toggleAudio = function () {
+  document.getElementById('app').removeEventListener('click', toggleAudio);
+
   if (window.isAudioPlaying) {
     window.isAudioPlaying = false;
     document.getElementById('audio-status').src = "icon_muted.png";
