@@ -58,7 +58,7 @@ export async function createScene(renderer) {
   logoElement.style.clipPath = `inset(100% 0% 0% 0%)`;
   progressElement.innerHTML = 'LOADING... 0%';
 
-  const treeCount = 1;
+  const treeCount = 150;
   const minDistance = 175;
   const maxDistance = 500;
 

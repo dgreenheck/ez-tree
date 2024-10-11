@@ -36,8 +36,6 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
     });
   };
 
-  // Update tree and material on change
-  pane.on('change', onChange);
 
   const tab = pane.addTab({
     pages: [
@@ -47,6 +45,9 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   });
 
   const treeFolder = tab.pages[0].addFolder({ title: 'Tree', expanded: true });
+
+  // Update tree and material on change
+  treeFolder.on('change', onChange);
 
   // Preset dropdown
   treeFolder.addBlade({

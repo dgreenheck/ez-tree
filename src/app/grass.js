@@ -59,7 +59,7 @@ export class GrassOptions {
   /**
    * Oscillation frequency for wind movement
    */
-  windFrequency = 1;
+  windFrequency = 0.7;
 
   /**
    * Controls how localized wind effects are
