@@ -10,6 +10,7 @@
   <link rel="manifest" href="/site.webmanifest">
   <title>EZ-Tree</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
@@ -19,9 +20,34 @@
   </div>
 
   <div id="root">
+    <img id="about-icon" class="about-icon" src="icon_about.png" onclick="showAbout()">
     <img id="audio-status" class="audio-icon" src="icon_playing.png" onclick="toggleAudio()">
     <div id="app"></div>
     <div id="ui-container"></div>
+
+    <div id="aboutOverlay" class="overlay">
+      <div class="about-dialog">
+        <img src="logo.png" alt="App Icon">
+        <h1>EZ-Tree</h1>
+        <h2>Procedural Tree Generator</h2>
+        <h3>Made by Dan Greenheck</h3>
+        <a href="https://www.dangreenheck.com">www.dangreenheck.com</a>
+        <div class="social-icons">
+          <a href="mailto:dan.greenheck@drgsoftwaresolutions.com" target="_blank" class="social-icon email"><i
+              class="fas fa-envelope"></i></a>
+          <a href="https://github.com/dgreenheck" target="_blank" class="social-icon github"><i
+              class="fab fa-github"></i></a>
+          <a href="https://www.youtube.com/channel/UCrdx_EU_Wx8_uBfqO0cI-9Q" target="_blank"
+            class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+          <a href="https://www.x.com/dangreenheck" target="_blank" class="social-icon twitter"><i
+              class="fab fa-x"></i></a>
+          <a href="https://www.linkedin.com/in/danielgreenheck/" target="_blank" class="social-icon linkedin"><i
+              class="fab fa-linkedin"></i></a>
+        </div>
+        <button class="close-button" onclick="closeAbout()">CLOSE</button>
+      </div>
+    </div>
+
   </div>
 
   <a id="downloadLink" style="display: none"></a>
@@ -35,6 +61,16 @@
   </audio>
 
   <script type="module" src="./main.js"></script>
+  <script>
+    function showAbout() {
+      document.getElementById('aboutOverlay').classList.add('active');
+    }
+
+    function closeAbout() {
+      document.getElementById('aboutOverlay').classList.remove('active');
+    }
+  </script>
+
 </body>
 
 </html>

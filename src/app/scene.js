@@ -58,7 +58,7 @@ export async function createScene(renderer) {
   logoElement.style.clipPath = `inset(100% 0% 0% 0%)`;
   progressElement.innerHTML = 'LOADING... 0%';
 
-  const treeCount = 150;
+  const treeCount = 100;
   const minDistance = 175;
   const maxDistance = 500;
 
@@ -96,7 +96,7 @@ export async function createScene(renderer) {
     }
 
     // All trees are loaded, hide loading screen
-    await sleep(500);
+    await sleep(300);
     logoElement.style.clipPath = `inset(0% 0% 0% 0%)`;
     document.getElementById('loading-screen').style.display = 'none';
   }
