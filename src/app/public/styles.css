@@ -49,27 +49,6 @@ a {
   width: 300px;
 }
 
-@media (max-width: 800px) {
-  #root {
-    display: flex;
-    flex-direction: column;
-  }
-
-  #app {
-    height: 50vh;
-  }
-
-  #ui-container {
-    position: relative;
-    width: 100%;
-    overflow-y: auto;
-    overscroll-behavior: none;
-    top: auto;
-    right: auto;
-    zoom: 1.3;
-  }
-}
-
 /* Tweakpane theme */
 :root {
   --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
@@ -223,6 +202,46 @@ a {
 
 .close-button:hover {
   background: #777;
+}
+
+@media (max-width: 800px) {
+  #root {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #app {
+    height: 50vh;
+  }
+
+  #ui-container {
+    position: relative;
+    width: 100%;
+    overflow-y: auto;
+    overscroll-behavior: none;
+    top: auto;
+    right: auto;
+    zoom: 1.3;
+  }
+
+  .about-icon {
+    position: fixed;
+    top: 12px;
+    left: 8px;
+    width: 30px;
+    height: 26px;
+    cursor: pointer;
+  }
+
+  .audio-icon {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 46px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+  }
 }
 
 @media (max-width: 675px) {
