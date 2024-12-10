@@ -28,7 +28,7 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   pane = new Pane({ container: document.getElementById('ui-container'), title: 'EZ Tree' });
 
   const onChange = () => {
-    tree.generate();
+    tree.generate(true);
     tree.traverse((o) => {
       if (o.material) {
         o.material.needsUpdate = true;
@@ -253,6 +253,14 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
       }
       o.visible = true;
     });
+  });
+
+  tab.pages[1].addBlade({
+    view: 'separator',
+  });
+
+  tab.pages[1].addButton({ title: 'Generate Link' }).on('click', () => {
+    tree.generateLink();
   });
 
   // Read tree parameters from JSON

@@ -32,7 +32,7 @@
     "build:app": "vite build --config vite.app.config.js",
     "build:lib": "vite build --config vite.lib.config.js",
     "build:watch": "vite build --config vite.lib.config.js --watch",
-    "app": "npm run build:lib && vite --config vite.app.config.js",
+    "app": "npm run build:lib && vite --config vite.app.config.js --host 127.0.0.1",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -54,6 +54,7 @@
     "tree"
   ],
   "dependencies": {
+    "pako": "^2.1.0",
     "tweakpane": "^4.0.4"
   }
 }

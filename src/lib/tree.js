@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import * as pako from 'pako';
+import * as base64 from 'urlsafe-base64';
 import RNG from './rng';
 import { Branch } from './branch';
 import { Billboard, TreeType } from './enums';
@@ -60,10 +62,27 @@ export class Tree extends THREE.Group {
     this.generate();
   }
 
+  loadFromUrl(encoded) {
+    // Reverse transformation of data back into JSON
+    const base64 = encoded.replace(/\-/g, '+').replace(/\_/g, '/');
+    const compressed = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const config = pako.inflate(compressed, { to: 'string' });
+    this.options = JSON.parse(config);
+    this.generate();
+  }
+
+  generateLink() {
+    const input = JSON.stringify(this.options);
+    const compressed = pako.deflate(input);
+    const base64Encoded = btoa(String.fromCharCode.apply(null, compressed));
+    const urlSafe = base64Encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return urlSafe;
+  }
+
   /**
    * Generate a new tree
    */
-  generate() {
+  generate(updateUrl = false) {
     // Clean up old geometry
     this.branches = {
       verts: [],
@@ -102,6 +121,14 @@ export class Tree extends THREE.Group {
 
     this.createBranchesGeometry();
     this.createLeavesGeometry();
+
+    // Update the URL to reflect the latest changes
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tree', this.generateLink());
+      // Update the browser's address bar without reloading the page
+      history.replaceState(null, '', url.toString());
+    }
   }
 
   /**

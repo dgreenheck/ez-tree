@@ -42,10 +42,17 @@ export async function createScene(renderer) {
   controls.update();
 
   const tree = new Tree();
-  tree.loadPreset('Ash Medium');
-  tree.generate();
   tree.castShadow = true;
   tree.receiveShadow = true;
+
+  // If a tree has been passed as a query param, use that instead
+  const queryParams = new URLSearchParams(window.location.search);
+  if (queryParams.has('tree')) {
+    tree.loadFromUrl(queryParams.get('tree'));
+  } else {
+    tree.loadPreset('Ash Medium');
+  }
+
   scene.add(tree);
 
   // Add a forest of trees in the background
@@ -58,9 +65,9 @@ export async function createScene(renderer) {
   logoElement.style.clipPath = `inset(100% 0% 0% 0%)`;
   progressElement.innerHTML = 'LOADING... 0%';
 
-  const treeCount = 100;
-  const minDistance = 175;
-  const maxDistance = 500;
+  const treeCount = 75;
+  const minDistance = 150;
+  const maxDistance = 400;
 
   function createTree() {
     const r = minDistance + Math.random() * maxDistance;
