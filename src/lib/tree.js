@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as pako from 'pako';
-import * as base64 from 'urlsafe-base64';
 import RNG from './rng';
 import { Branch } from './branch';
 import { Billboard, TreeType } from './enums';
