@@ -1,10 +1,10 @@
-import * as THREE from 'three';
+import { Mesh, MeshBasicMaterial, PlaneGeometry } from 'three';
 
-export class Clouds extends THREE.Mesh {
+export class Clouds extends Mesh {
   constructor() {
     super();
 
-    this.material = new THREE.MeshBasicMaterial({
+    this.material = new MeshBasicMaterial({
       transparent: true, // Allow alpha blending if needed
       opacity: 0.9,
       fog: true,
@@ -76,15 +76,15 @@ export class Clouds extends THREE.Mesh {
         `
       );
 
-      this.material.userData.shader = shader;
+      (this.material as MeshBasicMaterial).userData.shader = shader;
     };
 
     // Create a quad to apply the cloud shader to
-    this.geometry = new THREE.PlaneGeometry(2000, 2000);
+    this.geometry = new PlaneGeometry(2000, 2000);
   }
 
-  update(elapsedTime) {
-    const shader = this.material.userData.shader;
+  update(elapsedTime: any) {
+    const shader = (this.material as MeshBasicMaterial).userData.shader;
     if (shader) {
       shader.uniforms.uTime.value = elapsedTime;
     }

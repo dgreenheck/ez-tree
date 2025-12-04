@@ -3,7 +3,7 @@ export default class RNG {
   m_z = 987654321;
   mask = 0xffffffff;
 
-  constructor(seed) {
+  constructor(seed: number) {
     this.m_w = (123456789 + seed) & this.mask;
     this.m_z = (987654321 - seed) & this.mask;
   }

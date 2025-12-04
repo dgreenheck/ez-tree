@@ -1,30 +1,37 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+import { Group, InstancedMesh, Mesh, Object3D, Vector3 } from 'three';
+import { GLTF, GLTFLoader } from 'three/examples/jsm/Addons.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
-let loaded = false;
-let _rock1Mesh = null;
-let _rock2Mesh = null;
-let _rock3Mesh = null;
+let loadInitialized = false;
 
-/**
- * 
- * @returns {Promise<THREE.Geometry>}
- */
 async function fetchAssets() {
-  if (loaded) return;
 
-  const gltfLoader = new GLTFLoader();
+  if (loadInitialized) return;
+  // Set the flag immediately in async function
+  loadInitialized = true;
 
-  const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
-  gltfLoader.setDRACOLoader(dracoLoader);
+  try {
 
-  _rock1Mesh = (await gltfLoader.loadAsync('rock1.glb')).scene.children[0];
-  _rock2Mesh = (await gltfLoader.loadAsync('rock2.glb')).scene.children[0];
-  _rock3Mesh = (await gltfLoader.loadAsync('rock3.glb')).scene.children[0];
+    const gltfLoader = new GLTFLoader();
 
-  loaded = true;
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+    gltfLoader.setDRACOLoader(dracoLoader);
+
+    const rocks = await Promise.all([
+      gltfLoader.loadAsync("rock1.glb").then((glb: GLTF) => glb.scene.children[0] as Mesh),
+      gltfLoader.loadAsync("rock2.glb").then((glb: GLTF) => glb.scene.children[0] as Mesh),
+      gltfLoader.loadAsync("rock3.glb").then((glb: GLTF) => glb.scene.children[0] as Mesh)
+    ])
+
+    console.log(rocks)
+
+
+    return rocks
+  } catch (err) {
+    console.log(err)
+    throw new Error("Failed to load assets")
+  }
 }
 
 export class RockOptions {
@@ -39,7 +46,8 @@ export class RockOptions {
   sizeVariation = { x: 3, y: 3, z: 3 };
 }
 
-export class Rocks extends THREE.Group {
+export class Rocks extends Group {
+  options: RockOptions;
   constructor(options = new RockOptions()) {
     super();
 
@@ -48,22 +56,22 @@ export class Rocks extends THREE.Group {
      */
     this.options = options;
 
-    fetchAssets().then(() => {
-      this.add(this.generateInstances(_rock1Mesh));
-      this.add(this.generateInstances(_rock2Mesh));
-      this.add(this.generateInstances(_rock3Mesh));
+    fetchAssets().then((rocks) => {
+      rocks?.forEach(rock => {
+        this.add(this.generateInstances(rock))
+      })
     });
   }
 
-  generateInstances(mesh) {
-    const instancedMesh = new THREE.InstancedMesh(mesh.geometry, mesh.material, 200);
+  generateInstances(mesh: Mesh) {
+    const instancedMesh = new InstancedMesh(mesh.geometry, mesh.material, 200);
 
-    const dummy = new THREE.Object3D();
+    const dummy = new Object3D();
 
     let count = 0;
     for (let i = 0; i < 50; i++) {
       // Set position randomly
-      const p = new THREE.Vector3(
+      const p = new Vector3(
         2 * (Math.random() - 0.5) * 250,
         0.3,
         2 * (Math.random() - 0.5) * 250

@@ -1,9 +1,11 @@
-import * as THREE from 'three';
+import { FogExp2, Group, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Tree, TreePreset } from '@dgreenheck/ez-tree';
-import { Environment } from './environment';
 
-function sleep(ms) {
+import { Environment } from './environment';
+import {Tree} from '../lib/tree'
+import { treePreset } from '../lib/presets';
+
+function sleep(ms: number | undefined) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -12,18 +14,18 @@ function paintUI() {
 }
 
 /**
- * Creates a new instance of the Three.js scene
- * @param {THREE.WebGLRenderer} renderer 
+ * Creates a new instance of the js scene
+ * @param {WebGLRenderer} renderer 
  * @returns 
  */
-export async function createScene(renderer) {
-  const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x94b9f8, 0.0015);
+export async function createScene(renderer: WebGLRenderer) {
+  const scene = new Scene();
+  scene.fog = new FogExp2(0x94b9f8, 0.0015);
 
   const environment = new Environment();
   scene.add(environment);
 
-  const camera = new THREE.PerspectiveCamera(
+  const camera = new PerspectiveCamera(
     60,
     window.innerWidth / window.innerHeight,
     0.1,
@@ -49,11 +51,11 @@ export async function createScene(renderer) {
   scene.add(tree);
 
   // Add a forest of trees in the background
-  const forest = new THREE.Group();
+  const forest = new Group();
   forest.name = 'Forest';
 
-  const logoElement = document.getElementById('logo');
-  const progressElement = document.getElementById('loading-text');
+  const logoElement = document.getElementById('logo')!;
+  const progressElement = document.getElementById('loading-text')!;
 
   logoElement.style.clipPath = `inset(100% 0% 0% 0%)`;
   progressElement.innerHTML = 'LOADING... 0%';
@@ -65,7 +67,7 @@ export async function createScene(renderer) {
   function createTree() {
     const r = minDistance + Math.random() * maxDistance;
     const theta = 2 * Math.PI * Math.random();
-    const presets = Object.keys(TreePreset);
+    const presets = Object.keys(treePreset);
     const index = Math.floor(Math.random() * presets.length);
 
     const t = new Tree();
@@ -79,7 +81,7 @@ export async function createScene(renderer) {
     forest.add(t);
   }
 
-  async function loadTrees(i) {
+  async function loadTrees(i: number) {
     while (i < treeCount) {
       createTree();
 
@@ -98,7 +100,7 @@ export async function createScene(renderer) {
     // All trees are loaded, hide loading screen
     await sleep(300);
     logoElement.style.clipPath = `inset(0% 0% 0% 0%)`;
-    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('loading-screen')!.style.display = 'none';
   }
 
   // Start the tree loading process

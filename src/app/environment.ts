@@ -1,11 +1,16 @@
-import * as THREE from 'three';
+import { Object3D } from 'three';
 import { Skybox } from './skybox';
 import { Ground } from './ground';
 import { Grass } from './grass';
 import { Rocks } from './rocks';
 import { Clouds } from './clouds';
 
-export class Environment extends THREE.Object3D {
+export class Environment extends Object3D {
+  ground: Ground;
+  grass: Grass;
+  skybox: Skybox;
+  rocks: Rocks;
+  clouds: Clouds;
   constructor() {
     super();
 
@@ -27,7 +32,7 @@ export class Environment extends THREE.Object3D {
     this.add(this.clouds);
   }
 
-  update(elapsedTime) {
+  update(elapsedTime: any) {
     this.grass.update(elapsedTime);
     this.clouds.update(elapsedTime);
   }
