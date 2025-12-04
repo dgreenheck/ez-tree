@@ -1,4 +1,4 @@
-import { BackSide, Camera, FrontSide, Mesh, MeshStandardMaterial, Scene, WebGLRenderer } from 'three';
+import { BackSide, Camera, FrontSide, Mesh, MeshPhongMaterial, Scene, WebGLRenderer } from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { Pane } from 'tweakpane';
 import { BarkType, Billboard, LeafType, TreeType } from '../lib/enums';
@@ -29,7 +29,7 @@ export function setupUI(tree: Tree, environment: Environment, renderer: WebGLRen
       const mesh = obj as Mesh
 
       if (mesh.material) {
-        (mesh.material as MeshStandardMaterial).needsUpdate = true;
+        (mesh.material as MeshPhongMaterial).needsUpdate = true;
       }
     });
   };

@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Color, DoubleSide, Euler, Group, Mesh, MeshPhongMaterial, MeshStandardMaterial, Quaternion, Vector2, Vector3 } from 'three';
+import { BufferAttribute, BufferGeometry, Color, DoubleSide, Euler, Group, Mesh, MeshPhongMaterial, Quaternion, Vector2, Vector3 } from 'three';
 import RNG from './rng';
 import { Branch } from './branch';
 import { Billboard, TreeType } from './enums';
@@ -45,7 +45,7 @@ export class Tree extends Group {
   }
 
   update(elapsedTime) {
-    const leafShader = (this.leavesMesh.material as MeshStandardMaterial).userData.shader;
+    const leafShader = (this.leavesMesh.material as MeshPhongMaterial).userData.shader;
     if (leafShader) {
       leafShader.uniforms.uTime.value = elapsedTime;
     }
@@ -535,7 +535,7 @@ export class Tree extends Group {
     );
     g.computeBoundingSphere();
 
-    const mat = new MeshStandardMaterial({
+    const mat = new MeshPhongMaterial({
       name: 'branches',
       flatShading: this.options.bark.flatShading,
       color: new Color(this.options.bark.tint),
@@ -546,12 +546,12 @@ export class Tree extends Group {
       mat.aoMap = getBarkTexture(this.options.bark.type, 'ao', textureScale);
       mat.map = getBarkTexture(this.options.bark.type, 'color', textureScale);
       mat.normalMap = getBarkTexture(this.options.bark.type, 'normal', textureScale);
-      mat.roughnessMap = getBarkTexture(this.options.bark.type, 'roughness', textureScale);
+      //mat.roughnessMap = getBarkTexture(this.options.bark.type, 'roughness', textureScale);
     }
 
     this.branchesMesh.geometry.dispose();
     this.branchesMesh.geometry = g;
-    (this.branchesMesh.material as MeshStandardMaterial).dispose();
+    (this.branchesMesh.material as MeshPhongMaterial).dispose();
     this.branchesMesh.material = mat;
     this.branchesMesh.castShadow = true;
     this.branchesMesh.receiveShadow = true;
@@ -722,7 +722,7 @@ export class Tree extends Group {
 
     this.leavesMesh.geometry.dispose();
     this.leavesMesh.geometry = g;
-    (this.leavesMesh.material as MeshStandardMaterial).dispose();
+    (this.leavesMesh.material as MeshPhongMaterial).dispose();
 
     this.leavesMesh.material = mat;
 

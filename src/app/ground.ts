@@ -1,4 +1,4 @@
-import {Mesh, SRGBColorSpace, RepeatWrapping, MeshPhongMaterial, PlaneGeometry, TextureLoader, BufferGeometry, Color, MeshStandardMaterial} from 'three';
+import {Mesh, SRGBColorSpace, RepeatWrapping, MeshPhongMaterial, PlaneGeometry, TextureLoader, BufferGeometry, Color} from 'three';
 import { GrassOptions } from './grass';
 
 let loadInitialized = false;
@@ -174,7 +174,7 @@ export class Ground extends Mesh {
           `
         );
 
-        (this.material as MeshStandardMaterial).userData.shader = shader;
+        (this.material as MeshPhongMaterial).userData.shader = shader;
       };
 
       this.geometry = new PlaneGeometry(2000, 2000);
