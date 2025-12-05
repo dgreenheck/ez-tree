@@ -24,9 +24,6 @@ async function fetchAssets() {
       gltfLoader.loadAsync("rock3.glb").then((glb: GLTF) => glb.scene.children[0] as Mesh)
     ])
 
-    console.log(rocks)
-
-
     return rocks
   } catch (err) {
     console.log(err)
