@@ -1,37 +1,35 @@
-import * as THREE from 'three';
+import { BackSide, Camera, FrontSide, Mesh, MeshPhongMaterial, Scene, WebGLRenderer } from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { Pane } from 'tweakpane';
-import { BarkType, Billboard, LeafType, TreePreset, Tree, TreeType } from '@dgreenheck/ez-tree';
+import { BarkType, Billboard, LeafType, TreeType } from '../lib/enums';
+import { treePreset, TreePreset } from '../lib/presets';
+import { Tree } from '../lib/tree'
 import { Environment } from './environment';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import { version } from '../../package.json';
+import { Skybox } from './skybox';
 
 const exporter = new GLTFExporter();
-let pane = null;
+let pane: Pane | null = null;
 
-/**
- * Setups the UI
- * @param {Tree} tree
- * @param {Environment} environment
- * @param {THREE.WebGLRenderer} renderer
- * @param {THREE.Scene} scene
- * @param {THREE.Camera} camera
- * @param {OrbitControls} controls
- * @param {String} initialPreset
- */
-export function setupUI(tree, environment, renderer, scene, camera, controls, initialPreset) {
+export function setupUI(tree: Tree, environment: Environment, renderer: WebGLRenderer, scene: Scene, camera: Camera, controls: OrbitControls, initialPreset: TreePreset) {
 
-  // Remove old event listener and dispose old pane
-  pane?.off('change');
-  pane?.dispose();
 
-  pane = new Pane({ container: document.getElementById('ui-container'), title: 'EZ Tree' });
+  if(pane){ 
+    // Remove old event listener and dispose old pane
+    pane?.dispose();
+  }
+    
+  pane = new Pane({ container: document.getElementById('ui-container')!, title: 'EZ Tree' });
 
   const onChange = () => {
     tree.generate();
-    tree.traverse((o) => {
-      if (o.material) {
-        o.material.needsUpdate = true;
+    tree.traverse((obj) => {
+
+      const mesh = obj as Mesh
+
+      if (mesh.material) {
+        (mesh.material as MeshPhongMaterial).needsUpdate = true;
       }
     });
   };
@@ -50,14 +48,11 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   treeFolder.on('change', onChange);
 
   // Preset dropdown
-  treeFolder.addBlade({
-    view: 'list',
-    label: 'preset',
-    options: Object.keys(TreePreset).map(p => ({ text: p, value: p })),
-    value: initialPreset
+  treeFolder.addBinding({ preset: initialPreset }, 'preset', {
+    options: Object.fromEntries(Object.keys(treePreset).map(p => [p, p]))
   }).on('change', (e) => {
     tree.loadPreset(e.value)
-    pane.refresh();
+    pane?.refresh();
   });
 
   treeFolder.addBinding(tree.options, 'seed', { min: 0, max: 65536, step: 1 });
@@ -78,20 +73,20 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   branchFolder.addBinding(tree.options.branch, 'levels', { min: 0, max: 3, step: 1 });
 
   const branchAngleFolder = branchFolder.addFolder({ title: 'Angle', expanded: false });
-  branchAngleFolder.addBinding(tree.options.branch.angle, '1', { min: 0, max: 180 });
-  branchAngleFolder.addBinding(tree.options.branch.angle, '2', { min: 0, max: 180 });
-  branchAngleFolder.addBinding(tree.options.branch.angle, '3', { min: 0, max: 180 });
+  branchAngleFolder.addBinding(tree.options.branch.angle, "1", { min: 0, max: 180 });
+  branchAngleFolder.addBinding(tree.options.branch.angle, "2", { min: 0, max: 180 });
+  branchAngleFolder.addBinding(tree.options.branch.angle, "3", { min: 0, max: 180 });
 
   const childrenFolder = branchFolder.addFolder({ title: 'Children', expanded: false });
-  childrenFolder.addBinding(tree.options.branch.children, '0', { min: 0, max: 100, step: 1 });
-  childrenFolder.addBinding(tree.options.branch.children, '1', { min: 0, max: 10, step: 1 });
-  childrenFolder.addBinding(tree.options.branch.children, '2', { min: 0, max: 5, step: 1 });
+  childrenFolder.addBinding(tree.options.branch.children, "0", { min: 0, max: 100, step: 1 });
+  childrenFolder.addBinding(tree.options.branch.children, "1", { min: 0, max: 10, step: 1 });
+  childrenFolder.addBinding(tree.options.branch.children, "2", { min: 0, max: 5, step: 1 });
 
   const gnarlinessFolder = branchFolder.addFolder({ title: 'Gnarliness', expanded: false });
-  gnarlinessFolder.addBinding(tree.options.branch.gnarliness, '0', { min: -0.5, max: 0.5 });
-  gnarlinessFolder.addBinding(tree.options.branch.gnarliness, '1', { min: -0.5, max: 0.5 });
-  gnarlinessFolder.addBinding(tree.options.branch.gnarliness, '2', { min: -0.5, max: 0.5 });
-  gnarlinessFolder.addBinding(tree.options.branch.gnarliness, '3', { min: -0.5, max: 0.5 });
+  gnarlinessFolder.addBinding(tree.options.branch.gnarliness, "0", { min: -0.5, max: 0.5 });
+  gnarlinessFolder.addBinding(tree.options.branch.gnarliness, "1", { min: -0.5, max: 0.5 });
+  gnarlinessFolder.addBinding(tree.options.branch.gnarliness, "2", { min: -0.5, max: 0.5 });
+  gnarlinessFolder.addBinding(tree.options.branch.gnarliness, "3", { min: -0.5, max: 0.5 });
 
   const forceFolder = branchFolder.addFolder({ title: 'Growth Direction', expanded: false });
   forceFolder.addBinding(tree.options.branch.force.direction, 'x', { min: -1, max: 1 });
@@ -100,45 +95,45 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   forceFolder.addBinding(tree.options.branch.force, 'strength', { min: -0.1, max: 0.1, step: 0.001 });
 
   const lengthFolder = branchFolder.addFolder({ title: 'Length', expanded: false });
-  lengthFolder.addBinding(tree.options.branch.length, '0', { min: 0.1, max: 100 });
-  lengthFolder.addBinding(tree.options.branch.length, '1', { min: 0.1, max: 100 });
-  lengthFolder.addBinding(tree.options.branch.length, '2', { min: 0.1, max: 100 });
-  lengthFolder.addBinding(tree.options.branch.length, '3', { min: 0.1, max: 100 });
+  lengthFolder.addBinding(tree.options.branch.length, "0", { min: 0.1, max: 100 });
+  lengthFolder.addBinding(tree.options.branch.length, "1", { min: 0.1, max: 100 });
+  lengthFolder.addBinding(tree.options.branch.length, "2", { min: 0.1, max: 100 });
+  lengthFolder.addBinding(tree.options.branch.length, "3", { min: 0.1, max: 100 });
 
   const branchRadiusFolder = branchFolder.addFolder({ title: 'Radius', expanded: false });
-  branchRadiusFolder.addBinding(tree.options.branch.radius, '0', { min: 0.1, max: 5 });
-  branchRadiusFolder.addBinding(tree.options.branch.radius, '1', { min: 0.1, max: 5 });
-  branchRadiusFolder.addBinding(tree.options.branch.radius, '2', { min: 0.1, max: 5 });
-  branchRadiusFolder.addBinding(tree.options.branch.radius, '3', { min: 0.1, max: 5 });
+  branchRadiusFolder.addBinding(tree.options.branch.radius, "0", { min: 0.1, max: 5 });
+  branchRadiusFolder.addBinding(tree.options.branch.radius, "1", { min: 0.1, max: 5 });
+  branchRadiusFolder.addBinding(tree.options.branch.radius, "2", { min: 0.1, max: 5 });
+  branchRadiusFolder.addBinding(tree.options.branch.radius, "3", { min: 0.1, max: 5 });
 
   const sectionsFolder = branchFolder.addFolder({ title: 'Sections', expanded: false });
-  sectionsFolder.addBinding(tree.options.branch.sections, '0', { min: 1, max: 20, step: 1 });
-  sectionsFolder.addBinding(tree.options.branch.sections, '1', { min: 1, max: 20, step: 1 });
-  sectionsFolder.addBinding(tree.options.branch.sections, '2', { min: 1, max: 20, step: 1 });
-  sectionsFolder.addBinding(tree.options.branch.sections, '3', { min: 1, max: 20, step: 1 });
+  sectionsFolder.addBinding(tree.options.branch.sections, "0", { min: 1, max: 20, step: 1 });
+  sectionsFolder.addBinding(tree.options.branch.sections, "1", { min: 1, max: 20, step: 1 });
+  sectionsFolder.addBinding(tree.options.branch.sections, "2", { min: 1, max: 20, step: 1 });
+  sectionsFolder.addBinding(tree.options.branch.sections, "3", { min: 1, max: 20, step: 1 });
 
   const segmentsFolder = branchFolder.addFolder({ title: 'Segments', expanded: false });
-  segmentsFolder.addBinding(tree.options.branch.segments, '0', { min: 3, max: 16, step: 1 });
-  segmentsFolder.addBinding(tree.options.branch.segments, '1', { min: 3, max: 16, step: 1 });
-  segmentsFolder.addBinding(tree.options.branch.segments, '2', { min: 3, max: 16, step: 1 });
-  segmentsFolder.addBinding(tree.options.branch.segments, '3', { min: 3, max: 16, step: 1 });
+  segmentsFolder.addBinding(tree.options.branch.segments, "0", { min: 3, max: 16, step: 1 });
+  segmentsFolder.addBinding(tree.options.branch.segments, "1", { min: 3, max: 16, step: 1 });
+  segmentsFolder.addBinding(tree.options.branch.segments, "2", { min: 3, max: 16, step: 1 });
+  segmentsFolder.addBinding(tree.options.branch.segments, "3", { min: 3, max: 16, step: 1 });
 
   const branchStartFolder = branchFolder.addFolder({ title: 'Start', expanded: false });
-  branchStartFolder.addBinding(tree.options.branch.start, '1', { min: 0, max: 1 });
-  branchStartFolder.addBinding(tree.options.branch.start, '2', { min: 0, max: 1 });
-  branchStartFolder.addBinding(tree.options.branch.start, '3', { min: 0, max: 1 });
+  branchStartFolder.addBinding(tree.options.branch.start, "1", { min: 0, max: 1 });
+  branchStartFolder.addBinding(tree.options.branch.start, "2", { min: 0, max: 1 });
+  branchStartFolder.addBinding(tree.options.branch.start, "3", { min: 0, max: 1 });
 
   const taperFolder = branchFolder.addFolder({ title: 'Taper', expanded: false });
-  taperFolder.addBinding(tree.options.branch.taper, '0', { min: 0, max: 1 });
-  taperFolder.addBinding(tree.options.branch.taper, '1', { min: 0, max: 1 });
-  taperFolder.addBinding(tree.options.branch.taper, '2', { min: 0, max: 1 });
-  taperFolder.addBinding(tree.options.branch.taper, '3', { min: 0, max: 1 });
+  taperFolder.addBinding(tree.options.branch.taper, "0", { min: 0, max: 1 });
+  taperFolder.addBinding(tree.options.branch.taper, "1", { min: 0, max: 1 });
+  taperFolder.addBinding(tree.options.branch.taper, "2", { min: 0, max: 1 });
+  taperFolder.addBinding(tree.options.branch.taper, "3", { min: 0, max: 1 });
 
   const twistFolder = branchFolder.addFolder({ title: 'Twist', expanded: false });
-  twistFolder.addBinding(tree.options.branch.twist, '0', { min: -0.5, max: 0.5 });
-  twistFolder.addBinding(tree.options.branch.twist, '1', { min: -0.5, max: 0.5 });
-  twistFolder.addBinding(tree.options.branch.twist, '2', { min: -0.5, max: 0.5 });
-  twistFolder.addBinding(tree.options.branch.twist, '3', { min: -0.5, max: 0.5 });
+  twistFolder.addBinding(tree.options.branch.twist, "0", { min: -0.5, max: 0.5 });
+  twistFolder.addBinding(tree.options.branch.twist, "1", { min: -0.5, max: 0.5 });
+  twistFolder.addBinding(tree.options.branch.twist, "2", { min: -0.5, max: 0.5 });
+  twistFolder.addBinding(tree.options.branch.twist, "3", { min: -0.5, max: 0.5 });
 
   const leavesFolder = treeFolder.addFolder({ title: 'Leaves', expanded: false });
   leavesFolder.addBinding(tree.options.leaves, 'type', { options: LeafType });
@@ -181,14 +176,14 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   infoFolder.addBlade({
     view: 'text',
     label: 'version',
-    parse: (v) => String(v),
+    parse: (v: any) => String(v),
     value: version,
   });
 
   /** Export **/
 
   tab.pages[1].addButton({ title: 'Save Preset' }).on('click', () => {
-    const link = document.getElementById('downloadLink');
+    const link = document.getElementById('downloadLink')! as HTMLAnchorElement;
     const json = JSON.stringify(tree.options, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     link.href = URL.createObjectURL(blob);
@@ -197,16 +192,16 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
   });
 
   tab.pages[1].addButton({ title: 'Load Preset' }).on('click', () => {
-    document.getElementById('fileInput').click();
+    document.getElementById('fileInput')!.click();
   });
 
   tab.pages[1].addButton({ title: 'Export GLB' }).on('click', () => {
     exporter.parse(
       tree,
       (glb) => {
-        const blob = new Blob([glb], { type: 'application/octet-stream' });
+        const blob = new Blob([glb as ArrayBuffer], { type: 'application/octet-stream' });
         const url = window.URL.createObjectURL(blob);
-        const link = document.getElementById('downloadLink');
+        const link = document.getElementById('downloadLink')! as HTMLAnchorElement;
         link.href = url;
         link.download = 'tree.glb';
         link.click();
@@ -226,11 +221,11 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
     scene.fog = null;
 
     // Hide all objects in the scene except for the tree
-    scene.traverse((o) => {
+    scene.traverse((o: any) => {
       if (o.name === 'Skybox') {
         // Temporarily flip the skybox so it doesn't render
-        o.material.side = THREE.FrontSide;
-      } else if (o.isMesh) {
+        (o as Skybox).material.side = FrontSide;
+      } else if (o.isMesh != null) {
         o.visible = false
       }
     });
@@ -239,7 +234,7 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
     // Render the scene to texture
     renderer.render(scene, camera);
 
-    const link = document.getElementById('downloadLink');
+    const link = document.getElementById('downloadLink')! as HTMLAnchorElement;
     link.href = renderer.domElement.toDataURL('image/png');
     link.download = 'tree.png';
     link.click();
@@ -247,34 +242,39 @@ export function setupUI(tree, environment, renderer, scene, camera, controls, in
     // Restore defaults
     renderer.setClearColor(0);
     scene.fog = fog;
-    scene.traverse((o) => {
+    scene.traverse((o: any) => {
       if (o.name === 'Skybox') {
-        o.material.side = THREE.BackSide;
+        o.material.side = BackSide;
       }
       o.visible = true;
     });
   });
 
   // Read tree parameters from JSON
-  document
-    .getElementById('fileInput')
-    .addEventListener('change', function (event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          try {
+  const fileInput = document
+    .getElementById('fileInput')! as HTMLInputElement
+
+  fileInput.addEventListener('change', (event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          if (e.target && typeof e.target.result === 'string') {
             tree.options = JSON.parse(e.target.result);
             tree.generate();
             setupUI(tree, environment, renderer, scene, camera, controls, initialPreset)
-          } catch (error) {
-            console.error('Error parsing JSON:', error);
+          } else {
+            throw new Error('File could not be read as text.');
           }
-        };
-        reader.onerror = function (e) {
-          console.error('Error reading file:', e);
-        };
-        reader.readAsText(file);
-      }
-    });
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+        }
+      };
+      reader.onerror = function (e) {
+        console.error('Error reading file:', e);
+      };
+      reader.readAsText(file);
+    }
+  });
 }

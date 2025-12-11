@@ -1,12 +1,13 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+import {DoubleSide, Color, BufferGeometry, Group, Material, Mesh, MeshPhongMaterial, Object3D, InstancedMesh, Vector2, Vector3, BufferGeometryEventMap, NormalBufferAttributes, Object3DEventMap } from 'three';
+
 import { simplex2d } from './noise';
+import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 
 let loaded = false;
-let _grassMesh = null;
-let _blueFlower = null;
-let _whiteFlower = null;
-let _yellowFlower = null;
+let _grassMesh: Mesh | null = null;
+let _blueFlower: Mesh | null = null;
+let _whiteFlower: Mesh | null = null;
+let _yellowFlower: Mesh | null = null;
 
 export class GrassOptions {
   /**
@@ -60,7 +61,10 @@ export class GrassOptions {
   windScale = 400.0;
 }
 
-export class Grass extends THREE.Object3D {
+export class Grass extends Object3D {
+  options: GrassOptions;
+  flowers: any;
+  grassMesh: any;
   constructor(options = new GrassOptions()) {
     super();
 
@@ -69,7 +73,7 @@ export class Grass extends THREE.Object3D {
      */
     this.options = options;
 
-    this.flowers = new THREE.Group();
+    this.flowers = new Group();
     this.add(this.flowers);
 
     this.fetchAssets().then(() => {
@@ -90,25 +94,25 @@ export class Grass extends THREE.Object3D {
 
   /**
    * 
-   * @returns {Promise<THREE.Geometry>}
+   * @returns {Promise<BufferGeometry>}
    */
   async fetchAssets() {
     if (loaded) return;
 
     const gltfLoader = new GLTFLoader();
 
-    _grassMesh = (await gltfLoader.loadAsync('grass.glb')).scene.children[0];
-    _whiteFlower = (await gltfLoader.loadAsync('flower_white.glb')).scene.children[0];
-    _blueFlower = (await gltfLoader.loadAsync('flower_blue.glb')).scene.children[0];
-    _yellowFlower = (await gltfLoader.loadAsync('flower_yellow.glb')).scene.children[0];
+    _grassMesh = (await gltfLoader.loadAsync('grass.glb')).scene.children[0] as Mesh;
+    _whiteFlower = (await gltfLoader.loadAsync('flower_white.glb')).scene.children[0] as Mesh;
+    _blueFlower = (await gltfLoader.loadAsync('flower_blue.glb')).scene.children[0] as Mesh;
+    _yellowFlower = (await gltfLoader.loadAsync('flower_yellow.glb')).scene.children[0] as Mesh;
 
     // The flower is composed of multiple meshes with different materials. Append the
     // wind shader code to each material
     [_whiteFlower, _blueFlower, _yellowFlower].forEach((mesh) => {
       mesh.traverse((o) => {
-        if (o.isMesh && o.material) {
-          if (o.material.map) {
-            o.material = new THREE.MeshPhongMaterial({ map: o.material.map });
+        if (o instanceof Mesh && o.material) {
+          if ((o.material as Material & { map?: any }).map) {
+            o.material = new MeshPhongMaterial({ map: (o.material as Material & { map?: any }).map });
           }
           this.appendWindShader(o.material);
         }
@@ -118,25 +122,27 @@ export class Grass extends THREE.Object3D {
     loaded = true;
   }
 
-  update(elapsedTime) {
+  update(elapsedTime: any) {
     this.traverse((o) => {
-      if (o.isMesh && o.material?.userData.shader) {
+      if (o instanceof Mesh && o.material?.userData.shader) {
         o.material.userData.shader.uniforms.uTime.value = elapsedTime;
       }
     });
   }
 
   generateGrass() {
-    const grassMaterial = new THREE.MeshPhongMaterial({
-      map: _grassMesh.material.map,
+    if (!_grassMesh) return;
+
+    const grassMaterial = new MeshPhongMaterial({
+      map: (_grassMesh.material as Material & { map?: any }).map,
       // Add some emission so grass has some color when not lit
-      emissive: new THREE.Color(0x308040),
+      emissive: new Color(0x308040),
       emissiveIntensity: 0.05,
       transparent: false,
       alphaTest: 0.5,
       depthTest: true,
       depthWrite: true,
-      side: THREE.DoubleSide
+      side: DoubleSide
     });
 
     this.appendWindShader(grassMaterial, true);
@@ -144,7 +150,7 @@ export class Grass extends THREE.Object3D {
     // Decrease grass brightness
     grassMaterial.color.multiplyScalar(0.6);
 
-    this.grassMesh = new THREE.InstancedMesh(
+    this.grassMesh = new InstancedMesh(
       _grassMesh.geometry,
       grassMaterial,
       this.options.maxInstanceCount);
@@ -155,7 +161,7 @@ export class Grass extends THREE.Object3D {
   }
 
   generateGrassInstances() {
-    const dummy = new THREE.Object3D();
+    const dummy = new Object3D();
 
     let count = 0;
     for (let i = 0; i < this.options.maxInstanceCount; i++) {
@@ -163,13 +169,13 @@ export class Grass extends THREE.Object3D {
       const theta = Math.random() * 2.0 * Math.PI;
 
       // Set position randomly
-      const p = new THREE.Vector3(
+      const p = new Vector3(
         r * Math.cos(theta),
         0,
         r * Math.sin(theta)
       );
 
-      const n = 0.5 + 0.5 * simplex2d(new THREE.Vector2(
+      const n = 0.5 + 0.5 * simplex2d(new Vector2(
         p.x / this.options.scale,
         p.z / this.options.scale
       ));
@@ -195,7 +201,7 @@ export class Grass extends THREE.Object3D {
       // Apply the transformation to the instance
       dummy.updateMatrix();
 
-      const color = new THREE.Color(
+      const color = new Color(
         0.25 + Math.random() * 0.1,
         0.3 + Math.random() * 0.3,
         0.1);
@@ -218,21 +224,23 @@ export class Grass extends THREE.Object3D {
 
   /**
    * 
-   * @param {THREE.Mesh} flowerMesh 
+   * @param {Mesh} flowerMesh 
    */
-  generateFlowers(flowerMesh) {
+  generateFlowers(flowerMesh: Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null) {
+    if (!flowerMesh) return;
+
     for (let i = 0; i < this.options.flowerCount; i++) {
       const r = 10 + Math.random() * 200;
       const theta = Math.random() * 2.0 * Math.PI;
 
       // Set position randomly
-      const p = new THREE.Vector3(
+      const p = new Vector3(
         r * Math.cos(theta),
         0,
         r * Math.sin(theta)
       );
 
-      const n = 0.5 + 0.5 * simplex2d(new THREE.Vector2(
+      const n = 0.5 + 0.5 * simplex2d(new Vector2(
         p.x / this.options.scale,
         p.z / this.options.scale
       ));
@@ -251,9 +259,9 @@ export class Grass extends THREE.Object3D {
 
   /**
    * 
-   * @param {THREE.Material} material 
+   * @param {Material} material 
    */
-  appendWindShader(material, instanced = false) {
+  appendWindShader(material: MeshPhongMaterial, instanced = false) {
     material.onBeforeCompile = (shader) => {
       shader.uniforms.uTime = { value: 0 };
       shader.uniforms.uWindStrength = { value: this.options.windStrength };

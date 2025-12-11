@@ -15,7 +15,7 @@ import pineMedium from './pine_medium.json';
 import pineLarge from './pine_large.json';
 import TreeOptions from '../options';
 
-export const TreePreset = {
+export const treePreset = {
   'Ash Small': ashSmall,
   'Ash Medium': ashMedium,
   'Ash Large': ashLarge,
@@ -31,13 +31,13 @@ export const TreePreset = {
   'Pine Small': pineSmall,
   'Pine Medium': pineMedium,
   'Pine Large': pineLarge,
-};
+} as const;
 
-/**
- * @param {string} name The name of the preset to load
- * @returns {TreeOptions}
- */
-export function loadPreset(name) {
-  const preset = TreePreset[name];
+export type TreePresetStructure = typeof treePreset
+
+export type TreePreset = keyof TreePresetStructure
+
+export function loadPreset(name: TreePreset) {
+  const preset = treePreset[name];
   return preset ? structuredClone(preset) : new TreeOptions();
 }

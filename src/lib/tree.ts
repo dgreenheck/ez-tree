@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { BufferAttribute, BufferGeometry, Color, DoubleSide, Euler, Group, Mesh, MeshPhongMaterial, Quaternion, Vector2, Vector3 } from 'three';
 import RNG from './rng';
 import { Branch } from './branch';
 import { Billboard, TreeType } from './enums';
@@ -6,37 +6,46 @@ import TreeOptions from './options';
 import { loadPreset } from './presets/index';
 import { getBarkTexture, getLeafTexture } from './textures';
 
-export class Tree extends THREE.Group {
-  /**
-   * @type {RNG}
-   */
-  rng;
+export type Leaves = {
+  verts: number[];
+  normals: number[];
+  indices: number[];
+  uvs: number[];
+};
 
-  /**
-   * @type {TreeOptions}
-   */
-  options;
+export type Branches = {
+  verts: number[],
+  normals: number[],
+  indices: number[],
+  uvs: number[],
+  windFactor: number[]
+};
 
-  /**
-   * @type {Branch[]}
-   */
-  branchQueue = [];
+export class Tree extends Group {
 
-  /**
-   * @param {TreeOptions} params
-   */
+  rng: RNG;
+
+
+  options: TreeOptions;
+
+  branchQueue: Branch[] = [];
+  branchesMesh: Mesh;
+  leavesMesh: Mesh;
+  branches: Branches;
+  leaves: Leaves;
+
   constructor(options = new TreeOptions()) {
     super();
     this.name = 'Tree';
-    this.branchesMesh = new THREE.Mesh();
-    this.leavesMesh = new THREE.Mesh();
+    this.branchesMesh = new Mesh();
+    this.leavesMesh = new Mesh();
     this.add(this.branchesMesh);
     this.add(this.leavesMesh);
     this.options = options;
   }
 
   update(elapsedTime) {
-    const leafShader = this.leavesMesh.material.userData.shader;
+    const leafShader = (this.leavesMesh.material as MeshPhongMaterial).userData.shader;
     if (leafShader) {
       leafShader.uniforms.uTime.value = elapsedTime;
     }
@@ -85,8 +94,8 @@ export class Tree extends THREE.Group {
     // Create the trunk of the tree first
     this.branchQueue.push(
       new Branch(
-        new THREE.Vector3(),
-        new THREE.Euler(),
+        new Vector3(),
+        new Euler(),
         this.options.branch.length[0],
         this.options.branch.radius[0],
         0,
@@ -104,12 +113,8 @@ export class Tree extends THREE.Group {
     this.createLeavesGeometry();
   }
 
-  /**
-   * Generates a new branch
-   * @param {Branch} branch
-   * @returns
-   */
-  generateBranch(branch) {
+
+  generateBranch(branch: Branch) {
     // Used later for geometry index generation
     const indexOffset = this.branches.verts.length / 3;
 
@@ -142,21 +147,22 @@ export class Tree extends THREE.Group {
       }
 
       // Create the segments that make up this section.
-      let first;
+      let first: { vertex: Vector3, normal: Vector3, uv: Vector2 };
+
       for (let j = 0; j < branch.segmentCount; j++) {
         let angle = (2.0 * Math.PI * j) / branch.segmentCount;
 
         // Create the segment vertex
-        const vertex = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle))
+        const vertex = new Vector3(Math.cos(angle), 0, Math.sin(angle))
           .multiplyScalar(sectionRadius)
           .applyEuler(sectionOrientation)
           .add(sectionOrigin);
 
-        const normal = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle))
+        const normal = new Vector3(Math.cos(angle), 0, Math.sin(angle))
           .applyEuler(sectionOrientation)
           .normalize();
 
-        const uv = new THREE.Vector2(
+        const uv = new Vector2(
           j / branch.segmentCount,
           (i % 2 === 0) ? 0 : 1,
         );
@@ -183,7 +189,7 @@ export class Tree extends THREE.Group {
       });
 
       sectionOrigin.add(
-        new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation),
+        new Vector3(0, sectionLength, 0).applyEuler(sectionOrientation),
       );
 
       // Perturb the orientation of the next section randomly. The higher the
@@ -196,16 +202,16 @@ export class Tree extends THREE.Group {
       sectionOrientation.z += this.rng.random(gnarliness, -gnarliness);
 
       // Apply growth force to the branch
-      const qSection = new THREE.Quaternion().setFromEuler(sectionOrientation);
+      const qSection = new Quaternion().setFromEuler(sectionOrientation);
 
-      const qTwist = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 1, 0),
+      const qTwist = new Quaternion().setFromAxisAngle(
+        new Vector3(0, 1, 0),
         this.options.branch.twist[branch.level],
       );
 
-      const qForce = new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        new THREE.Vector3().copy(this.options.branch.force.direction),
+      const qForce = new Quaternion().setFromUnitVectors(
+        new Vector3(0, 1, 0),
+        new Vector3().copy(this.options.branch.force.direction),
       );
 
       qSection.multiply(qTwist);
@@ -259,8 +265,8 @@ export class Tree extends THREE.Group {
    * @param {number} count The number of child branches to generate
    * @param {number} level The level of the child branches
    * @param {{
-   *  origin: THREE.Vector3,
-   *  orientation: THREE.Euler,
+   *  origin: Vector3,
+   *  orientation: Euler,
    *  radius: number
    * }[]} sections The parent branch's sections
    * @returns
@@ -290,7 +296,7 @@ export class Tree extends THREE.Group {
         (1 / (sections.length - 1));
 
       // Linearly interpolate origin from section A to section B
-      const childBranchOrigin = new THREE.Vector3().lerpVectors(
+      const childBranchOrigin = new Vector3().lerpVectors(
         sectionA.origin,
         sectionB.origin,
         alpha,
@@ -302,25 +308,25 @@ export class Tree extends THREE.Group {
         ((1 - alpha) * sectionA.radius + alpha * sectionB.radius);
 
       // Linearlly interpolate the orientation
-      const qA = new THREE.Quaternion().setFromEuler(sectionA.orientation);
-      const qB = new THREE.Quaternion().setFromEuler(sectionB.orientation);
-      const parentOrientation = new THREE.Euler().setFromQuaternion(
+      const qA = new Quaternion().setFromEuler(sectionA.orientation);
+      const qB = new Quaternion().setFromEuler(sectionB.orientation);
+      const parentOrientation = new Euler().setFromQuaternion(
         qB.slerp(qA, alpha),
       );
 
       // Calculate the angle offset from the parent branch and the radial angle
       const radialAngle = 2.0 * Math.PI * (radialOffset + i / count);
-      const q1 = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(1, 0, 0),
+      const q1 = new Quaternion().setFromAxisAngle(
+        new Vector3(1, 0, 0),
         this.options.branch.angle[level] / (180 / Math.PI),
       );
-      const q2 = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 1, 0),
+      const q2 = new Quaternion().setFromAxisAngle(
+        new Vector3(0, 1, 0),
         radialAngle,
       );
-      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
+      const q3 = new Quaternion().setFromEuler(parentOrientation);
 
-      const childBranchOrientation = new THREE.Euler().setFromQuaternion(
+      const childBranchOrientation = new Euler().setFromQuaternion(
         q3.multiply(q2.multiply(q1)),
       );
 
@@ -347,8 +353,8 @@ export class Tree extends THREE.Group {
   /**
    * Logic for spawning child branches from a parent branch's section
    * @param {{
-  *  origin: THREE.Vector3,
-  *  orientation: THREE.Euler,
+  *  origin: Vector3,
+  *  orientation: Euler,
   *  radius: number
   * }[]} sections The parent branch's sections
   * @returns
@@ -378,32 +384,32 @@ export class Tree extends THREE.Group {
         (1 / (sections.length - 1));
 
       // Linearly interpolate origin from section A to section B
-      const leafOrigin = new THREE.Vector3().lerpVectors(
+      const leafOrigin = new Vector3().lerpVectors(
         sectionA.origin,
         sectionB.origin,
         alpha,
       );
 
       // Linearlly interpolate the orientation
-      const qA = new THREE.Quaternion().setFromEuler(sectionA.orientation);
-      const qB = new THREE.Quaternion().setFromEuler(sectionB.orientation);
-      const parentOrientation = new THREE.Euler().setFromQuaternion(
+      const qA = new Quaternion().setFromEuler(sectionA.orientation);
+      const qB = new Quaternion().setFromEuler(sectionB.orientation);
+      const parentOrientation = new Euler().setFromQuaternion(
         qB.slerp(qA, alpha),
       );
 
       // Calculate the angle offset from the parent branch and the radial angle
       const radialAngle = 2.0 * Math.PI * (radialOffset + i / this.options.leaves.count);
-      const q1 = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(1, 0, 0),
+      const q1 = new Quaternion().setFromAxisAngle(
+        new Vector3(1, 0, 0),
         this.options.leaves.angle / (180 / Math.PI),
       );
-      const q2 = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 1, 0),
+      const q2 = new Quaternion().setFromAxisAngle(
+        new Vector3(0, 1, 0),
         radialAngle,
       );
-      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
+      const q3 = new Quaternion().setFromEuler(parentOrientation);
 
-      const leafOrientation = new THREE.Euler().setFromQuaternion(
+      const leafOrientation = new Euler().setFromQuaternion(
         q3.multiply(q2.multiply(q1)),
       );
 
@@ -413,8 +419,8 @@ export class Tree extends THREE.Group {
 
   /**
   * Generates a leaves
-  * @param {THREE.Vector3} origin The starting point of the branch
-  * @param {THREE.Euler} orientation The starting orientation of the branch
+  * @param {Vector3} origin The starting point of the branch
+  * @param {Euler} orientation The starting orientation of the branch
   */
   generateLeaf(origin, orientation) {
     let i = this.leaves.verts.length / 3;
@@ -434,13 +440,13 @@ export class Tree extends THREE.Group {
     const createLeaf = (rotation) => {
       // Create quad vertices
       const v = [
-        new THREE.Vector3(-W / 2, L, 0),
-        new THREE.Vector3(-W / 2, 0, 0),
-        new THREE.Vector3(W / 2, 0, 0),
-        new THREE.Vector3(W / 2, L, 0),
+        new Vector3(-W / 2, L, 0),
+        new Vector3(-W / 2, 0, 0),
+        new Vector3(W / 2, 0, 0),
+        new Vector3(W / 2, L, 0),
       ].map((v) =>
         v
-          .applyEuler(new THREE.Euler(0, rotation, 0))
+          .applyEuler(new Euler(0, rotation, 0))
           .applyEuler(orientation)
           .add(origin),
       );
@@ -460,7 +466,7 @@ export class Tree extends THREE.Group {
         v[3].z,
       );
 
-      const n = new THREE.Vector3(0, 0, 1).applyEuler(orientation);
+      const n = new Vector3(0, 0, 1).applyEuler(orientation);
       this.leaves.normals.push(
         n.x,
         n.y,
@@ -511,40 +517,41 @@ export class Tree extends THREE.Group {
    * Generates the geometry for the branches
    */
   createBranchesGeometry() {
-    const g = new THREE.BufferGeometry();
+    const g = new BufferGeometry();
     g.setAttribute(
       'position',
-      new THREE.BufferAttribute(new Float32Array(this.branches.verts), 3),
+      new BufferAttribute(new Float32Array(this.branches.verts), 3),
     );
     g.setAttribute(
       'normal',
-      new THREE.BufferAttribute(new Float32Array(this.branches.normals), 3),
+      new BufferAttribute(new Float32Array(this.branches.normals), 3),
     );
     g.setAttribute(
       'uv',
-      new THREE.BufferAttribute(new Float32Array(this.branches.uvs), 2),
+      new BufferAttribute(new Float32Array(this.branches.uvs), 2),
     );
     g.setIndex(
-      new THREE.BufferAttribute(new Uint16Array(this.branches.indices), 1),
+      new BufferAttribute(new Uint16Array(this.branches.indices), 1),
     );
     g.computeBoundingSphere();
 
-    const mat = new THREE.MeshPhongMaterial({
+    const mat = new MeshPhongMaterial({
       name: 'branches',
       flatShading: this.options.bark.flatShading,
-      color: new THREE.Color(this.options.bark.tint),
+      color: new Color(this.options.bark.tint),
     });
 
     if (this.options.bark.textured) {
-      mat.aoMap = getBarkTexture(this.options.bark.type, 'ao', this.options.bark.textureScale);
-      mat.map = getBarkTexture(this.options.bark.type, 'color', this.options.bark.textureScale);
-      mat.normalMap = getBarkTexture(this.options.bark.type, 'normal', this.options.bark.textureScale);
-      mat.roughnessMap = getBarkTexture(this.options.bark.type, 'roughness', this.options.bark.textureScale);
+      const textureScale = new Vector2(this.options.bark.textureScale.x, this.options.bark.textureScale.y);
+      mat.aoMap = getBarkTexture(this.options.bark.type, 'ao', textureScale);
+      mat.map = getBarkTexture(this.options.bark.type, 'color', textureScale);
+      mat.normalMap = getBarkTexture(this.options.bark.type, 'normal', textureScale);
+      //mat.roughnessMap = getBarkTexture(this.options.bark.type, 'roughness', textureScale);
     }
 
     this.branchesMesh.geometry.dispose();
     this.branchesMesh.geometry = g;
-    this.branchesMesh.material.dispose();
+    (this.branchesMesh.material as MeshPhongMaterial).dispose();
     this.branchesMesh.material = mat;
     this.branchesMesh.castShadow = true;
     this.branchesMesh.receiveShadow = true;
@@ -554,26 +561,26 @@ export class Tree extends THREE.Group {
    * Generates the geometry for the leaves
    */
   createLeavesGeometry() {
-    const g = new THREE.BufferGeometry();
+    const g = new BufferGeometry();
     g.setAttribute(
       'position',
-      new THREE.BufferAttribute(new Float32Array(this.leaves.verts), 3),
+      new BufferAttribute(new Float32Array(this.leaves.verts), 3),
     );
     g.setAttribute(
       'uv',
-      new THREE.BufferAttribute(new Float32Array(this.leaves.uvs), 2),
+      new BufferAttribute(new Float32Array(this.leaves.uvs), 2),
     );
     g.setIndex(
-      new THREE.BufferAttribute(new Uint16Array(this.leaves.indices), 1),
+      new BufferAttribute(new Uint16Array(this.leaves.indices), 1),
     );
     g.computeVertexNormals();
     g.computeBoundingSphere();
 
-    const mat = new THREE.MeshPhongMaterial({
+    const mat = new MeshPhongMaterial({
       name: 'leaves',
       map: getLeafTexture(this.options.leaves.type),
-      color: new THREE.Color(this.options.leaves.tint),
-      side: THREE.DoubleSide,
+      color: new Color(this.options.leaves.tint),
+      side: DoubleSide,
       alphaTest: this.options.leaves.alphaTest,
       dithering: true
     });
@@ -581,7 +588,7 @@ export class Tree extends THREE.Group {
     // Add custom shader code for branch swaying
     mat.onBeforeCompile = (shader) => {
       shader.uniforms.uTime = { value: 0 };
-      shader.uniforms.uWindStrength = { value: new THREE.Vector3(0.5, 0, 0.5) };
+      shader.uniforms.uWindStrength = { value: new Vector3(0.5, 0, 0.5) };
       shader.uniforms.uWindFrequency = { value: 0.5 };
       shader.uniforms.uWindScale = { value: 70 };
 
@@ -715,7 +722,7 @@ export class Tree extends THREE.Group {
 
     this.leavesMesh.geometry.dispose();
     this.leavesMesh.geometry = g;
-    this.leavesMesh.material.dispose();
+    (this.leavesMesh.material as MeshPhongMaterial).dispose();
 
     this.leavesMesh.material = mat;
 

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Clock, NeutralToneMapping, PCFShadowMap, WebGLRenderer } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
@@ -6,19 +6,26 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { setupUI } from './ui';
 import { createScene } from './scene';
 
+declare global {
+  interface Window {
+    toggleAudio: () => void;
+    isAudioPlaying: boolean;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-  const container = document.getElementById('app')
+  const container = document.getElementById('app')!
 
   // User needs to interact with the page before audio will play
   container.addEventListener('click', toggleAudio);
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new WebGLRenderer({ antialias: true });
   renderer.setClearColor(0);
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.setPixelRatio(devicePixelRatio);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
-  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.shadowMap.type = PCFShadowMap;
+  renderer.toneMapping = NeutralToneMapping;
   renderer.toneMappingExposure = 2;
   container.appendChild(renderer.domElement);
 
@@ -28,19 +35,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   composer.addPass(new RenderPass(scene, camera));
 
-  const smaaPass = new SMAAPass(
-    container.clientWidth * renderer.getPixelRatio(),
-    container.clientHeight * renderer.getPixelRatio());
+  const smaaPass = new SMAAPass();
   composer.addPass(smaaPass);
 
   composer.addPass(new OutputPass());
 
-  const clock = new THREE.Clock();
+  const clock = new Clock();
+
+  console.log("ok")
   function animate() {
     // Update time for wind sway shaders
     const t = clock.getElapsedTime();
     tree.update(t);
-    scene.getObjectByName('Forest').children.forEach((o) => o.update(t));
+    scene.getObjectByName('Forest')?.children.forEach((o) => (o as any).update(t));
     environment.update(t);
 
     controls.update();
@@ -62,19 +69,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   animate();
   resize();
 
-  document.getElementById('audio-status').style.display = 'block';
+  const audioStatus = document.getElementById('audio-status');
+  if (audioStatus) {
+    audioStatus.style.display = 'block';
+  }
 });
 
-window.toggleAudio = function () {
-  document.getElementById('app').removeEventListener('click', toggleAudio);
+function toggleAudio () {
+  const appElement = document.getElementById('app');
+  if (appElement) {
+    appElement.removeEventListener('click', toggleAudio);
+  }
 
   if (window.isAudioPlaying) {
     window.isAudioPlaying = false;
-    document.getElementById('audio-status').src = "icon_muted.png";
-    document.getElementById('background-audio').pause();
+    const audioStatus = document.getElementById('audio-status') as HTMLImageElement;
+    if (audioStatus) audioStatus.src = "icon_muted.png";
+    const backgroundAudio = document.getElementById('background-audio') as HTMLAudioElement;
+    if (backgroundAudio) backgroundAudio.pause();
   } else {
     window.isAudioPlaying = true;
-    document.getElementById('audio-status').src = "icon_playing.png";
-    document.getElementById('background-audio').play();
+    const audioStatus = document.getElementById('audio-status') as HTMLImageElement;
+    if (audioStatus) audioStatus.src = "icon_playing.png";
+    const backgroundAudio = document.getElementById('background-audio') as HTMLAudioElement;
+    if (backgroundAudio) backgroundAudio.play();
   }
 }
+
