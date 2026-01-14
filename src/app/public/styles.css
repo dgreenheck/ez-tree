@@ -757,6 +757,81 @@ a {
   background: var(--color-gray-500);
 }
 
+/* Course CTA in About Dialog */
+.course-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px auto 0;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #4a7c59 0%, #2d5a3d 100%);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  max-width: 280px;
+}
+
+.course-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 124, 89, 0.4);
+}
+
+.course-cta-label {
+  font-size: 0.7em;
+  color: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.course-cta {
+  position: relative;
+}
+
+.course-cta-title {
+  font-family: 'Dumbeldor', serif;
+  font-size: 1.3em;
+  color: #fff;
+}
+
+.course-cta-arrow {
+  font-size: 1.4em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ============================================================================
+   Panel Footer
+   ============================================================================ */
+
+.panel-footer {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 1px solid var(--panel-border);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.panel-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--text-muted);
+  font-size: 0.75em;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.panel-footer-link:hover {
+  color: var(--accent);
+}
+
+.panel-footer-link .icon {
+  width: 12px;
+  height: 12px;
+}
+
 /* ============================================================================
    Mobile Responsive Styles
    ============================================================================ */
@@ -793,7 +868,8 @@ a {
     max-height: none;
   }
 
-  .custom-panel.collapsed .panel-scroll-area {
+  .custom-panel.collapsed .panel-scroll-area,
+  .custom-panel.collapsed .panel-footer {
     display: none;
   }
 
