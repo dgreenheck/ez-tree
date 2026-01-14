@@ -87,6 +87,10 @@ const icons = {
   chevronRightSmall: `<svg class="subsection-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
   </svg>`,
+
+  chevronUp: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+  </svg>`,
 };
 
 // ============================================================================
@@ -390,11 +394,13 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   panel.className = 'custom-panel';
   panel.id = 'custom-panel';
 
-  // Panel header with drag handle for mobile
+  // Panel header with mobile toggle
   const header = document.createElement('div');
   header.className = 'panel-header';
   header.innerHTML = `
-    <div class="panel-drag-handle"></div>
+    <button class="panel-mobile-toggle" aria-label="Toggle panel">
+      ${icons.chevronUp}
+    </button>
     <h1 class="panel-title">EZ Tree</h1>
     <p class="panel-subtitle">Procedural Tree Generator</p>
   `;
@@ -927,51 +933,20 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
     updateInfoDisplays();
   }
 
-  // Mobile drag functionality
-  setupMobileDrag(panel, header);
+  // Mobile expand/collapse functionality
+  setupMobileToggle(panel, header);
 }
 
 /**
- * Sets up mobile drag-to-expand functionality
+ * Sets up mobile expand/collapse toggle
  */
-function setupMobileDrag(panel, header) {
-  let startY = 0;
-  let startHeight = 0;
-  let isDragging = false;
+function setupMobileToggle(panel, header) {
+  const toggleBtn = header.querySelector('.panel-mobile-toggle');
+  if (!toggleBtn) return;
 
-  const dragHandle = header.querySelector('.panel-drag-handle');
-  if (!dragHandle) return;
-
-  dragHandle.addEventListener('touchstart', (e) => {
-    if (window.innerWidth > 800) return;
-    isDragging = true;
-    startY = e.touches[0].clientY;
-    startHeight = panel.offsetHeight;
-    panel.style.transition = 'none';
-  });
-
-  document.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    const deltaY = startY - e.touches[0].clientY;
-    const newHeight = Math.min(Math.max(startHeight + deltaY, 200), window.innerHeight * 0.9);
-    panel.style.height = newHeight + 'px';
-  });
-
-  document.addEventListener('touchend', () => {
-    if (!isDragging) return;
-    isDragging = false;
-    panel.style.transition = '';
-
-    // Snap to positions
-    const currentHeight = panel.offsetHeight;
-    const windowHeight = window.innerHeight;
-
-    if (currentHeight < windowHeight * 0.3) {
-      panel.style.height = '200px';
-    } else if (currentHeight > windowHeight * 0.7) {
-      panel.style.height = '90vh';
-    } else {
-      panel.style.height = '50vh';
-    }
+  toggleBtn.addEventListener('click', () => {
+    panel.classList.toggle('collapsed');
+    // Trigger resize event so canvas can adjust
+    window.dispatchEvent(new Event('resize'));
   });
 }

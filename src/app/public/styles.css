@@ -123,9 +123,10 @@ a {
   text-align: center;
   border-bottom: 1px solid var(--panel-border);
   flex-shrink: 0;
+  position: relative;
 }
 
-.panel-drag-handle {
+.panel-mobile-toggle {
   display: none;
 }
 
@@ -770,7 +771,7 @@ a {
   #app {
     flex: 1;
     height: auto;
-    min-height: 40vh;
+    min-height: 0;
   }
 
   #ui-container {
@@ -784,23 +785,48 @@ a {
 
   .custom-panel {
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    max-height: 50vh;
-    height: 50vh;
-    transition: height 0.3s ease;
+    max-height: 55vh;
+    height: auto;
   }
 
-  .panel-drag-handle {
-    display: block;
-    width: 36px;
-    height: 4px;
-    background: var(--color-gray-500);
-    border-radius: 2px;
-    margin: 0 auto var(--spacing-sm);
-    cursor: grab;
+  .custom-panel.collapsed {
+    max-height: none;
   }
 
-  .panel-drag-handle:active {
-    cursor: grabbing;
+  .custom-panel.collapsed .panel-scroll-area {
+    display: none;
+  }
+
+  .custom-panel.collapsed .panel-mobile-toggle .icon {
+    transform: rotate(180deg);
+  }
+
+  .panel-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-md);
+    width: 32px;
+    height: 32px;
+    background: var(--section-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0;
+  }
+
+  .panel-mobile-toggle:hover {
+    background: var(--section-hover);
+    color: var(--text-primary);
+  }
+
+  .panel-mobile-toggle .icon {
+    width: 18px;
+    height: 18px;
+    transition: transform var(--transition-fast);
   }
 
   .panel-header {
