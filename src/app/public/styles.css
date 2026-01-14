@@ -141,7 +141,7 @@ a {
 .panel-subtitle {
   font-size: 0.7em;
   color: var(--text-muted);
-  margin: var(--spacing-xs) 0 0 0;
+  margin: var(--spacing-md) 0 0 0;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
@@ -362,7 +362,9 @@ a {
 }
 
 .control-label {
-  flex: 0 0 100px;
+  width: 80px;
+  min-width: 80px;
+  flex-shrink: 0;
   font-size: 0.8em;
   color: var(--text-secondary);
   white-space: nowrap;
@@ -376,6 +378,7 @@ a {
 
 .slider-wrapper {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -383,6 +386,7 @@ a {
 
 .slider {
   flex: 1;
+  min-width: 0;
   -webkit-appearance: none;
   appearance: none;
   height: 4px;
@@ -418,7 +422,9 @@ a {
 }
 
 .slider-value {
-  flex: 0 0 48px;
+  width: 48px;
+  min-width: 48px;
+  flex-shrink: 0;
   font-size: 0.75em;
   color: var(--text-primary);
   text-align: right;
@@ -427,6 +433,7 @@ a {
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
   border: 1px solid var(--input-border);
+  box-sizing: content-box;
 }
 
 /* ============================================================================
@@ -608,19 +615,7 @@ a {
    ============================================================================ */
 
 .about-icon {
-  position: fixed;
-  top: 18px;
-  left: 18px;
-  width: 40px;
-  height: 34px;
-  cursor: pointer;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
-  z-index: 101;
-}
-
-.about-icon:hover {
-  transform: scale(1.1);
-  filter: brightness(1.2);
+  display: none;
 }
 
 .audio-icon {
@@ -817,8 +812,10 @@ a {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  color: var(--text-muted);
-  font-size: 0.75em;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-size: 0.85em;
   text-decoration: none;
   transition: color var(--transition-fast);
 }
@@ -918,30 +915,15 @@ a {
   }
 
   .control-label {
-    flex: 0 0 80px;
+    width: 70px;
+    min-width: 70px;
     font-size: 0.75em;
   }
 
   .slider-value {
-    flex: 0 0 42px;
+    width: 42px;
+    min-width: 42px;
     font-size: 0.7em;
-  }
-
-  .about-icon {
-    position: fixed;
-    top: 12px;
-    left: 8px;
-    width: 30px;
-    height: 26px;
-  }
-
-  .audio-icon {
-    display: none;
-    position: fixed;
-    top: 12px;
-    left: 46px;
-    width: 30px;
-    height: 30px;
   }
 
   .tab-button {
@@ -992,11 +974,13 @@ a {
   }
 
   .control-label {
-    flex: 0 0 70px;
+    width: 60px;
+    min-width: 60px;
     font-size: 0.7em;
   }
 
   .slider-value {
-    flex: 0 0 38px;
+    width: 38px;
+    min-width: 38px;
   }
 }

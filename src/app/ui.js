@@ -812,6 +812,11 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   const versionDisplay = createDisplay('Version', version);
   infoSection.add(versionDisplay);
 
+  const aboutBtn = createButton('About', 'info', () => {
+    document.getElementById('aboutOverlay').classList.add('active');
+  });
+  infoSection.add(aboutBtn);
+
   parametersTab.appendChild(infoSection.element);
 
   function updateInfoDisplays() {
