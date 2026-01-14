@@ -53,7 +53,5 @@
     "generation",
     "tree"
   ],
-  "dependencies": {
-    "tweakpane": "^4.0.4"
-  }
+  "dependencies": {}
 }
