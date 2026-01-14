@@ -8,6 +8,88 @@ import { version } from '../../package.json';
 const exporter = new GLTFExporter();
 
 // ============================================================================
+// Heroicons (outline style)
+// ============================================================================
+
+const icons = {
+  // Tab icons
+  tree: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-6m0 0l-3-3m3 3l3-3m-3-3V3m0 9l-4-4m4 4l4-4" />
+  </svg>`,
+
+  archive: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+  </svg>`,
+
+  // Section icons
+  swatch: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
+  </svg>`,
+
+  cube: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  </svg>`,
+
+  share: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+  </svg>`,
+
+  sparkles: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+  </svg>`,
+
+  videoCamera: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+  </svg>`,
+
+  sun: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+  </svg>`,
+
+  info: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+  </svg>`,
+
+  folder: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+  </svg>`,
+
+  cubeTransparent: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-2.25-1.313M21 7.5v2.25m0-2.25-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3-2.25-1.313M12 12.75l2.25-1.313M12 12.75V15m0 6.75-2.25-1.313M12 21.75V19.5m0 2.25 2.25-1.313m0-16.875L12 2.25l-2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25" />
+  </svg>`,
+
+  // Button icons
+  dice: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6" />
+  </svg>`,
+
+  document: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+  </svg>`,
+
+  folderOpen: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+  </svg>`,
+
+  download: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+  </svg>`,
+
+  photo: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+  </svg>`,
+
+  // Arrow icon for sections
+  chevronRight: `<svg class="section-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+  </svg>`,
+
+  chevronRightSmall: `<svg class="subsection-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+  </svg>`,
+};
+
+// ============================================================================
 // UI Component System
 // ============================================================================
 
@@ -162,12 +244,11 @@ function createToggle(label, value, onChange) {
 
   const toggle = document.createElement('button');
   toggle.className = 'toggle' + (value ? ' active' : '');
-  toggle.innerHTML = `<span class="toggle-leaf">${value ? '🌿' : '🍂'}</span>`;
+  toggle.innerHTML = '<span class="toggle-knob"></span>';
 
   toggle.addEventListener('click', () => {
     const newValue = !toggle.classList.contains('active');
     toggle.classList.toggle('active', newValue);
-    toggle.innerHTML = `<span class="toggle-leaf">${newValue ? '🌿' : '🍂'}</span>`;
     onChange(newValue);
   });
 
@@ -179,7 +260,6 @@ function createToggle(label, value, onChange) {
     element: container,
     setValue: (v) => {
       toggle.classList.toggle('active', v);
-      toggle.innerHTML = `<span class="toggle-leaf">${v ? '🌿' : '🍂'}</span>`;
     }
   };
 }
@@ -187,10 +267,10 @@ function createToggle(label, value, onChange) {
 /**
  * Creates a button
  */
-function createButton(label, icon, onClick) {
+function createButton(label, iconKey, onClick) {
   const button = document.createElement('button');
   button.className = 'panel-button';
-  button.innerHTML = `<span class="button-icon">${icon}</span><span>${label}</span>`;
+  button.innerHTML = `${icons[iconKey] || ''}<span>${label}</span>`;
   button.addEventListener('click', onClick);
   return { element: button };
 }
@@ -222,16 +302,16 @@ function createDisplay(label, value, formatter = (v) => v) {
 /**
  * Creates a collapsible section
  */
-function createSection(title, icon, expanded = false) {
+function createSection(title, iconKey, expanded = false) {
   const section = document.createElement('div');
   section.className = 'panel-section' + (expanded ? ' expanded' : '');
 
   const header = document.createElement('div');
   header.className = 'section-header';
   header.innerHTML = `
-    <span class="section-icon">${icon}</span>
+    ${icons[iconKey] || ''}
     <span class="section-title">${title}</span>
-    <span class="section-arrow">›</span>
+    ${icons.chevronRight}
   `;
 
   const content = document.createElement('div');
@@ -263,7 +343,7 @@ function createSubSection(title, expanded = false) {
   header.className = 'subsection-header';
   header.innerHTML = `
     <span class="subsection-title">${title}</span>
-    <span class="subsection-arrow">›</span>
+    ${icons.chevronRightSmall}
   `;
 
   const content = document.createElement('div');
@@ -330,11 +410,11 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   tabNav.className = 'tab-nav';
   tabNav.innerHTML = `
     <button class="tab-button active" data-tab="parameters">
-      <span class="tab-icon">🌳</span>
+      ${icons.tree}
       <span class="tab-label">Tree</span>
     </button>
     <button class="tab-button" data-tab="export">
-      <span class="tab-icon">📦</span>
+      ${icons.archive}
       <span class="tab-label">Export</span>
     </button>
   `;
@@ -378,7 +458,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   };
 
   // ----- Presets Section -----
-  const presetsSection = createSection('Presets', '🎨', true);
+  const presetsSection = createSection('Presets', 'swatch', true);
 
   const presetSelect = createSelect('Preset',
     Object.fromEntries(Object.keys(TreePreset).map(p => [p, p])),
@@ -398,7 +478,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   presetsSection.add(seedSlider);
   controls.push({ control: seedSlider, update: () => seedSlider.setValue(tree.options.seed) });
 
-  const randomSeedBtn = createButton('Random Seed', '🎲', () => {
+  const randomSeedBtn = createButton('Random Seed', 'dice', () => {
     tree.options.seed = Math.floor(Math.random() * 65536);
     seedSlider.setValue(tree.options.seed);
     onChange();
@@ -408,7 +488,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   parametersTab.appendChild(presetsSection.element);
 
   // ----- Bark Section -----
-  const barkSection = createSection('Bark', '🪵', false);
+  const barkSection = createSection('Bark', 'cube', false);
 
   const barkTypeSelect = createSelect('Type', BarkType, tree.options.bark.type, (val) => {
     tree.options.bark.type = val;
@@ -455,7 +535,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   parametersTab.appendChild(barkSection.element);
 
   // ----- Branches Section -----
-  const branchSection = createSection('Branches', '🌿', false);
+  const branchSection = createSection('Branches', 'share', false);
 
   const treeTypeSelect = createSelect('Tree Type', TreeType, tree.options.type, (val) => {
     tree.options.type = val;
@@ -613,7 +693,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   parametersTab.appendChild(branchSection.element);
 
   // ----- Leaves Section -----
-  const leavesSection = createSection('Leaves', '🍃', false);
+  const leavesSection = createSection('Leaves', 'sparkles', false);
 
   const leafTypeSelect = createSelect('Type', LeafType, tree.options.leaves.type, (val) => {
     tree.options.leaves.type = val;
@@ -681,7 +761,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   parametersTab.appendChild(leavesSection.element);
 
   // ----- Camera Section -----
-  const cameraSection = createSection('Camera', '🎥', false);
+  const cameraSection = createSection('Camera', 'videoCamera', false);
 
   const autoRotateToggle = createToggle('Auto Rotate', orbitControls.autoRotate, (val) => {
     orbitControls.autoRotate = val;
@@ -698,7 +778,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   parametersTab.appendChild(cameraSection.element);
 
   // ----- Environment Section -----
-  const environmentSection = createSection('Environment', '🌤️', false);
+  const environmentSection = createSection('Environment', 'sun', false);
 
   const sunAzimuthSlider = createSlider('Sun Angle', environment.skybox.sunAzimuth, 0, 360, 1, (val) => {
     environment.skybox.sunAzimuth = val;
@@ -715,7 +795,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   parametersTab.appendChild(environmentSection.element);
 
   // ----- Info Section -----
-  const infoSection = createSection('Info', 'ℹ️', false);
+  const infoSection = createSection('Info', 'info', false);
 
   const vertexDisplay = createDisplay('Vertices', tree.vertexCount, (v) => Math.round(v).toLocaleString());
   infoSection.add(vertexDisplay);
@@ -737,9 +817,9 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   // Export Tab Content
   // ============================================================================
 
-  const exportSection = createSection('Save & Load', '💾', true);
+  const exportSection = createSection('Save & Load', 'folder', true);
 
-  const savePresetBtn = createButton('Save Preset', '📄', () => {
+  const savePresetBtn = createButton('Save Preset', 'document', () => {
     const link = document.getElementById('downloadLink');
     const json = JSON.stringify(tree.options, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -749,16 +829,16 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   });
   exportSection.add(savePresetBtn);
 
-  const loadPresetBtn = createButton('Load Preset', '📂', () => {
+  const loadPresetBtn = createButton('Load Preset', 'folderOpen', () => {
     document.getElementById('fileInput').click();
   });
   exportSection.add(loadPresetBtn);
 
   exportTab.appendChild(exportSection.element);
 
-  const exportModelsSection = createSection('Export Models', '📦', true);
+  const exportModelsSection = createSection('Export Models', 'cubeTransparent', true);
 
-  const exportGlbBtn = createButton('Export GLB', '🎮', () => {
+  const exportGlbBtn = createButton('Export GLB', 'download', () => {
     exporter.parse(
       tree,
       (glb) => {
@@ -777,7 +857,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   });
   exportModelsSection.add(exportGlbBtn);
 
-  const exportPngBtn = createButton('Export PNG', '🖼️', () => {
+  const exportPngBtn = createButton('Export PNG', 'photo', () => {
     renderer.setClearColor(0, 0);
     const fog = scene.fog;
     scene.fog = null;
