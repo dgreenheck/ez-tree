@@ -89,5 +89,8 @@
     "sizeVariance": 0.7,
     "tint": 16580390,
     "alphaTest": 0.5
+  },
+  "trellis": {
+    "enabled": false
   }
 }
