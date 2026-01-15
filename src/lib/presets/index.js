@@ -13,6 +13,7 @@ import oakLarge from './oak_large.json';
 import pineSmall from './pine_small.json';
 import pineMedium from './pine_medium.json';
 import pineLarge from './pine_large.json';
+import trellis from './trellis.json';
 import TreeOptions from '../options';
 
 export const TreePreset = {
@@ -31,6 +32,7 @@ export const TreePreset = {
   'Pine Small': pineSmall,
   'Pine Medium': pineMedium,
   'Pine Large': pineLarge,
+  'Trellis': trellis,
 };
 
 /**
