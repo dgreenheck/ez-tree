@@ -1,0 +1,112 @@
+{
+  "seed": 41563,
+  "type": "deciduous",
+  "bark": {
+    "type": "oak",
+    "tint": 16777215,
+    "flatShading": false,
+    "textured": true,
+    "textureScale": {
+      "x": 1,
+      "y": 8
+    }
+  },
+  "branch": {
+    "levels": 3,
+    "angle": {
+      "1": 26,
+      "2": 79,
+      "3": 0
+    },
+    "children": {
+      "0": 7,
+      "1": 5,
+      "2": 1
+    },
+    "force": {
+      "direction": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "strength": 0.026
+    },
+    "gnarliness": {
+      "0": 0,
+      "1": 0.02,
+      "2": -0.41,
+      "3": 0.09
+    },
+    "length": {
+      "0": 4.8,
+      "1": 16.9,
+      "2": 11.3,
+      "3": 11.1
+    },
+    "radius": {
+      "0": 0.27,
+      "1": 0.71,
+      "2": 0.84,
+      "3": 0.48
+    },
+    "sections": {
+      "0": 6,
+      "1": 12,
+      "2": 10,
+      "3": 4
+    },
+    "segments": {
+      "0": 3,
+      "1": 3,
+      "2": 3,
+      "3": 3
+    },
+    "start": {
+      "1": 0.19,
+      "2": 0.1,
+      "3": 0.06
+    },
+    "taper": {
+      "0": 0.6,
+      "1": 0.5,
+      "2": 0.5,
+      "3": 0.5
+    },
+    "twist": {
+      "0": -0.02,
+      "1": -0.01,
+      "2": 0.09,
+      "3": 0
+    }
+  },
+  "leaves": {
+    "type": "ash",
+    "billboard": "single",
+    "angle": 30,
+    "count": 13,
+    "start": 0,
+    "size": 1.7,
+    "sizeVariance": 0.5,
+    "tint": 15204310,
+    "alphaTest": 0.5
+  },
+  "trellis": {
+    "enabled": true,
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 1.3
+    },
+    "width": 20,
+    "height": 32,
+    "spacing": 4,
+    "force": {
+      "strength": 0.014,
+      "maxDistance": 18.2,
+      "falloff": 1.3
+    },
+    "cylinderRadius": 0.08,
+    "visible": true,
+    "color": 5519173
+  }
+}

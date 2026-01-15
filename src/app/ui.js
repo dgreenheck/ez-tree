@@ -119,18 +119,28 @@ function createSlider(label, value, min, max, step, onChange) {
   slider.step = step;
   slider.value = value;
 
-  const valueDisplay = document.createElement('span');
-  valueDisplay.className = 'slider-value';
-  valueDisplay.textContent = formatValue(value, step);
+  const valueInput = document.createElement('input');
+  valueInput.type = 'number';
+  valueInput.className = 'slider-value';
+  valueInput.value = formatValue(value, step);
+  valueInput.step = step;
 
   slider.addEventListener('input', (e) => {
     const val = parseFloat(e.target.value);
-    valueDisplay.textContent = formatValue(val, step);
+    valueInput.value = formatValue(val, step);
+    onChange(val);
+  });
+
+  valueInput.addEventListener('change', (e) => {
+    let val = parseFloat(e.target.value);
+    if (isNaN(val)) val = min;
+    slider.value = val;
+    valueInput.value = formatValue(val, step);
     onChange(val);
   });
 
   sliderWrapper.appendChild(slider);
-  sliderWrapper.appendChild(valueDisplay);
+  sliderWrapper.appendChild(valueInput);
   container.appendChild(labelEl);
   container.appendChild(sliderWrapper);
 
@@ -138,7 +148,7 @@ function createSlider(label, value, min, max, step, onChange) {
     element: container,
     setValue: (v) => {
       slider.value = v;
-      valueDisplay.textContent = formatValue(v, step);
+      valueInput.value = formatValue(v, step);
     }
   };
 }
@@ -765,6 +775,114 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   controls.push({ control: alphaTestSlider, update: () => alphaTestSlider.setValue(tree.options.leaves.alphaTest) });
 
   parametersTab.appendChild(leavesSection.element);
+
+  // ----- Trellis Section -----
+  const trellisSection = createSection('Trellis', 'share', false);
+
+  const trellisEnabledToggle = createToggle('Enabled', tree.options.trellis.enabled, (val) => {
+    tree.options.trellis.enabled = val;
+    onChange();
+  });
+  trellisSection.add(trellisEnabledToggle);
+  controls.push({ control: trellisEnabledToggle, update: () => trellisEnabledToggle.setValue(tree.options.trellis.enabled) });
+
+  const trellisVisibleToggle = createToggle('Visible', tree.options.trellis.visible, (val) => {
+    tree.options.trellis.visible = val;
+    onChange();
+  });
+  trellisSection.add(trellisVisibleToggle);
+  controls.push({ control: trellisVisibleToggle, update: () => trellisVisibleToggle.setValue(tree.options.trellis.visible) });
+
+  // Position subsection
+  const trellisPositionSubsection = createSubSection('Position');
+  const trellisPosXSlider = createSlider('X', tree.options.trellis.position.x, -20, 20, 0.1, (val) => {
+    tree.options.trellis.position.x = val;
+    onChange();
+  });
+  trellisPositionSubsection.add(trellisPosXSlider);
+  controls.push({ control: trellisPosXSlider, update: () => trellisPosXSlider.setValue(tree.options.trellis.position.x) });
+
+  const trellisPosYSlider = createSlider('Y', tree.options.trellis.position.y, -10, 10, 0.1, (val) => {
+    tree.options.trellis.position.y = val;
+    onChange();
+  });
+  trellisPositionSubsection.add(trellisPosYSlider);
+  controls.push({ control: trellisPosYSlider, update: () => trellisPosYSlider.setValue(tree.options.trellis.position.y) });
+
+  const trellisPosZSlider = createSlider('Z', tree.options.trellis.position.z, -20, 20, 0.1, (val) => {
+    tree.options.trellis.position.z = val;
+    onChange();
+  });
+  trellisPositionSubsection.add(trellisPosZSlider);
+  controls.push({ control: trellisPosZSlider, update: () => trellisPosZSlider.setValue(tree.options.trellis.position.z) });
+  trellisSection.add(trellisPositionSubsection);
+
+  // Dimensions subsection
+  const trellisDimensionsSubsection = createSubSection('Dimensions');
+  const trellisWidthSlider = createSlider('Width', tree.options.trellis.width, 1, 50, 0.5, (val) => {
+    tree.options.trellis.width = val;
+    onChange();
+  });
+  trellisDimensionsSubsection.add(trellisWidthSlider);
+  controls.push({ control: trellisWidthSlider, update: () => trellisWidthSlider.setValue(tree.options.trellis.width) });
+
+  const trellisHeightSlider = createSlider('Height', tree.options.trellis.height, 1, 50, 0.5, (val) => {
+    tree.options.trellis.height = val;
+    onChange();
+  });
+  trellisDimensionsSubsection.add(trellisHeightSlider);
+  controls.push({ control: trellisHeightSlider, update: () => trellisHeightSlider.setValue(tree.options.trellis.height) });
+
+  const trellisSpacingSlider = createSlider('Spacing', tree.options.trellis.spacing, 0.5, 10, 0.1, (val) => {
+    tree.options.trellis.spacing = val;
+    onChange();
+  });
+  trellisDimensionsSubsection.add(trellisSpacingSlider);
+  controls.push({ control: trellisSpacingSlider, update: () => trellisSpacingSlider.setValue(tree.options.trellis.spacing) });
+  trellisSection.add(trellisDimensionsSubsection);
+
+  // Force subsection
+  const trellisForceSubsection = createSubSection('Force');
+  const trellisStrengthSlider = createSlider('Strength', tree.options.trellis.force.strength, 0, 0.2, 0.001, (val) => {
+    tree.options.trellis.force.strength = val;
+    onChange();
+  });
+  trellisForceSubsection.add(trellisStrengthSlider);
+  controls.push({ control: trellisStrengthSlider, update: () => trellisStrengthSlider.setValue(tree.options.trellis.force.strength) });
+
+  const trellisMaxDistSlider = createSlider('Max Distance', tree.options.trellis.force.maxDistance, 0.5, 20, 0.1, (val) => {
+    tree.options.trellis.force.maxDistance = val;
+    onChange();
+  });
+  trellisForceSubsection.add(trellisMaxDistSlider);
+  controls.push({ control: trellisMaxDistSlider, update: () => trellisMaxDistSlider.setValue(tree.options.trellis.force.maxDistance) });
+
+  const trellisFalloffSlider = createSlider('Falloff', tree.options.trellis.force.falloff, 0.1, 3, 0.1, (val) => {
+    tree.options.trellis.force.falloff = val;
+    onChange();
+  });
+  trellisForceSubsection.add(trellisFalloffSlider);
+  controls.push({ control: trellisFalloffSlider, update: () => trellisFalloffSlider.setValue(tree.options.trellis.force.falloff) });
+  trellisSection.add(trellisForceSubsection);
+
+  // Appearance subsection
+  const trellisAppearanceSubsection = createSubSection('Appearance');
+  const trellisCylinderRadiusSlider = createSlider('Cylinder Radius', tree.options.trellis.cylinderRadius, 0.01, 0.5, 0.01, (val) => {
+    tree.options.trellis.cylinderRadius = val;
+    onChange();
+  });
+  trellisAppearanceSubsection.add(trellisCylinderRadiusSlider);
+  controls.push({ control: trellisCylinderRadiusSlider, update: () => trellisCylinderRadiusSlider.setValue(tree.options.trellis.cylinderRadius) });
+
+  const trellisColorPicker = createColorPicker('Color', tree.options.trellis.color, (val) => {
+    tree.options.trellis.color = val;
+    onChange();
+  });
+  trellisAppearanceSubsection.add(trellisColorPicker);
+  controls.push({ control: trellisColorPicker, update: () => trellisColorPicker.setValue(tree.options.trellis.color) });
+  trellisSection.add(trellisAppearanceSubsection);
+
+  parametersTab.appendChild(trellisSection.element);
 
   // ----- Camera Section -----
   const cameraSection = createSection('Camera', 'videoCamera', false);

@@ -434,6 +434,18 @@ a {
   border-radius: var(--radius-sm);
   border: 1px solid var(--input-border);
   box-sizing: content-box;
+  -moz-appearance: textfield;
+}
+
+.slider-value::-webkit-outer-spin-button,
+.slider-value::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.slider-value:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 /* ============================================================================

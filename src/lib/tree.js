@@ -5,6 +5,7 @@ import { Billboard, TreeType } from './enums';
 import TreeOptions from './options';
 import { loadPreset } from './presets/index';
 import { getBarkTexture, getLeafTexture } from './textures';
+import { Trellis } from './trellis';
 
 export class Tree extends THREE.Group {
   /**
@@ -30,6 +31,7 @@ export class Tree extends THREE.Group {
     this.name = 'Tree';
     this.branchesMesh = new THREE.Mesh();
     this.leavesMesh = new THREE.Mesh();
+    this.trellisMesh = null;
     this.add(this.branchesMesh);
     this.add(this.leavesMesh);
     this.options = options;
@@ -102,6 +104,7 @@ export class Tree extends THREE.Group {
 
     this.createBranchesGeometry();
     this.createLeavesGeometry();
+    this.createTrellis();
   }
 
   /**
@@ -213,6 +216,18 @@ export class Tree extends THREE.Group {
         qForce,
         this.options.branch.force.strength / sectionRadius,
       );
+
+      // Apply trellis force if enabled
+      if (this.options.trellis.enabled) {
+        const trellisResult = this.calculateTrellisForce(sectionOrigin, sectionRadius);
+        if (trellisResult) {
+          const qTrellis = new THREE.Quaternion().setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            trellisResult.direction,
+          );
+          qSection.rotateTowards(qTrellis, trellisResult.strength);
+        }
+      }
 
       sectionOrientation.setFromQuaternion(qSection);
     }
@@ -721,6 +736,99 @@ export class Tree extends THREE.Group {
 
     this.leavesMesh.castShadow = true;
     this.leavesMesh.receiveShadow = true;
+  }
+
+  /**
+   * Create or update the trellis geometry
+   */
+  createTrellis() {
+    // Remove old trellis if exists
+    if (this.trellisMesh) {
+      this.remove(this.trellisMesh);
+      this.trellisMesh.dispose();
+      this.trellisMesh = null;
+    }
+
+    // Create new trellis if enabled and visible
+    if (this.options.trellis.enabled && this.options.trellis.visible) {
+      this.trellisMesh = new Trellis(this.options.trellis);
+      this.trellisMesh.generate();
+      this.add(this.trellisMesh);
+    }
+  }
+
+  /**
+   * Find the nearest point on the trellis grid to a given position
+   * @param {THREE.Vector3} position
+   * @returns {THREE.Vector3}
+   */
+  getNearestTrellisPoint(position) {
+    const t = this.options.trellis;
+    const trellisX = t.position.x;
+    const trellisY = t.position.y;
+    const trellisZ = t.position.z;
+
+    // Trellis bounds
+    const minX = trellisX - t.width / 2;
+    const maxX = trellisX + t.width / 2;
+    const minY = trellisY;
+    const maxY = trellisY + t.height;
+
+    // Clamp position to trellis bounds for projection
+    const clampedX = Math.max(minX, Math.min(maxX, position.x));
+    const clampedY = Math.max(minY, Math.min(maxY, position.y));
+
+    // Find nearest horizontal line (Y = constant)
+    const nearestHLineY = Math.round((clampedY - minY) / t.spacing) * t.spacing + minY;
+    const finalHLineY = Math.max(minY, Math.min(maxY, nearestHLineY));
+
+    // Find nearest vertical line (X = constant)
+    const nearestVLineX = Math.round((clampedX - minX) / t.spacing) * t.spacing + minX;
+    const finalVLineX = Math.max(minX, Math.min(maxX, nearestVLineX));
+
+    // Point on nearest horizontal line (X can vary along the line)
+    const pointOnHLine = new THREE.Vector3(clampedX, finalHLineY, trellisZ);
+
+    // Point on nearest vertical line (Y can vary along the line)
+    const pointOnVLine = new THREE.Vector3(finalVLineX, clampedY, trellisZ);
+
+    // Return whichever is closer
+    const distH = position.distanceTo(pointOnHLine);
+    const distV = position.distanceTo(pointOnVLine);
+
+    return distH < distV ? pointOnHLine : pointOnVLine;
+  }
+
+  /**
+   * Calculate the force vector toward the nearest trellis point
+   * @param {THREE.Vector3} position Current section position
+   * @param {number} radius Current section radius
+   * @returns {{ direction: THREE.Vector3, strength: number } | null}
+   */
+  calculateTrellisForce(position, radius) {
+    const trellis = this.options.trellis;
+    const nearestPoint = this.getNearestTrellisPoint(position);
+
+    const distance = position.distanceTo(nearestPoint);
+
+    // Only apply force within max distance
+    if (distance > trellis.force.maxDistance) return null;
+    if (distance < 0.001) return null; // Avoid division by zero
+
+    // Calculate direction toward trellis
+    const direction = new THREE.Vector3()
+      .subVectors(nearestPoint, position)
+      .normalize();
+
+    // Calculate strength with distance falloff
+    // Closer = stronger force, scaled by inverse radius (like existing force)
+    const distanceFactor = 1 - Math.pow(
+      distance / trellis.force.maxDistance,
+      trellis.force.falloff,
+    );
+    const strength = trellis.force.strength * distanceFactor / radius;
+
+    return { direction, strength };
   }
 
   get vertexCount() {

@@ -141,6 +141,43 @@ export default class TreeOptions {
       // Controls transparency of leaf texture
       alphaTest: 0.5,
     };
+
+    // Trellis parameters
+    this.trellis = {
+      // Whether trellis is enabled
+      enabled: false,
+
+      // Position of trellis (z is distance from tree)
+      position: { x: 0, y: 0, z: -2 },
+
+      // Width of trellis grid (X direction)
+      width: 10,
+
+      // Height of trellis grid (Y direction)
+      height: 20,
+
+      // Distance between grid lines
+      spacing: 2,
+
+      // Force parameters
+      force: {
+        // How strongly branches bend toward trellis
+        strength: 0.02,
+        // Maximum distance at which trellis affects branches
+        maxDistance: 3,
+        // Distance falloff exponent (1 = linear, 2 = quadratic)
+        falloff: 1,
+      },
+
+      // Radius of trellis cylinders
+      cylinderRadius: 0.05,
+
+      // Whether to show trellis geometry
+      visible: true,
+
+      // Color of trellis
+      color: 0x8b4513,
+    };
   }
 
   /**
