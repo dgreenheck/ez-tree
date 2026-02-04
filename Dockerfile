@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Build the Tree.js app
-RUN npm run build:app
+RUN npm run build
 
 # Install a simple HTTP server for serving static content
 RUN npm install -g http-server
