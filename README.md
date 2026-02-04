@@ -18,8 +18,8 @@ https://eztree.dev
 
 # Installation
 
-```js
-npm i @dgreenheck/ez-tree
+```bash
+bun add @dgreenheck/ez-tree
 ```
 
 # Usage
@@ -45,8 +45,8 @@ Any time the tree parameters are changed, you must call `generate()` to regenera
 To run the standalone app locally, you first need to build the EZ-Tree library before running the app.
 
 ```bash
-npm install
-npm run app
+bun install
+bun run app
 ```
 
 # Running App with Docker

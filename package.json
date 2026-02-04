@@ -29,12 +29,12 @@
   ],
   "types": "./build/ez-tree.es.d.ts",
   "scripts": {
-    "build:app": "vite build --config vite.app.config.js",
-    "build:lib": "vite build --config vite.lib.config.js",
-    "build:watch": "vite build --config vite.lib.config.js --watch",
-    "build": "npm run build:lib && npm run build:app",
-    "app": "npm run build:lib && vite --config vite.app.config.js",
-    "preview": "vite preview"
+    "build:app": "bun x vite build --config vite.app.config.js",
+    "build:lib": "bun x vite build --config vite.lib.config.js",
+    "build:watch": "bun x vite build --config vite.lib.config.js --watch",
+    "build": "bun run build:lib && bun run build:app",
+    "app": "bun run build:lib && bun x vite --config vite.app.config.js",
+    "preview": "bun x vite preview"
   },
   "devDependencies": {
     "@types/three": "^0.169.0",

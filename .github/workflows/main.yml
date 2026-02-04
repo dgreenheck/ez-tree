@@ -30,19 +30,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v3
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
-          cache: 'npm'
+          bun-version: latest
       - name: Install dependencies
-        run: npm install
+        run: bun install
       - name: Build Tree.js Library
-        run: npm run build:lib
+        run: bun run build:lib
       - name: Build Tree.js App
-        run: npm run build:app
+        run: bun run build:app
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
