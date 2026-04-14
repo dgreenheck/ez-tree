@@ -14,7 +14,6 @@ export const LeafType = {
   Ash: 'ash',
   Aspen: 'aspen',
   Pine: 'pine',
-  Pine02: 'pine02',
   Oak: 'oak',
 };
 
