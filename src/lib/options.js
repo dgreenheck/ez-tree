@@ -140,6 +140,12 @@ export default class TreeOptions {
 
       // Controls transparency of leaf texture
       alphaTest: 0.5,
+
+      // Randomly selected leaf texture from pool
+      randomTexture: false,
+
+      // List of leaf textures to use in random mode
+      selectedLeafTextures: Object.values(LeafType),
     };
 
     // Trellis parameters

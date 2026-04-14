@@ -24,7 +24,6 @@ import ashLeaves from './assets/leaves/ash_color.png';
 import aspenLeaves from './assets/leaves/aspen_color.png';
 import oakLeaves from './assets/leaves/oak_color.png';
 import pineLeaves from './assets/leaves/pine_color.png';
-import pineLeaves02 from './assets/leaves/pine_color_02.png';
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -102,6 +101,5 @@ const textures = {
     "aspen": loadTexture(aspenLeaves),
     "oak": loadTexture(oakLeaves),
     "pine": loadTexture(pineLeaves),
-    "pine02": loadTexture(pineLeaves02)
   }
 };

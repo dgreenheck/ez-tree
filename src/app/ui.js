@@ -774,6 +774,44 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   leavesSection.add(alphaTestSlider);
   controls.push({ control: alphaTestSlider, update: () => alphaTestSlider.setValue(tree.options.leaves.alphaTest) });
 
+  const randomLeavesTexture = createToggle('Randomize Leaves Texture', tree.options.leaves.randomTexture, (val) => {
+    tree.options.leaves.randomTexture = val;
+    onChange();
+  });
+  leavesSection.add(randomLeavesTexture);
+  controls.push({ control: randomLeavesTexture, update: () => randomLeavesTexture.setValue(tree.options.leaves.randomTexture) });
+
+  // Subsection for selecting which leaf textures to use in random mode
+  const leafTexturesSubsection = createSubSection('Random Pool', false);
+  
+  Object.entries(LeafType).forEach(([key, value]) => {
+    const isSelected = tree.options.leaves.selectedLeafTextures.includes(value);
+    
+    const leafTypeToggle = createToggle(key, isSelected, (val) => {
+      if (val) {
+        // Add to selected list if not already there
+        if (!tree.options.leaves.selectedLeafTextures.includes(value)) {
+          tree.options.leaves.selectedLeafTextures.push(value);
+        }
+      } else {
+        // Remove from selected list
+        const idx = tree.options.leaves.selectedLeafTextures.indexOf(value);
+        if (idx > -1) {
+          tree.options.leaves.selectedLeafTextures.splice(idx, 1);
+        }
+      }
+      onChange();
+    });
+    
+    leafTexturesSubsection.add(leafTypeToggle);
+    controls.push({ 
+      control: leafTypeToggle, 
+      update: () => leafTypeToggle.setValue(tree.options.leaves.selectedLeafTextures.includes(value))
+    });
+  });
+  
+  leavesSection.add(leafTexturesSubsection);
+
   parametersTab.appendChild(leavesSection.element);
 
   // ----- Trellis Section -----

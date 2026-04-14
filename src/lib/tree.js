@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import RNG from './rng';
 import { Branch } from './branch';
-import { Billboard, TreeType } from './enums';
+import { Billboard, LeafType, TreeType } from './enums';
 import TreeOptions from './options';
 import { loadPreset } from './presets/index';
 import { getBarkTexture, getLeafTexture } from './textures';
@@ -31,6 +31,7 @@ export class Tree extends THREE.Group {
     this.name = 'Tree';
     this.branchesMesh = new THREE.Mesh();
     this.leavesMesh = new THREE.Mesh();
+    this.leavesMeshes = [];
     this.trellisMesh = null;
     this.add(this.branchesMesh);
     this.add(this.leavesMesh);
@@ -66,6 +67,10 @@ export class Tree extends THREE.Group {
    * Generate a new tree
    */
   generate() {
+    // Remove old random texture meshes from previous generate() call
+    this.leavesMeshes.forEach(m => this.remove(m));
+    this.leavesMeshes = [];
+
     // Clean up old geometry
     this.branches = {
       verts: [],
@@ -81,6 +86,14 @@ export class Tree extends THREE.Group {
       indices: [],
       uvs: [],
     };
+
+    // One buffer per selected LeafType for random texture mode
+    const selectedTypes = this.options.leaves.randomTexture 
+      ? this.options.leaves.selectedLeafTextures 
+      : [this.options.leaves.type];
+    this.leavesBuffers = selectedTypes.map(() => ({
+      verts: [], normals: [], uvs: [], indices: []
+    }));
 
     this.rng = new RNG(this.options.seed);
 
@@ -432,7 +445,16 @@ export class Tree extends THREE.Group {
   * @param {THREE.Euler} orientation The starting orientation of the branch
   */
   generateLeaf(origin, orientation) {
-    let i = this.leaves.verts.length / 3;
+    // Pick target buffer
+    let targetBuffer;
+    if (this.options.leaves.randomTexture) {
+      const selectedTypes = this.options.leaves.selectedLeafTextures;
+      const bufferIndex = Math.floor(this.rng.random() * selectedTypes.length);
+      targetBuffer = this.leavesBuffers[bufferIndex];
+    } else {
+      targetBuffer = this.leaves;
+    }
+    let i = targetBuffer.verts.length / 3;
 
     // Width and length of the leaf quad
     let leafSize =
@@ -460,7 +482,7 @@ export class Tree extends THREE.Group {
           .add(origin),
       );
 
-      this.leaves.verts.push(
+      targetBuffer.verts.push(
         v[0].x,
         v[0].y,
         v[0].z,
@@ -476,7 +498,7 @@ export class Tree extends THREE.Group {
       );
 
       const n = new THREE.Vector3(0, 0, 1).applyEuler(orientation);
-      this.leaves.normals.push(
+      targetBuffer.normals.push(
         n.x,
         n.y,
         n.z,
@@ -490,8 +512,8 @@ export class Tree extends THREE.Group {
         n.y,
         n.z,
       );
-      this.leaves.uvs.push(0, 1, 0, 0, 1, 0, 1, 1);
-      this.leaves.indices.push(i, i + 1, i + 2, i, i + 2, i + 3);
+      targetBuffer.uvs.push(0, 1, 0, 0, 1, 0, 1, 1);
+      targetBuffer.indices.push(i, i + 1, i + 2, i, i + 2, i + 3);
       i += 4;
     };
 
@@ -566,34 +588,18 @@ export class Tree extends THREE.Group {
   }
 
   /**
-   * Generates the geometry for the leaves
+   * Creates a MeshPhongMaterial with the wind shader for a given leaf type
    */
-  createLeavesGeometry() {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute(
-      'position',
-      new THREE.BufferAttribute(new Float32Array(this.leaves.verts), 3),
-    );
-    g.setAttribute(
-      'uv',
-      new THREE.BufferAttribute(new Float32Array(this.leaves.uvs), 2),
-    );
-    g.setIndex(
-      new THREE.BufferAttribute(new Uint16Array(this.leaves.indices), 1),
-    );
-    g.computeVertexNormals();
-    g.computeBoundingSphere();
-
+  createLeavesMaterial(leafType) {
     const mat = new THREE.MeshPhongMaterial({
       name: 'leaves',
-      map: getLeafTexture(this.options.leaves.type),
+      map: getLeafTexture(leafType),
       color: new THREE.Color(this.options.leaves.tint),
       side: THREE.DoubleSide,
       alphaTest: this.options.leaves.alphaTest,
       dithering: true
     });
 
-    // Add custom shader code for branch swaying
     mat.onBeforeCompile = (shader) => {
       shader.uniforms.uTime = { value: 0 };
       shader.uniforms.uWindStrength = { value: new THREE.Vector3(0.5, 0, 0.5) };
@@ -728,14 +734,55 @@ export class Tree extends THREE.Group {
       mat.userData.shader = shader;
     };
 
-    this.leavesMesh.geometry.dispose();
-    this.leavesMesh.geometry = g;
-    this.leavesMesh.material.dispose();
+    return mat;
+  }
 
-    this.leavesMesh.material = mat;
+  /**
+   * Creates a BufferGeometry from a leaves buffer object
+   */
+  createLeavesBufferGeometry(buf) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(buf.verts), 3));
+    g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(buf.uvs), 2));
+    g.setIndex(new THREE.BufferAttribute(new Uint16Array(buf.indices), 1));
+    g.computeVertexNormals();
+    g.computeBoundingSphere();
+    return g;
+  }
 
-    this.leavesMesh.castShadow = true;
-    this.leavesMesh.receiveShadow = true;
+  /**
+   * Generates the geometry for the leaves
+   */
+  createLeavesGeometry() {
+    if (this.options.leaves.randomTexture) {
+      // Empty out the default leavesMesh
+      this.leavesMesh.geometry.dispose();
+      this.leavesMesh.geometry = new THREE.BufferGeometry();
+      this.leavesMesh.material.dispose();
+
+      const selectedTypes = this.options.leaves.selectedLeafTextures;
+      this.leavesBuffers.forEach((buf, idx) => {
+        if (buf.verts.length === 0) return;
+
+        const mesh = new THREE.Mesh(
+          this.createLeavesBufferGeometry(buf),
+          this.createLeavesMaterial(selectedTypes[idx])
+        );
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        this.leavesMeshes.push(mesh);
+        this.add(mesh);
+      });
+
+    } else {
+      // Original single-texture path
+      this.leavesMesh.geometry.dispose();
+      this.leavesMesh.geometry = this.createLeavesBufferGeometry(this.leaves);
+      this.leavesMesh.material.dispose();
+      this.leavesMesh.material = this.createLeavesMaterial(this.options.leaves.type);
+      this.leavesMesh.castShadow = true;
+      this.leavesMesh.receiveShadow = true;
+    }
   }
 
   /**
