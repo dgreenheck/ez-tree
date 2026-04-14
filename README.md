@@ -1,11 +1,5 @@
 # EZ-Tree-Custom
 
-## Fork-Specific Changes
-This fork exists to implement several key features not found in the original.
-- **Leaf Geometry Pooling** - Allow for multiple leaf types to be selected, randomly distributing them throughout the tree.
-- **Increased Instancing Limits** - Allows for higher leaf counts, using the above pooling function.
-- **Additional Presets** - Additional tree-type presets, ideally based on real-world tree species. A few of these are currently broken / have unrealistic values.
-
 ![NPM Version](https://img.shields.io/npm/v/%40dgreenheck%2Fez-tree)
 ![NPM Downloads](https://img.shields.io/npm/dw/%40dgreenheck%2Fez-tree)
 ![GitHub Repo stars](https://img.shields.io/github/stars/dgreenheck/ez-tree)
