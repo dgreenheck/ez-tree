@@ -1,4 +1,4 @@
-# EZ-Tree
+# EZ-Tree-Custom
 
 ![NPM Version](https://img.shields.io/npm/v/%40dgreenheck%2Fez-tree)
 ![NPM Downloads](https://img.shields.io/npm/dw/%40dgreenheck%2Fez-tree)
