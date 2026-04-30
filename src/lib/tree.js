@@ -324,7 +324,13 @@ export class Tree extends THREE.Group {
       );
 
       // Calculate the angle offset from the parent branch and the radial angle
-      const radialAngle = 2.0 * Math.PI * (radialOffset + i / count);
+      let radialAngle = 2.0 * Math.PI * (radialOffset + i / count);
+      radialAngle %= Math.PI * 2.0;
+
+      radialAngle -= Math.PI;
+      radialAngle = Math.sign(radialAngle) * THREE.MathUtils.lerp(radialAngle, Math.PI/2.0, this.options.branch.planarness[level]);
+      radialAngle += Math.PI;
+
       const q1 = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(1, 0, 0),
         this.options.branch.angle[level] / (180 / Math.PI),
@@ -335,9 +341,12 @@ export class Tree extends THREE.Group {
       );
       const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
 
-      const childBranchOrientation = new THREE.Euler().setFromQuaternion(
+      let childBranchOrientation = new THREE.Euler().setFromQuaternion(
         q3.multiply(q2.multiply(q1)),
       );
+
+      // childBranchOrientation.x = THREE.MathUtils.lerp(childBranchOrientation.x, Math.PI/2.0, this.options.branch.planarness[level]);
+      // childBranchOrientation.y = THREE.MathUtils.lerp(childBranchOrientation.y, 0.0, this.options.branch.planarness[level]);
 
       let childBranchLength =
         this.options.branch.length[level] *
@@ -407,7 +416,14 @@ export class Tree extends THREE.Group {
       );
 
       // Calculate the angle offset from the parent branch and the radial angle
-      const radialAngle = 2.0 * Math.PI * (radialOffset + i / this.options.leaves.count);
+      let radialAngle = 2.0 * Math.PI * (radialOffset + i / this.options.leaves.count);
+      radialAngle %= Math.PI * 2.0;
+
+      // Make radialAngle stick to -90 or +90 by planarness
+      radialAngle -= Math.PI;
+      radialAngle = Math.sign(radialAngle) * THREE.MathUtils.lerp(radialAngle, Math.PI/2.0, this.options.leaves.planarness);
+      radialAngle += Math.PI;
+      
       const q1 = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(1, 0, 0),
         this.options.leaves.angle / (180 / Math.PI),
@@ -416,7 +432,7 @@ export class Tree extends THREE.Group {
         new THREE.Vector3(0, 1, 0),
         radialAngle,
       );
-      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
+      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation)
 
       const leafOrientation = new THREE.Euler().setFromQuaternion(
         q3.multiply(q2.multiply(q1)),

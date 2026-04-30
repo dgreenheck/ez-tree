@@ -35,6 +35,13 @@ export default class TreeOptions {
         3: 60,
       },
 
+      // Controls whether branches grow entirely randomly or tend towards horizontal
+      planarness: {
+        1: 0.0,
+        2: 0.0,
+        3: 0.0
+      },
+
       // Number of children per branch level
       children: {
         0: 7,
@@ -122,6 +129,9 @@ export default class TreeOptions {
 
       // Angle of leaves relative to parent branch (degrees)
       angle: 10,
+
+      // Whether leaves grow into random directions or horizontally
+      planarness: 0.0,
 
       // Number of leaves
       count: 1,
