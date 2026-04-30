@@ -579,17 +579,12 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   }
   branchSection.add(angleSubsection);
 
-  // Planarness subsection
-  const planarnessSubsection = createSubSection('Planarness');
-  for (let i = 1; i <= 3; i++) {
-    const slider = createSlider(`Level ${i}`, tree.options.branch.planarness[i], 0.0, 1.0, 0.01, (val) => {
-      tree.options.branch.planarness[i] = val;
-      onChange();
-    });
-    planarnessSubsection.add(slider);
-    controls.push({ control: slider, update: () => slider.setValue(tree.options.branch.planarness[i]) });
-  }
-  branchSection.add(planarnessSubsection);
+  const planarnessSlider = createSlider('Planarness', tree.options.branch.planarness, 0, 1, 0.01, (val) => {
+    tree.options.branch.planarness = val;
+    onChange();
+  });
+  branchSection.add(planarnessSlider);
+  controls.push({ control: planarnessSlider, update: () => planarnessSlider.setValue(tree.options.branch.planarness) });
 
   // Children subsection
   const childrenSubsection = createSubSection('Children');

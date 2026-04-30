@@ -36,11 +36,7 @@ export default class TreeOptions {
       },
 
       // Controls whether branches grow entirely randomly or tend towards horizontal
-      planarness: {
-        1: 0.0,
-        2: 0.0,
-        3: 0.0
-      },
+      planarness: 0.0,
 
       // Number of children per branch level
       children: {

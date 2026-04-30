@@ -189,6 +189,8 @@ export class Tree extends THREE.Group {
         new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation),
       );
 
+      const outwardsVector = new THREE.Vector3(new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation).x, 0.0, new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation).z).normalize();
+
       // Perturb the orientation of the next section randomly. The higher the
       // gnarliness, the larger potential perturbation
       const gnarliness =
@@ -217,6 +219,18 @@ export class Tree extends THREE.Group {
         this.options.branch.force.strength / sectionRadius,
       );
 
+      // Make sub-branches grow straight out depending on the planarness factor
+      if (branch.level > 1) {
+        const qPlanar = new THREE.Quaternion().setFromUnitVectors(
+          new THREE.Vector3(0, 1, 0),
+          new THREE.Vector3().copy(outwardsVector),
+        );
+        qSection.rotateTowards(
+          qPlanar,
+          this.options.branch.planarness
+        )
+      }
+      
       // Apply trellis force if enabled
       if (this.options.trellis.enabled) {
         const trellisResult = this.calculateTrellisForce(sectionOrigin, sectionRadius);
@@ -324,12 +338,7 @@ export class Tree extends THREE.Group {
       );
 
       // Calculate the angle offset from the parent branch and the radial angle
-      let radialAngle = 2.0 * Math.PI * (radialOffset + i / count);
-      radialAngle %= Math.PI * 2.0;
-
-      radialAngle -= Math.PI;
-      radialAngle = Math.sign(radialAngle) * THREE.MathUtils.lerp(radialAngle, Math.PI/2.0, this.options.branch.planarness[level]);
-      radialAngle += Math.PI;
+      const radialAngle = 2.0 * Math.PI * (radialOffset + i / count);
 
       const q1 = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(1, 0, 0),
@@ -417,12 +426,6 @@ export class Tree extends THREE.Group {
 
       // Calculate the angle offset from the parent branch and the radial angle
       let radialAngle = 2.0 * Math.PI * (radialOffset + i / this.options.leaves.count);
-      radialAngle %= Math.PI * 2.0;
-
-      // Make radialAngle stick to -90 or +90 by planarness
-      radialAngle -= Math.PI;
-      radialAngle = Math.sign(radialAngle) * THREE.MathUtils.lerp(radialAngle, Math.PI/2.0, this.options.leaves.planarness);
-      radialAngle += Math.PI;
       
       const q1 = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(1, 0, 0),
@@ -434,8 +437,16 @@ export class Tree extends THREE.Group {
       );
       const q3 = new THREE.Quaternion().setFromEuler(parentOrientation)
 
+      const final_q = q3.multiply(q2.multiply(q1));
+
+      // Calculate straight outwards rotation
+      let straightOut = new THREE.Vector3(0, 1, 0).applyQuaternion(final_q);
+      straightOut.y = 0.0;
+      straightOut.normalize();
+
+      // Apply planarness by lerping the rotation quaternion towards the same quaternion with the yaw removed
       const leafOrientation = new THREE.Euler().setFromQuaternion(
-        q3.multiply(q2.multiply(q1)),
+        final_q.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), straightOut), this.options.leaves.planarness)
       );
 
       this.generateLeaf(leafOrigin, leafOrientation);
