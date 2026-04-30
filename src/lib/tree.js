@@ -339,7 +339,6 @@ export class Tree extends THREE.Group {
 
       // Calculate the angle offset from the parent branch and the radial angle
       const radialAngle = 2.0 * Math.PI * (radialOffset + i / count);
-
       const q1 = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(1, 0, 0),
         this.options.branch.angle[level] / (180 / Math.PI),
@@ -350,12 +349,9 @@ export class Tree extends THREE.Group {
       );
       const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
 
-      let childBranchOrientation = new THREE.Euler().setFromQuaternion(
+      const childBranchOrientation = new THREE.Euler().setFromQuaternion(
         q3.multiply(q2.multiply(q1)),
       );
-
-      // childBranchOrientation.x = THREE.MathUtils.lerp(childBranchOrientation.x, Math.PI/2.0, this.options.branch.planarness[level]);
-      // childBranchOrientation.y = THREE.MathUtils.lerp(childBranchOrientation.y, 0.0, this.options.branch.planarness[level]);
 
       let childBranchLength =
         this.options.branch.length[level] *
@@ -425,8 +421,7 @@ export class Tree extends THREE.Group {
       );
 
       // Calculate the angle offset from the parent branch and the radial angle
-      let radialAngle = 2.0 * Math.PI * (radialOffset + i / this.options.leaves.count);
-      
+      const radialAngle = 2.0 * Math.PI * (radialOffset + i / this.options.leaves.count);
       const q1 = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(1, 0, 0),
         this.options.leaves.angle / (180 / Math.PI),
@@ -435,18 +430,18 @@ export class Tree extends THREE.Group {
         new THREE.Vector3(0, 1, 0),
         radialAngle,
       );
-      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation)
+      const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
 
-      const final_q = q3.multiply(q2.multiply(q1));
+      const qSum = q3.multiply(q2.multiply(q1));
 
       // Calculate straight outwards rotation
-      let straightOut = new THREE.Vector3(0, 1, 0).applyQuaternion(final_q);
+      let straightOut = new THREE.Vector3(0, 1, 0).applyQuaternion(qSum);
       straightOut.y = 0.0;
       straightOut.normalize();
 
       // Apply planarness by lerping the rotation quaternion towards the same quaternion with the yaw removed
       const leafOrientation = new THREE.Euler().setFromQuaternion(
-        final_q.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), straightOut), this.options.leaves.planarness)
+        qSum.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), straightOut), this.options.leaves.planarness)
       );
 
       this.generateLeaf(leafOrigin, leafOrientation);
