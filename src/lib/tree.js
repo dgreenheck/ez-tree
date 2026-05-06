@@ -189,7 +189,8 @@ export class Tree extends THREE.Group {
         new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation),
       );
 
-      const outwardsVector = new THREE.Vector3(new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation).x, 0.0, new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation).z).normalize();
+      const up_rotated = new THREE.Vector3(0, 1.0, 0).applyEuler(sectionOrientation);
+      const outwardsVector = new THREE.Vector3(up_rotated.x, 0.0, up_rotated.z).normalize();
 
       // Perturb the orientation of the next section randomly. The higher the
       // gnarliness, the larger potential perturbation
@@ -220,7 +221,7 @@ export class Tree extends THREE.Group {
       );
 
       // Make sub-branches grow straight out depending on the planarness factor
-      if (branch.level > 1) {
+      if (branch.level > 0 && !branch.isTerminal) {
         const qPlanar = new THREE.Quaternion().setFromUnitVectors(
           new THREE.Vector3(0, 1, 0),
           new THREE.Vector3().copy(outwardsVector),
@@ -265,6 +266,7 @@ export class Tree extends THREE.Group {
             // since the child branch is growing from the end of the parent branch
             branch.sectionCount,
             branch.segmentCount,
+            branch.level == 0 // only true for the terminal branch of the main stem
           ),
         );
       } else {
@@ -440,9 +442,16 @@ export class Tree extends THREE.Group {
       straightOut.normalize();
 
       // Apply planarness by lerping the rotation quaternion towards the same quaternion with the yaw removed
-      const leafOrientation = new THREE.Euler().setFromQuaternion(
+      let leafOrientation = new THREE.Euler().setFromQuaternion(
         qSum.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), straightOut), this.options.leaves.planarness)
       );
+
+      // This makes leaves face exactly down/up when using single billboards, but since that makes the leaves practically disappear when viewed
+      // from the side, I'm not sure if it's ever desirable
+      // if (this.options.leaves.billboard == Billboard.Single) {
+      //   leafOrientation.x = THREE.MathUtils.lerp(leafOrientation.x, -Math.PI / 2.0, this.options.leaves.planarness);
+      //   leafOrientation.y *= (1.0 - this.options.leaves.planarness);
+      // }
 
       this.generateLeaf(leafOrigin, leafOrientation);
     }
