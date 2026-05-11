@@ -140,6 +140,9 @@ export default class TreeOptions {
 
       // Controls transparency of leaf texture
       alphaTest: 0.5,
+
+      // Calculates custom normals to imply a rounded canopy shape
+      roundedNormals: true,
     };
 
     // Trellis parameters

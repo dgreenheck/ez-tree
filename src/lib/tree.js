@@ -476,19 +476,27 @@ export class Tree extends THREE.Group {
       );
 
       const n = new THREE.Vector3(0, 0, 1).applyEuler(orientation);
+
+      // The normal vectors are an average of the direction of the leaf and the directions to the individual vertices.
+      // This creates a nice rounded shape while maintaining the canopy shape as a whole.
+      let n1 = new THREE.Vector3().copy(n).add(v[0]).sub(origin).normalize();
+      let n2 = new THREE.Vector3().copy(n).add(v[1]).sub(origin).normalize();
+      let n3 = new THREE.Vector3().copy(n).add(v[2]).sub(origin).normalize();
+      let n4 = new THREE.Vector3().copy(n).add(v[3]).sub(origin).normalize();
+
       this.leaves.normals.push(
-        n.x,
-        n.y,
-        n.z,
-        n.x,
-        n.y,
-        n.z,
-        n.x,
-        n.y,
-        n.z,
-        n.x,
-        n.y,
-        n.z,
+        n1.x,
+        n1.y,
+        n1.z,
+        n2.x,
+        n2.y,
+        n2.z,
+        n3.x,
+        n3.y,
+        n3.z,
+        n4.x,
+        n4.y,
+        n4.z,
       );
       this.leaves.uvs.push(0, 1, 0, 0, 1, 0, 1, 1);
       this.leaves.indices.push(i, i + 1, i + 2, i, i + 2, i + 3);
@@ -581,7 +589,15 @@ export class Tree extends THREE.Group {
     g.setIndex(
       new THREE.BufferAttribute(new Uint16Array(this.leaves.indices), 1),
     );
-    g.computeVertexNormals();
+    if (this.options.leaves.roundedNormals) {
+      g.setAttribute(
+        'normal',
+        new THREE.BufferAttribute(new Float32Array(this.leaves.normals), 3),
+      );
+    } else {
+      // If our custom rounded normals are not applied, compute normals from the vertices.
+      g.computeVertexNormals();
+    }
     g.computeBoundingSphere();
 
     const mat = new THREE.MeshPhongMaterial({
@@ -599,6 +615,7 @@ export class Tree extends THREE.Group {
       shader.uniforms.uWindStrength = { value: new THREE.Vector3(0.5, 0, 0.5) };
       shader.uniforms.uWindFrequency = { value: 0.5 };
       shader.uniforms.uWindScale = { value: 70 };
+      shader.uniforms.uCustomNormals = { value: this.options.leaves.roundedNormals };
 
       shader.vertexShader = `
         uniform float uTime;
@@ -724,6 +741,59 @@ export class Tree extends THREE.Group {
         gl_Position = projectionMatrix * mvPosition;
         `
       );
+
+      // Disable the backface normal flip line in "normal_fragment_begin" if we use custom normals
+      shader.fragmentShader = `
+      uniform bool uCustomNormals;
+      ` + shader.fragmentShader;
+
+      shader.fragmentShader = shader.fragmentShader.replace("#include <normal_fragment_begin>", `
+        float faceDirection = gl_FrontFacing ? 1.0 : - 1.0;
+        #ifdef FLAT_SHADED
+          vec3 fdx = dFdx( vViewPosition );
+          vec3 fdy = dFdy( vViewPosition );
+          vec3 normal = normalize( cross( fdx, fdy ) );
+        #else
+          vec3 normal = normalize( vNormal );
+          #ifdef DOUBLE_SIDED
+            if (!uCustomNormals) {
+              normal *= faceDirection;
+            }
+          #endif
+        #endif
+        #if defined( USE_NORMALMAP_TANGENTSPACE ) || defined( USE_CLEARCOAT_NORMALMAP ) || defined( USE_ANISOTROPY )
+          #ifdef USE_TANGENT
+            mat3 tbn = mat3( normalize( vTangent ), normalize( vBitangent ), normal );
+          #else
+            mat3 tbn = getTangentFrame( - vViewPosition, normal,
+            #if defined( USE_NORMALMAP )
+              vNormalMapUv
+            #elif defined( USE_CLEARCOAT_NORMALMAP )
+              vClearcoatNormalMapUv
+            #else
+              vUv
+            #endif
+            );
+          #endif
+          #if defined( DOUBLE_SIDED ) && ! defined( FLAT_SHADED )
+            tbn[0] *= faceDirection;
+            tbn[1] *= faceDirection;
+          #endif
+        #endif
+        #ifdef USE_CLEARCOAT_NORMALMAP
+          #ifdef USE_TANGENT
+            mat3 tbn2 = mat3( normalize( vTangent ), normalize( vBitangent ), normal );
+          #else
+            mat3 tbn2 = getTangentFrame( - vViewPosition, normal, vClearcoatNormalMapUv );
+          #endif
+          #if defined( DOUBLE_SIDED ) && ! defined( FLAT_SHADED )
+            tbn2[0] *= faceDirection;
+            tbn2[1] *= faceDirection;
+          #endif
+        #endif
+        // non perturbed normal for clearcoat among others
+        vec3 nonPerturbedNormal = normal;
+      `);
 
       mat.userData.shader = shader;
     };
