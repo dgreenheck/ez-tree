@@ -774,6 +774,13 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   leavesSection.add(alphaTestSlider);
   controls.push({ control: alphaTestSlider, update: () => alphaTestSlider.setValue(tree.options.leaves.alphaTest) });
 
+  const roundedNormalsToggle = createToggle('Rounded Normals', tree.options.leaves.roundedNormals, (val) => {
+    tree.options.leaves.roundedNormals = val;
+    onChange();
+  });
+  leavesSection.add(roundedNormalsToggle);
+  controls.push({ control: roundedNormalsToggle, update: () => roundedNormalsToggle.setValue(tree.options.leaves.roundedNormals) });
+
   parametersTab.appendChild(leavesSection.element);
 
   // ----- Trellis Section -----

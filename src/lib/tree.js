@@ -476,19 +476,28 @@ export class Tree extends THREE.Group {
       );
 
       const n = new THREE.Vector3(0, 0, 1).applyEuler(orientation);
+
+      // The normal vectors are an average of the direction of the leaf and the directions to the individual vertices.
+      // This creates a nice rounded shape while maintaining the canopy shape as a whole.
+      const roundedNormals = this.options.leaves.roundedNormals;
+      let n1 = roundedNormals ? new THREE.Vector3().copy(n).add(v[0]).sub(origin).normalize() : n;
+      let n2 = roundedNormals ? new THREE.Vector3().copy(n).add(v[1]).sub(origin).normalize() : n;
+      let n3 = roundedNormals ? new THREE.Vector3().copy(n).add(v[2]).sub(origin).normalize() : n;
+      let n4 = roundedNormals ? new THREE.Vector3().copy(n).add(v[3]).sub(origin).normalize() : n;
+
       this.leaves.normals.push(
-        n.x,
-        n.y,
-        n.z,
-        n.x,
-        n.y,
-        n.z,
-        n.x,
-        n.y,
-        n.z,
-        n.x,
-        n.y,
-        n.z,
+        n1.x,
+        n1.y,
+        n1.z,
+        n2.x,
+        n2.y,
+        n2.z,
+        n3.x,
+        n3.y,
+        n3.z,
+        n4.x,
+        n4.y,
+        n4.z,
       );
       this.leaves.uvs.push(0, 1, 0, 0, 1, 0, 1, 1);
       this.leaves.indices.push(i, i + 1, i + 2, i, i + 2, i + 3);
@@ -581,7 +590,11 @@ export class Tree extends THREE.Group {
     g.setIndex(
       new THREE.BufferAttribute(new Uint16Array(this.leaves.indices), 1),
     );
-    g.computeVertexNormals();
+    g.setAttribute(
+      'normal',
+      new THREE.BufferAttribute(new Float32Array(this.leaves.normals), 3),
+    );
+
     g.computeBoundingSphere();
 
     const mat = new THREE.MeshPhongMaterial({
@@ -599,6 +612,7 @@ export class Tree extends THREE.Group {
       shader.uniforms.uWindStrength = { value: new THREE.Vector3(0.5, 0, 0.5) };
       shader.uniforms.uWindFrequency = { value: 0.5 };
       shader.uniforms.uWindScale = { value: 70 };
+      shader.uniforms.uCustomNormals = { value: this.options.leaves.roundedNormals };
 
       shader.vertexShader = `
         uniform float uTime;
@@ -723,6 +737,15 @@ export class Tree extends THREE.Group {
         mvPosition = modelViewMatrix * mvPosition;
         gl_Position = projectionMatrix * mvPosition;
         `
+      );
+
+      // Skip the backface normal flip in normal_fragment_begin when using custom normals
+      shader.fragmentShader = `uniform bool uCustomNormals;\n` + shader.fragmentShader.replace(
+        '#include <normal_fragment_begin>',
+        THREE.ShaderChunk.normal_fragment_begin.replace(
+          'normal *= faceDirection;',
+          'if (!uCustomNormals) { normal *= faceDirection; }'
+        )
       );
 
       mat.userData.shader = shader;
