@@ -20,9 +20,9 @@ async function fetchAssets() {
   dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
   gltfLoader.setDRACOLoader(dracoLoader);
 
-  _rock1Mesh = (await gltfLoader.loadAsync('rock1.glb')).scene.children[0];
-  _rock2Mesh = (await gltfLoader.loadAsync('rock2.glb')).scene.children[0];
-  _rock3Mesh = (await gltfLoader.loadAsync('rock3.glb')).scene.children[0];
+  _rock1Mesh = (await gltfLoader.loadAsync('/models/rock1.glb')).scene.children[0];
+  _rock2Mesh = (await gltfLoader.loadAsync('/models/rock2.glb')).scene.children[0];
+  _rock3Mesh = (await gltfLoader.loadAsync('/models/rock3.glb')).scene.children[0];
 
   loaded = true;
 }

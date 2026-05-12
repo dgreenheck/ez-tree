@@ -1,4 +1,4 @@
-import { BarkType, Billboard, LeafType, TreeType } from './enums';
+import { Billboard, TreeType } from './enums';
 
 export default class TreeOptions {
   constructor() {
@@ -7,8 +7,20 @@ export default class TreeOptions {
 
     // Bark parameters
     this.bark = {
-      // The bark texture
-      type: BarkType.Oak,
+      // Informational identifier carried through presets. The library does not
+      // consume this field; the host app uses it to resolve which texture set
+      // to assign to `maps` below.
+      type: 'Bark001',
+
+      // Texture maps supplied by the caller. Each entry is a THREE.Texture or
+      // null. When `textured` is true, non-null maps are applied to the
+      // material; null maps fall back to the tint color for that channel.
+      maps: {
+        color: null,
+        ao: null,
+        normal: null,
+        roughness: null,
+      },
 
       // Tint of the tree trunk
       tint: 0xffffff,
@@ -114,8 +126,13 @@ export default class TreeOptions {
 
     // Leaf parameters
     this.leaves = {
-      // Leaf texture to use
-      type: LeafType.Oak,
+      // Informational identifier (e.g. 'oak', 'ash'). Library does not consume
+      // it; the host app uses it to resolve which texture to assign to `map`.
+      type: 'oak',
+
+      // Color map supplied by the caller. THREE.Texture or null.
+      // When null, leaves render as a flat tinted quad.
+      map: null,
 
       // Whether to use single or double/perpendicular billboards
       billboard: Billboard.Double,
@@ -190,10 +207,13 @@ export default class TreeOptions {
   copy(source, target = this) {
     for (let key in source) {
       if (source.hasOwnProperty(key) && target.hasOwnProperty(key)) {
-        if (typeof source[key] === 'object' && source[key] !== null) {
-          this.copy(source[key], target[key]);
+        const value = source[key];
+        // Assign THREE.Texture (and any non-plain object) by reference rather
+        // than recursing — recursion would walk a Texture's internals.
+        if (value !== null && typeof value === 'object' && value.constructor === Object) {
+          this.copy(value, target[key]);
         } else {
-          target[key] = source[key];
+          target[key] = value;
         }
       }
     }

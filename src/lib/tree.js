@@ -4,7 +4,6 @@ import { Branch } from './branch';
 import { Billboard, TreeType } from './enums';
 import TreeOptions from './options';
 import { loadPreset } from './presets/index';
-import { getBarkTexture, getLeafTexture } from './textures';
 import { Trellis } from './trellis';
 
 export class Tree extends THREE.Group {
@@ -127,6 +126,15 @@ export class Tree extends THREE.Group {
     // geometry has been constructed
     let sections = [];
 
+    // Number of texture wraps around the branch's circumference. Scaling with
+    // branch.radius keeps bark feature size roughly consistent across thick
+    // trunks and thin twigs. Held constant for the whole branch so tapered
+    // sections share a wrap count and don't twist the texture longitudinally.
+    const wrapsX = Math.max(
+      1,
+      Math.round(branch.radius * this.options.bark.textureScale.x),
+    );
+
     for (let i = 0; i <= branch.sectionCount; i++) {
       let sectionRadius = branch.radius;
 
@@ -160,7 +168,7 @@ export class Tree extends THREE.Group {
           .normalize();
 
         const uv = new THREE.Vector2(
-          j / branch.segmentCount,
+          (j / branch.segmentCount) * wrapsX,
           (i % 2 === 0) ? 0 : 1,
         );
 
@@ -173,10 +181,11 @@ export class Tree extends THREE.Group {
         }
       }
 
-      // Duplicate the first vertex so there is continuity in the UV mapping
+      // Duplicate the first vertex so there is continuity in the UV mapping.
+      // u=wrapsX maps to the same texel as u=0 since wrapsX is an integer.
       this.branches.verts.push(...Object.values(first.vertex));
       this.branches.normals.push(...Object.values(first.normal));
-      this.branches.uvs.push(1, first.uv.y);
+      this.branches.uvs.push(wrapsX, first.uv.y);
 
       // Use this information later on when generating child branches
       sections.push({
@@ -601,10 +610,22 @@ export class Tree extends THREE.Group {
     });
 
     if (this.options.bark.textured) {
-      mat.aoMap = getBarkTexture(this.options.bark.type, 'ao', this.options.bark.textureScale);
-      mat.map = getBarkTexture(this.options.bark.type, 'color', this.options.bark.textureScale);
-      mat.normalMap = getBarkTexture(this.options.bark.type, 'normal', this.options.bark.textureScale);
-      mat.roughnessMap = getBarkTexture(this.options.bark.type, 'roughness', this.options.bark.textureScale);
+      // textureScale.x is baked into UVs in generateBranch (wrapsX), so only
+      // the Y axis needs runtime scaling on the texture itself.
+      const scale = this.options.bark.textureScale;
+      const maps = this.options.bark.maps;
+      const apply = (texture) => {
+        if (!texture) return null;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.x = 1;
+        texture.repeat.y = 1 / scale.y;
+        return texture;
+      };
+      if (maps.color) mat.map = apply(maps.color);
+      if (maps.ao) mat.aoMap = apply(maps.ao);
+      if (maps.normal) mat.normalMap = apply(maps.normal);
+      if (maps.roughness) mat.roughnessMap = apply(maps.roughness);
     }
 
     this.branchesMesh.geometry.dispose();
@@ -640,7 +661,7 @@ export class Tree extends THREE.Group {
 
     const mat = new THREE.MeshPhongMaterial({
       name: 'leaves',
-      map: getLeafTexture(this.options.leaves.type),
+      map: this.options.leaves.map ?? null,
       color: new THREE.Color(this.options.leaves.tint),
       side: THREE.DoubleSide,
       alphaTest: this.options.leaves.alphaTest,

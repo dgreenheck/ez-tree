@@ -2,7 +2,7 @@
   "seed": 30631,
   "type": "deciduous",
   "bark": {
-    "type": "birch",
+    "type": "Bark002",
     "tint": 16777215,
     "flatShading": false,
     "textured": true,

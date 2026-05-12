@@ -29,6 +29,7 @@
   ],
   "types": "./build/ez-tree.es.d.ts",
   "scripts": {
+    "dev": "vite --config vite.app.config.js",
     "build:app": "vite build --config vite.app.config.js",
     "build:lib": "vite build --config vite.lib.config.js",
     "build:watch": "vite build --config vite.lib.config.js --watch",

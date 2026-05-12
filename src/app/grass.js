@@ -97,10 +97,10 @@ export class Grass extends THREE.Object3D {
 
     const gltfLoader = new GLTFLoader();
 
-    _grassMesh = (await gltfLoader.loadAsync('grass.glb')).scene.children[0];
-    _whiteFlower = (await gltfLoader.loadAsync('flower_white.glb')).scene.children[0];
-    _blueFlower = (await gltfLoader.loadAsync('flower_blue.glb')).scene.children[0];
-    _yellowFlower = (await gltfLoader.loadAsync('flower_yellow.glb')).scene.children[0];
+    _grassMesh = (await gltfLoader.loadAsync('/models/grass.glb')).scene.children[0];
+    _whiteFlower = (await gltfLoader.loadAsync('/models/flower_white.glb')).scene.children[0];
+    _blueFlower = (await gltfLoader.loadAsync('/models/flower_blue.glb')).scene.children[0];
+    _yellowFlower = (await gltfLoader.loadAsync('/models/flower_yellow.glb')).scene.children[0];
 
     // The flower is composed of multiple meshes with different materials. Append the
     // wind shader code to each material

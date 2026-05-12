@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Tree, TreePreset } from '@dgreenheck/ez-tree';
 import { Environment } from './environment';
+import { loadPresetWithTextures } from './textures';
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -42,8 +43,7 @@ export async function createScene(renderer) {
   controls.update();
 
   const tree = new Tree();
-  tree.loadPreset('Ash Medium');
-  tree.generate();
+  loadPresetWithTextures(tree, 'Ash Medium');
   tree.castShadow = true;
   tree.receiveShadow = true;
   scene.add(tree);
@@ -70,7 +70,7 @@ export async function createScene(renderer) {
 
     const t = new Tree();
     t.position.set(r * Math.cos(theta), 0, r * Math.sin(theta));
-    t.loadPreset(presets[index]);
+    loadPresetWithTextures(t, presets[index]);
     t.options.seed = 10000 * Math.random();
     t.generate();
     t.castShadow = true;

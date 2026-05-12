@@ -2,7 +2,7 @@
   "seed": 13977,
   "type": "evergreen",
   "bark": {
-    "type": "pine",
+    "type": "Bark003",
     "tint": 16777215,
     "flatShading": false,
     "textured": true,

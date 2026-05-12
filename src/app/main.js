@@ -70,11 +70,11 @@ window.toggleAudio = function () {
 
   if (window.isAudioPlaying) {
     window.isAudioPlaying = false;
-    document.getElementById('audio-status').src = "icon_muted.png";
+    document.getElementById('audio-status').src = "/icons/icon_muted.png";
     document.getElementById('background-audio').pause();
   } else {
     window.isAudioPlaying = true;
-    document.getElementById('audio-status').src = "icon_playing.png";
+    document.getElementById('audio-status').src = "/icons/icon_playing.png";
     document.getElementById('background-audio').play();
   }
 }

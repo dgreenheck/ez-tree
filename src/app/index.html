@@ -44,19 +44,19 @@
 
 <body>
   <div id="loading-screen">
-    <img id="logo" src="logo.png">
+    <img id="logo" src="/images/logo.png">
     <div id="loading-text">LOADING... 0%</div>
   </div>
 
   <div id="root">
-    <img id="about-icon" class="about-icon" src="icon_about.png" onclick="showAbout()">
-    <img id="audio-status" class="audio-icon" src="icon_playing.png" onclick="toggleAudio()">
+    <img id="about-icon" class="about-icon" src="/icons/icon_about.png" onclick="showAbout()">
+    <img id="audio-status" class="audio-icon" src="/icons/icon_playing.png" onclick="toggleAudio()">
     <div id="app"></div>
     <div id="ui-container"></div>
 
     <div id="aboutOverlay" class="overlay">
       <div class="about-dialog">
-        <img src="logo.png" alt="App Icon">
+        <img src="/images/logo.png" alt="App Icon">
         <h1>EZ-Tree</h1>
         <h2>Procedural Tree Generator</h2>
         <h3>Made by Dan Greenheck</h3>
@@ -85,7 +85,7 @@
   <input type="file" id="fileInput" accept=".json" style="display: none" />
 
   <audio id="background-audio" loop>
-    <source src="ambience.mp3" type="audio/mpeg">
+    <source src="/audio/ambience.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 

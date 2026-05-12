@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
-import { BarkType, Billboard, LeafType, TreePreset, Tree, TreeType } from '@dgreenheck/ez-tree';
+import { Billboard, TreePreset, Tree, TreeType } from '@dgreenheck/ez-tree';
+import { BarkType, LeafType, applyTreeTextures, loadPresetWithTextures } from './textures';
 import { Environment } from './environment';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import { version } from '../../package.json';
@@ -463,6 +464,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   // ============================================================================
 
   const onChange = () => {
+    applyTreeTextures(tree);
     tree.generate();
     tree.traverse((o) => {
       if (o.material) {
@@ -480,7 +482,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
     Object.fromEntries(Object.keys(TreePreset).map(p => [p, p])),
     initialPreset,
     (val) => {
-      tree.loadPreset(val);
+      loadPresetWithTextures(tree, val);
       refreshAllControls();
     }
   );
