@@ -296,11 +296,14 @@ export class Tree extends THREE.Group {
    */
   generateChildBranches(count, level, sections) {
     const radialOffset = this.rng.random();
+    const startMin = this.options.branch.start[level];
+    const heightStep = (1.0 - startMin) / count;
+    const angleSlots = this.shuffledIndices(count);
 
     for (let i = 0; i < count; i++) {
-      // Determine how far along the length of the parent branch the child
-      // branch should originate from (0 to 1)
-      let childBranchStart = this.rng.random(1.0, this.options.branch.start[level]);
+      // Stratified sampling along the parent's length: jitter within slot [i, i+1]
+      // so children are spread evenly but not perfectly periodic.
+      let childBranchStart = startMin + (i + this.rng.random()) * heightStep;
 
       // Find which sections are on either side of the child branch origin point
       // so we can determine the origin, orientation and radius of the branch
@@ -337,8 +340,12 @@ export class Tree extends THREE.Group {
         qB.slerp(qA, alpha),
       );
 
-      // Calculate the angle offset from the parent branch and the radial angle
-      const radialAngle = 2.0 * Math.PI * (radialOffset + i / count);
+      // Stratified radial angle: each child gets a 2π/count slot, jittered ±½ slot.
+      // angleSlots[i] randomly permutes slot assignment so that the height slot
+      // and angle slot are uncorrelated — otherwise evergreens (where branch
+      // length depends on height) spiral their longest branches to a fixed side.
+      const radialJitter = this.rng.random(0.5, -0.5);
+      const radialAngle = 2.0 * Math.PI * (radialOffset + (angleSlots[i] + radialJitter) / count);
       const q1 = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(1, 0, 0),
         this.options.branch.angle[level] / (180 / Math.PI),
@@ -384,11 +391,14 @@ export class Tree extends THREE.Group {
   */
   generateLeaves(sections) {
     const radialOffset = this.rng.random();
+    const count = this.options.leaves.count;
+    const startMin = this.options.leaves.start;
+    const heightStep = (1.0 - startMin) / count;
+    const angleSlots = this.shuffledIndices(count);
 
-    for (let i = 0; i < this.options.leaves.count; i++) {
-      // Determine how far along the length of the parent
-      // branch the leaf should originate from (0 to 1)
-      let leafStart = this.rng.random(1.0, this.options.leaves.start);
+    for (let i = 0; i < count; i++) {
+      // Stratified sampling along the parent's length.
+      let leafStart = startMin + (i + this.rng.random()) * heightStep;
 
       // Find which sections are on either side of the child branch origin point
       // so we can determine the origin, orientation and radius of the branch
@@ -420,8 +430,10 @@ export class Tree extends THREE.Group {
         qB.slerp(qA, alpha),
       );
 
-      // Calculate the angle offset from the parent branch and the radial angle
-      const radialAngle = 2.0 * Math.PI * (radialOffset + i / this.options.leaves.count);
+      // Stratified radial angle with permuted slot assignment.
+      // See generateChildBranches for rationale.
+      const radialJitter = this.rng.random(0.5, -0.5);
+      const radialAngle = 2.0 * Math.PI * (radialOffset + (angleSlots[i] + radialJitter) / count);
       const q1 = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(1, 0, 0),
         this.options.leaves.angle / (180 / Math.PI),
@@ -522,6 +534,21 @@ export class Tree extends THREE.Group {
     if (this.options.leaves.billboard === Billboard.Double) {
       createLeaf(Math.PI / 2);
     }
+  }
+
+  /**
+   * Fisher-Yates shuffle of [0..count-1] using the tree's RNG so results stay
+   * seed-reproducible.
+   * @param {number} count
+   * @returns {number[]}
+   */
+  shuffledIndices(count) {
+    const arr = Array.from({ length: count }, (_, k) => k);
+    for (let k = count - 1; k > 0; k--) {
+      const r = Math.floor(this.rng.random() * (k + 1));
+      [arr[k], arr[r]] = [arr[r], arr[k]];
+    }
+    return arr;
   }
 
   /**

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The growth force was not being applied correctly. Branches should now grow uniformly in the same world direction.
+- Child branches and leaves are now placed with stratified sampling (with a permuted slot assignment) instead of fixed angular spacing, eliminating visible spirals and one-sided clumping.
 
 ## [1.1.0] - 2026-01-14
 
