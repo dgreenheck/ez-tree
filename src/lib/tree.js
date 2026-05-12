@@ -206,16 +206,30 @@ export class Tree extends THREE.Group {
         this.options.branch.twist[branch.level],
       );
 
-      const qForce = new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        new THREE.Vector3().copy(this.options.branch.force.direction),
-      );
-
       qSection.multiply(qTwist);
-      qSection.rotateTowards(
-        qForce,
-        this.options.branch.force.strength / sectionRadius,
-      );
+
+      // Rotate the section's growth direction toward force.direction (positive
+      // strength) or away from it (negative). The (sectionUp × target) axis
+      // makes force.direction behave as a real world axis: when sectionUp is
+      // already aligned with target the rotation is zero, so a vertical trunk
+      // with force=(0,1,0) doesn't get gnarliness drift amplified — the old
+      // slerp form was degenerate at qForce=identity and pushed branches in
+      // whatever random direction the section had drifted.
+      const sectionUp = new THREE.Vector3(0, 1, 0).applyQuaternion(qSection);
+      const target = new THREE.Vector3()
+        .copy(this.options.branch.force.direction)
+        .normalize();
+      const axis = new THREE.Vector3().crossVectors(sectionUp, target);
+      const sinFull = axis.length();
+      if (sinFull > 1e-6) {
+        axis.divideScalar(sinFull);
+        const fullAngle = Math.atan2(sinFull, sectionUp.dot(target));
+        const step = this.options.branch.force.strength / sectionRadius;
+        const clamped = Math.max(-fullAngle, Math.min(fullAngle, step));
+        qSection.premultiply(
+          new THREE.Quaternion().setFromAxisAngle(axis, clamped),
+        );
+      }
 
       // Apply trellis force if enabled
       if (this.options.trellis.enabled) {

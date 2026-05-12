@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Dockerfile to Node 24 and removed the obsolete `version` attribute from `docker-compose.yml`.
 - Use custom rounded normals for leaves for softer shading (#43).
 
+### Fixed
+
+- `branch.force.direction` now behaves as a real world axis for both positive and negative `strength`. The previous `rotateTowards(qForce, step)` form was degenerate when `force.direction = (0, 1, 0)` (a vertical trunk's natural growth direction): `qForce` collapsed to the identity quaternion, so negative strength extrapolated slerp along whatever tiny tilt the section had drifted into, pushing branches in random seed-dependent directions instead of toward `-force.direction`. The rotation is now applied directly around the `(sectionUp × force.direction)` axis, which is zero exactly when growth is already aligned with the target.
+
 ## [1.1.0] - 2026-01-14
 
 ### Added
