@@ -80,7 +80,7 @@
     }
   },
   "leaves": {
-    "type": "oak",
+    "type": "LeafSet024",
     "billboard": "double",
     "angle": 36,
     "count": 10,

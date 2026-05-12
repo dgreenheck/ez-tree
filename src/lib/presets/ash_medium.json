@@ -80,7 +80,7 @@
     }
   },
   "leaves": {
-    "type": "ash",
+    "type": "LeafSet014",
     "billboard": "double",
     "angle": 55,
     "count": 16,

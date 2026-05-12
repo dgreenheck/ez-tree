@@ -80,7 +80,7 @@
     }
   },
   "leaves": {
-    "type": "aspen",
+    "type": "LeafSet022",
     "billboard": "double",
     "angle": 36,
     "count": 20,

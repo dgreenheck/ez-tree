@@ -126,13 +126,30 @@ export default class TreeOptions {
 
     // Leaf parameters
     this.leaves = {
-      // Informational identifier (e.g. 'oak', 'ash'). Library does not consume
-      // it; the host app uses it to resolve which texture to assign to `map`.
-      type: 'oak',
+      // Informational identifier (e.g. 'LeafSet004'). Library does not consume
+      // it; the host app uses it to resolve which texture set to assign.
+      type: 'LeafSet004',
 
-      // Color map supplied by the caller. THREE.Texture or null.
-      // When null, leaves render as a flat tinted quad.
-      map: null,
+      // PBR texture maps supplied by the caller. Each entry is a THREE.Texture
+      // or null. The color map's alpha channel carries leaf cutout transparency
+      // (combined with `alphaTest`).
+      maps: {
+        color: null,
+        normal: null,
+        roughness: null,
+        ao: null,
+        scattering: null,
+      },
+
+      // Atlas tiling. The color/normal/roughness maps share this layout; each
+      // generated leaf instance picks a random (col, row) tile. `rotation`
+      // (0/90/180/270 degrees) rotates the tile sampling so atlases authored
+      // with the stem on different sides land stem-at-mesh-bottom.
+      atlas: {
+        cols: 1,
+        rows: 1,
+        rotation: 0,
+      },
 
       // Whether to use single or double/perpendicular billboards
       billboard: Billboard.Double,

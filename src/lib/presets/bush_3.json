@@ -80,7 +80,7 @@
     }
   },
   "leaves": {
-    "type": "pine",
+    "type": "LeafSet019",
     "billboard": "double",
     "angle": 54,
     "count": 3,

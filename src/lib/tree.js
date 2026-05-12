@@ -6,6 +6,52 @@ import TreeOptions from './options';
 import { loadPreset } from './presets/index';
 import { Trellis } from './trellis';
 
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/**
+ * Returns the 8 UV coordinates for a leaf quad's 4 vertices in the order
+ * (top-left, bottom-left, bottom-right, top-right), sampling tile bounds
+ * [u0, u1] x [v0, v1] from the atlas with the given rotation.
+ *
+ * Rotation is the angle that brings the texture tile into stem-at-mesh-bottom
+ * orientation:
+ *   0   - stem at the bottom of the image tile (default y-up authoring)
+ *   90  - stem on the left of the image tile (leaf points right)
+ *   180 - stem at the top of the image tile (upside-down y-up)
+ *   270 - stem on the right of the image tile (leaf points left)
+ */
+function computeTileUVs(u0, u1, v0, v1, rotation) {
+  // Local tile axes: u_local = mesh-left→right, v_local = mesh-stem→tip.
+  // Vertex order: TL=(0,1) BL=(0,0) BR=(1,0) TR=(1,1).
+  const verts = [[0, 1], [0, 0], [1, 0], [1, 1]];
+  const out = new Array(8);
+  for (let i = 0; i < 4; i++) {
+    const [ul, vl] = verts[i];
+    let u, v;
+    switch (rotation) {
+      case 90:
+        u = lerp(u0, u1, vl);
+        v = lerp(v1, v0, ul);
+        break;
+      case 180:
+        u = lerp(u1, u0, ul);
+        v = lerp(v1, v0, vl);
+        break;
+      case 270:
+        u = lerp(u1, u0, vl);
+        v = lerp(v0, v1, ul);
+        break;
+      default:
+        u = lerp(u0, u1, ul);
+        v = lerp(v0, v1, vl);
+        break;
+    }
+    out[i * 2] = u;
+    out[i * 2 + 1] = v;
+  }
+  return out;
+}
+
 export class Tree extends THREE.Group {
   /**
    * @type {RNG}
@@ -481,6 +527,22 @@ export class Tree extends THREE.Group {
     const W = leafSize;
     const L = leafSize;
 
+    // Pick a tile from the atlas for this leaf. Both billboard planes of one
+    // leaf share the same tile so they read as a single object.
+    const atlas = this.options.leaves.atlas;
+    const cols = Math.max(1, atlas.cols | 0);
+    const rows = Math.max(1, atlas.rows | 0);
+    const col = Math.floor(this.rng.random() * cols);
+    const row = Math.floor(this.rng.random() * rows);
+    const inset = 0.001;
+    const u0 = col / cols + inset;
+    const u1 = (col + 1) / cols - inset;
+    // Image-Y (top-down) inverted by Three.js flipY=true, so the tile's image
+    // bottom row sits at the smaller v.
+    const v0 = 1 - (row + 1) / rows + inset;
+    const v1 = 1 - row / rows - inset;
+    const tileUVs = computeTileUVs(u0, u1, v0, v1, atlas.rotation | 0);
+
     const createLeaf = (rotation) => {
       // Create quad vertices
       const v = [
@@ -534,7 +596,12 @@ export class Tree extends THREE.Group {
         n4.y,
         n4.z,
       );
-      this.leaves.uvs.push(0, 1, 0, 0, 1, 0, 1, 1);
+      this.leaves.uvs.push(
+        tileUVs[0], tileUVs[1],  // top-left
+        tileUVs[2], tileUVs[3],  // bottom-left
+        tileUVs[4], tileUVs[5],  // bottom-right
+        tileUVs[6], tileUVs[7],  // top-right
+      );
       this.leaves.indices.push(i, i + 1, i + 2, i, i + 2, i + 3);
       i += 4;
     };
@@ -659,13 +726,18 @@ export class Tree extends THREE.Group {
 
     g.computeBoundingSphere();
 
-    const mat = new THREE.MeshPhongMaterial({
+    const leafMaps = this.options.leaves.maps ?? {};
+    const mat = new THREE.MeshStandardMaterial({
       name: 'leaves',
-      map: this.options.leaves.map ?? null,
+      map: leafMaps.color ?? null,
+      normalMap: leafMaps.normal ?? null,
+      roughnessMap: leafMaps.roughness ?? null,
       color: new THREE.Color(this.options.leaves.tint),
       side: THREE.DoubleSide,
       alphaTest: this.options.leaves.alphaTest,
-      dithering: true
+      roughness: 1.0,
+      metalness: 0.0,
+      dithering: true,
     });
 
     // Add custom shader code for branch swaying
