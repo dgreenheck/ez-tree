@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaf Cluster Gen</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <div id="app">
+    <aside id="controls">
+      <h1>Leaf Cluster Gen</h1>
+      <div id="control-panel"></div>
+      <div class="actions">
+        <button id="rebake">Rebake</button>
+        <button id="download">Download PNG</button>
+      </div>
+    </aside>
+    <section class="atlas-pane">
+      <div id="atlas-toolbar" class="toolbar">
+        <span class="label">channel</span>
+        <select id="channel">
+          <option value="color">color</option>
+        </select>
+        <span id="grid-info" class="info"></span>
+      </div>
+      <div id="atlas-host"></div>
+    </section>
+    <section class="preview-pane">
+      <div class="toolbar">
+        <span class="label">3D preview</span>
+        <span class="info">drag · scroll</span>
+      </div>
+      <div id="preview-host"></div>
+    </section>
+  </div>
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>

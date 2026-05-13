@@ -34,6 +34,8 @@
     "build:lib": "vite build --config vite.lib.config.js",
     "build:watch": "vite build --config vite.lib.config.js --watch",
     "app": "npm run build:lib && vite --config vite.app.config.js",
+    "dev:leaf-cluster-gen": "vite --config vite.leaf-cluster-gen.config.js",
+    "build:leaf-cluster-gen": "vite build --config vite.leaf-cluster-gen.config.js",
     "preview": "vite preview"
   },
   "devDependencies": {

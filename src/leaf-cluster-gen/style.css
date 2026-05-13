@@ -1,0 +1,212 @@
+:root {
+  --bg: #1a1d22;
+  --panel: #23272e;
+  --panel-2: #2c313a;
+  --border: #3a4049;
+  --text: #e8eaed;
+  --text-dim: #9aa0a6;
+  --accent: #6ab14a;
+  --accent-hot: #88d066;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#app {
+  display: grid;
+  grid-template-columns: 340px 1fr 1fr;
+  height: 100vh;
+}
+
+#controls {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#controls h1 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+#control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.group:last-child {
+  border-bottom: none;
+}
+
+.group-title {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 110px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+}
+
+.row label {
+  color: var(--text-dim);
+}
+
+.row input[type="range"] {
+  width: 100%;
+}
+
+.row .value {
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  text-align: right;
+}
+
+.row select,
+.row input[type="number"] {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 6px;
+  font: inherit;
+  width: 100%;
+  grid-column: 2 / span 2;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+button {
+  background: var(--accent);
+  color: #0f1115;
+  border: none;
+  padding: 8px 12px;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--accent-hot);
+}
+
+button.secondary {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+button.secondary:hover {
+  background: var(--border);
+}
+
+#download {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.atlas-pane,
+.preview-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border-left: 1px solid var(--border);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbar .label {
+  color: var(--text-dim);
+}
+
+.toolbar select {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 6px;
+  font: inherit;
+}
+
+.toolbar .info {
+  margin-left: auto;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+#preview-host {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: #141820;
+}
+
+#preview-host canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#atlas-host {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background:
+    linear-gradient(45deg, #2a2e34 25%, transparent 25%),
+    linear-gradient(-45deg, #2a2e34 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2a2e34 75%),
+    linear-gradient(-45deg, transparent 75%, #2a2e34 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, 10px 0px;
+  background-color: #20242a;
+  overflow: hidden;
+  cursor: grab;
+}
+
+#atlas-host canvas {
+  display: block;
+  image-rendering: pixelated;
+}
