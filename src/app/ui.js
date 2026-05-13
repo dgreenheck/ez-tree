@@ -581,6 +581,13 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   }
   branchSection.add(angleSubsection);
 
+  const planarnessSlider = createSlider('Planarness', tree.options.branch.planarness, 0, 1, 0.01, (val) => {
+    tree.options.branch.planarness = val;
+    onChange();
+  });
+  branchSection.add(planarnessSlider);
+  controls.push({ control: planarnessSlider, update: () => planarnessSlider.setValue(tree.options.branch.planarness) });
+
   // Children subsection
   const childrenSubsection = createSubSection('Children');
   const childrenRanges = [[0, 100], [1, 10], [2, 5]];
@@ -740,6 +747,13 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   });
   leavesSection.add(leafAngleSlider);
   controls.push({ control: leafAngleSlider, update: () => leafAngleSlider.setValue(tree.options.leaves.angle) });
+
+  const leafPlanarnessSlider = createSlider('Planarness', tree.options.leaves.planarness, 0.0, 1.0, 0.01, (val) => {
+    tree.options.leaves.planarness = val;
+    onChange();
+  });
+  leavesSection.add(leafPlanarnessSlider);
+  controls.push({ control: leafPlanarnessSlider, update: () => leafPlanarnessSlider.setValue(tree.options.leaves.planarness) });
 
   const leafCountSlider = createSlider('Count', tree.options.leaves.count, 0, 100, 1, (val) => {
     tree.options.leaves.count = val;

@@ -16,6 +16,7 @@ export class Branch {
     level = 0,
     sectionCount = 0,
     segmentCount = 0,
+    isTerminal = false
   ) {
     this.origin = origin.clone();
     this.orientation = orientation.clone();
@@ -24,5 +25,6 @@ export class Branch {
     this.level = level;
     this.sectionCount = sectionCount;
     this.segmentCount = segmentCount;
+    this.isTerminal = isTerminal;
   }
 }
