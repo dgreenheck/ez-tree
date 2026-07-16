@@ -996,3 +996,91 @@ a {
     min-width: 38px;
   }
 }
+/* ============================================================================
+   Stats Overlay (viewport HUD with LOD preview switching)
+   ============================================================================ */
+
+#stats-overlay {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.stats-counts {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
+.stats-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stats-value {
+  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+  font-size: 1.25em;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.stats-label {
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.lod-switcher {
+  display: flex;
+  gap: 2px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.lod-button {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-sm) - 2px);
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.lod-button:hover {
+  color: var(--text-primary);
+  background: var(--section-hover);
+}
+
+.lod-button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+@media (max-width: 800px) {
+  #stats-overlay {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .stats-value {
+    font-size: 1em;
+  }
+}

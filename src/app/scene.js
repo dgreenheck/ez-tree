@@ -70,9 +70,9 @@ export async function createScene(renderer) {
 
     const t = new Tree();
     t.position.set(r * Math.cos(theta), 0, r * Math.sin(theta));
-    loadPresetWithTextures(t, presets[index]);
+    loadPresetWithTextures(t, presets[index], false);
     t.options.seed = 10000 * Math.random();
-    t.generate();
+    t.generateLODs();
     t.castShadow = true;
     t.receiveShadow = true;
 

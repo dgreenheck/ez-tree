@@ -31,6 +31,8 @@ export class Tree extends THREE.Group {
     this.branchesMesh = new THREE.Mesh();
     this.leavesMesh = new THREE.Mesh();
     this.trellisMesh = null;
+    this.lod = null;
+    this.skeleton = null;
     this.add(this.branchesMesh);
     this.add(this.leavesMesh);
     this.options = options;
@@ -62,23 +64,184 @@ export class Tree extends THREE.Group {
   }
 
   /**
+   * @typedef {Object} LODDetail
+   * @property {number} [sectionStride=1] Sample every Nth section ring; the
+   *   first and last rings are always kept so branch endpoints stay put
+   * @property {number} [segmentFactor=1] Radial segment multiplier;
+   *   segments = max(3, round(segmentCount * segmentFactor))
+   * @property {number} [leafStride=1] Keep every Nth leaf
+   * @property {number} [leafScale=1] Size multiplier for the kept leaves,
+   *   typically 1/sqrt(kept fraction) to preserve canopy coverage
+   * @property {string} [billboard] Billboard mode override for this level
+   *   ('single' or 'double'); defaults to options.leaves.billboard
+   */
+
+  /**
+   * @typedef {Object} LODLevel
+   * @property {number} distance Camera distance at which this level activates
+   * @property {number} [hysteresis] Switch hysteresis as a fraction of distance
+   * @property {LODDetail} [detail] Meshing detail for this level
+   */
+
+  /**
+   * Default levels for generateLODs(). LOD1 is roughly 40% of the full
+   * triangle count, LOD2 roughly 20%.
+   * @type {LODLevel[]}
+   */
+  static defaultLODLevels = [
+    { distance: 0, detail: {} },
+    {
+      distance: 100,
+      hysteresis: 0.05,
+      detail: {
+        sectionStride: 3,
+        segmentFactor: 0.75,
+        leafStride: 2,
+        // Slightly under the area-preserving sqrt(2): individual leaves are
+        // still resolvable at this distance, so a full compensation reads as
+        // "bigger leaves" rather than "same canopy".
+        leafScale: 1.25,
+      },
+    },
+    {
+      distance: 250,
+      hysteresis: 0.05,
+      detail: {
+        sectionStride: 6,
+        segmentFactor: 0.4,
+        leafStride: 2,
+        // Deliberately under-compensated: full coverage compensation for the
+        // thinning + single billboard would need 2x scale, which reads as
+        // balloon leaves. A slightly sparser canopy with natural-size leaves
+        // looks better at this distance (fogged, 250+ units in the demo).
+        leafScale: 1.3,
+        billboard: Billboard.Single,
+      },
+    },
+  ];
+
+  /**
    * Generate a new tree
    */
   generate() {
-    // Clean up old geometry
-    this.branches = {
-      verts: [],
-      normals: [],
-      indices: [],
-      uvs: [],
-      windFactor: []
-    };
+    this.#clearLOD();
+    this.#generateSkeleton();
 
-    this.leaves = {
-      verts: [],
-      normals: [],
-      indices: [],
-      uvs: [],
+    const buffers = this.#meshSkeleton();
+    this.branches = buffers.branches;
+    this.leaves = buffers.leaves;
+
+    this.createBranchesGeometry();
+    this.createLeavesGeometry();
+    this.createTrellis();
+  }
+
+  /**
+   * Generates the tree as a set of levels of detail hosted in a THREE.LOD
+   * object inside this group. The renderer switches levels automatically
+   * based on camera distance. All levels share one bark and one leaf
+   * material, so update() animates wind at every level.
+   * @param {LODLevel[]} levels Ordered near-to-far level descriptors
+   */
+  generateLODs(levels = Tree.defaultLODLevels) {
+    this.#clearLOD();
+    this.#generateSkeleton();
+
+    const barkMaterial = this.#createBarkMaterial();
+    const leafMaterial = this.#createLeafMaterial();
+
+    this.lod = new THREE.LOD();
+    this.lod.name = 'TreeLOD';
+
+    levels.forEach((level, index) => {
+      const buffers = this.#meshSkeleton(level.detail ?? {});
+
+      let branchesMesh, leavesMesh;
+      if (index === 0) {
+        // Reuse the existing meshes for the closest level so update(),
+        // traversal and the vertex/triangle count getters keep working.
+        this.branches = buffers.branches;
+        this.leaves = buffers.leaves;
+        branchesMesh = this.branchesMesh;
+        leavesMesh = this.leavesMesh;
+        branchesMesh.geometry.dispose();
+        branchesMesh.material.dispose();
+        leavesMesh.geometry.dispose();
+        leavesMesh.material.dispose();
+      } else {
+        branchesMesh = new THREE.Mesh();
+        leavesMesh = new THREE.Mesh();
+      }
+
+      branchesMesh.geometry = this.#buildBufferGeometry(buffers.branches);
+      branchesMesh.material = barkMaterial;
+      leavesMesh.geometry = this.#buildBufferGeometry(buffers.leaves);
+      leavesMesh.material = leafMaterial;
+
+      for (const mesh of [branchesMesh, leavesMesh]) {
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+      }
+
+      const group = new THREE.Group();
+      group.add(branchesMesh, leavesMesh);
+      this.lod.addLevel(group, level.distance ?? 0, level.hysteresis ?? 0);
+    });
+
+    this.add(this.lod);
+    this.createTrellis();
+  }
+
+  /**
+   * Builds branch and leaf geometry at the given detail level without
+   * modifying the tree's own meshes. Useful for external instancing or
+   * custom LOD systems. Reuses the current skeleton, generating one first
+   * if none exists.
+   * @param {LODDetail} detail
+   * @returns {{ branches: THREE.BufferGeometry, leaves: THREE.BufferGeometry }}
+   */
+  createGeometry(detail = {}) {
+    if (!this.skeleton) {
+      this.#generateSkeleton();
+    }
+    const buffers = this.#meshSkeleton(detail);
+    return {
+      branches: this.#buildBufferGeometry(buffers.branches),
+      leaves: this.#buildBufferGeometry(buffers.leaves),
+    };
+  }
+
+  /**
+   * Tears down any LOD state and restores the flat branches/leaves meshes
+   * as direct children, so generate() behaves as if LODs never existed.
+   */
+  #clearLOD() {
+    if (!this.lod) return;
+
+    this.lod.levels.forEach((level, index) => {
+      // Level 0 reuses branchesMesh/leavesMesh; their geometry and the
+      // shared materials are disposed by whichever generate path runs next.
+      if (index === 0) return;
+      for (const mesh of level.object.children) {
+        mesh.geometry.dispose();
+      }
+    });
+
+    this.remove(this.lod);
+    this.lod = null;
+    this.add(this.branchesMesh, this.leavesMesh);
+  }
+
+  /**
+   * Grows the tree skeleton: the section frames of every branch and the
+   * placement of every leaf. All RNG consumption happens here, so any
+   * number of meshing passes can run against one skeleton without changing
+   * the tree's shape.
+   */
+  #generateSkeleton() {
+    this.skeleton = {
+      branches: [],
+      leaves: [],
     };
 
     this.rng = new RNG(this.options.seed);
@@ -98,23 +261,56 @@ export class Tree extends THREE.Group {
 
     while (this.branchQueue.length > 0) {
       const branch = this.branchQueue.shift();
-      this.generateBranch(branch);
+      this.#growBranch(branch);
     }
-
-    this.createBranchesGeometry();
-    this.createLeavesGeometry();
-    this.createTrellis();
   }
 
   /**
-   * Generates a new branch
+   * Meshes the current skeleton into geometry buffers at the given detail.
+   * Consumes no RNG, so it can run repeatedly with different detail specs.
+   * @param {LODDetail} detail
+   */
+  #meshSkeleton(detail = {}) {
+    const sectionStride = Math.max(1, Math.floor(detail.sectionStride ?? 1));
+    const segmentFactor = detail.segmentFactor ?? 1;
+    const leafStride = Math.max(1, Math.floor(detail.leafStride ?? 1));
+    const leafScale = detail.leafScale ?? 1;
+    const billboard = detail.billboard ?? this.options.leaves.billboard;
+
+    const branches = {
+      verts: [],
+      normals: [],
+      indices: [],
+      uvs: [],
+      windFactor: []
+    };
+
+    const leaves = {
+      verts: [],
+      normals: [],
+      indices: [],
+      uvs: [],
+    };
+
+    for (const skeletonBranch of this.skeleton.branches) {
+      this.#meshBranch(branches, skeletonBranch, sectionStride, segmentFactor);
+    }
+
+    for (let i = 0; i < this.skeleton.leaves.length; i += leafStride) {
+      this.#meshLeaf(leaves, this.skeleton.leaves[i], leafScale, billboard);
+    }
+
+    return { branches, leaves };
+  }
+
+  /**
+   * Grows a branch's skeleton, queueing child branches and recording leaf
+   * placements. Consumes RNG in the exact order of the original interleaved
+   * generator so seeds keep producing identical trees.
    * @param {Branch} branch
    * @returns
    */
-  generateBranch(branch) {
-    // Used later for geometry index generation
-    const indexOffset = this.branches.verts.length / 3;
-
+  #growBranch(branch) {
     let sectionOrientation = branch.orientation.clone();
     let sectionOrigin = branch.origin.clone();
     let sectionLength =
@@ -125,15 +321,6 @@ export class Tree extends THREE.Group {
     // This information is used for generating child branches after the branch
     // geometry has been constructed
     let sections = [];
-
-    // Number of texture wraps around the branch's circumference. Scaling with
-    // branch.radius keeps bark feature size roughly consistent across thick
-    // trunks and thin twigs. Held constant for the whole branch so tapered
-    // sections share a wrap count and don't twist the texture longitudinally.
-    const wrapsX = Math.max(
-      1,
-      Math.round(branch.radius * this.options.bark.textureScale.x),
-    );
 
     for (let i = 0; i <= branch.sectionCount; i++) {
       let sectionRadius = branch.radius;
@@ -151,41 +338,6 @@ export class Tree extends THREE.Group {
         // Evergreens do not have a terminal branch so they have a taper of 1
         sectionRadius *= 1 - (i / branch.sectionCount);
       }
-
-      // Create the segments that make up this section.
-      let first;
-      for (let j = 0; j < branch.segmentCount; j++) {
-        let angle = (2.0 * Math.PI * j) / branch.segmentCount;
-
-        // Create the segment vertex
-        const vertex = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle))
-          .multiplyScalar(sectionRadius)
-          .applyEuler(sectionOrientation)
-          .add(sectionOrigin);
-
-        const normal = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle))
-          .applyEuler(sectionOrientation)
-          .normalize();
-
-        const uv = new THREE.Vector2(
-          (j / branch.segmentCount) * wrapsX,
-          (i % 2 === 0) ? 0 : 1,
-        );
-
-        this.branches.verts.push(...Object.values(vertex));
-        this.branches.normals.push(...Object.values(normal));
-        this.branches.uvs.push(...Object.values(uv));
-
-        if (j === 0) {
-          first = { vertex, normal, uv };
-        }
-      }
-
-      // Duplicate the first vertex so there is continuity in the UV mapping.
-      // u=wrapsX maps to the same texel as u=0 since wrapsX is an integer.
-      this.branches.verts.push(...Object.values(first.vertex));
-      this.branches.normals.push(...Object.values(first.normal));
-      this.branches.uvs.push(wrapsX, first.uv.y);
 
       // Use this information later on when generating child branches
       sections.push({
@@ -255,7 +407,11 @@ export class Tree extends THREE.Group {
       sectionOrientation.setFromQuaternion(qSection);
     }
 
-    this.generateBranchIndices(indexOffset, branch);
+    this.skeleton.branches.push({
+      sections,
+      segmentCount: branch.segmentCount,
+      baseRadius: branch.radius,
+    });
 
     // Deciduous trees have a terminal branch that grows out of the
     // end of the parent branch
@@ -277,7 +433,7 @@ export class Tree extends THREE.Group {
           ),
         );
       } else {
-        this.generateLeaf(lastSection.origin, lastSection.orientation);
+        this.#recordLeaf(lastSection.origin, lastSection.orientation);
       }
     }
 
@@ -457,26 +613,46 @@ export class Tree extends THREE.Group {
         q3.multiply(q2.multiply(q1)),
       );
 
-      this.generateLeaf(leafOrigin, leafOrientation);
+      this.#recordLeaf(leafOrigin, leafOrientation);
     }
   }
 
   /**
-  * Generates a leaves
-  * @param {THREE.Vector3} origin The starting point of the branch
-  * @param {THREE.Euler} orientation The starting orientation of the branch
+  * Records a leaf placement in the skeleton. The size variance is sampled
+  * here so the meshing passes stay RNG-free.
+  * @param {THREE.Vector3} origin The starting point of the leaf
+  * @param {THREE.Euler} orientation The orientation of the leaf
   */
-  generateLeaf(origin, orientation) {
-    let i = this.leaves.verts.length / 3;
-
-    // Width and length of the leaf quad
-    let leafSize =
+  #recordLeaf(origin, orientation) {
+    const size =
       this.options.leaves.size *
       (1 +
         this.rng.random(
           this.options.leaves.sizeVariance,
           -this.options.leaves.sizeVariance,
         ));
+
+    this.skeleton.leaves.push({
+      origin: origin.clone(),
+      orientation: orientation.clone(),
+      size,
+    });
+  }
+
+  /**
+  * Emits the quad geometry for one skeleton leaf into the buffers
+  * @param {{verts: number[], normals: number[], indices: number[], uvs: number[]}} buffers
+  * @param {{origin: THREE.Vector3, orientation: THREE.Euler, size: number}} leaf
+  * @param {number} scale Size multiplier for this detail level
+  * @param {string} billboard Billboard mode for this detail level
+  */
+  #meshLeaf(buffers, leaf, scale, billboard) {
+    let i = buffers.verts.length / 3;
+
+    const { origin, orientation } = leaf;
+
+    // Width and length of the leaf quad
+    const leafSize = leaf.size * scale;
 
     const W = leafSize;
     const L = leafSize;
@@ -495,7 +671,7 @@ export class Tree extends THREE.Group {
           .add(origin),
       );
 
-      this.leaves.verts.push(
+      buffers.verts.push(
         v[0].x,
         v[0].y,
         v[0].z,
@@ -520,7 +696,7 @@ export class Tree extends THREE.Group {
       let n3 = roundedNormals ? new THREE.Vector3().copy(n).add(v[2]).sub(origin).normalize() : n;
       let n4 = roundedNormals ? new THREE.Vector3().copy(n).add(v[3]).sub(origin).normalize() : n;
 
-      this.leaves.normals.push(
+      buffers.normals.push(
         n1.x,
         n1.y,
         n1.z,
@@ -534,13 +710,13 @@ export class Tree extends THREE.Group {
         n4.y,
         n4.z,
       );
-      this.leaves.uvs.push(0, 1, 0, 0, 1, 0, 1, 1);
-      this.leaves.indices.push(i, i + 1, i + 2, i, i + 2, i + 3);
+      buffers.uvs.push(0, 1, 0, 0, 1, 0, 1, 1);
+      buffers.indices.push(i, i + 1, i + 2, i, i + 2, i + 3);
       i += 4;
     };
 
     createLeaf(0);
-    if (this.options.leaves.billboard === Billboard.Double) {
+    if (billboard === Billboard.Double) {
       createLeaf(Math.PI / 2);
     }
   }
@@ -561,48 +737,130 @@ export class Tree extends THREE.Group {
   }
 
   /**
-   * Generates the indices for branch geometry
-   * @param {Branch} branch
+   * Emits the ring geometry and indices for one skeleton branch
+   * @param {{verts: number[], normals: number[], indices: number[], uvs: number[]}} buffers
+   * @param {{sections: {origin: THREE.Vector3, orientation: THREE.Euler, radius: number}[], segmentCount: number, baseRadius: number}} skeletonBranch
+   * @param {number} sectionStride Sample every Nth section ring
+   * @param {number} segmentFactor Radial segment multiplier
    */
-  generateBranchIndices(indexOffset, branch) {
-    // Build geometry each section of the branch (cylinder without end caps)
+  #meshBranch(buffers, skeletonBranch, sectionStride, segmentFactor) {
+    const { sections, segmentCount, baseRadius } = skeletonBranch;
+
+    // Terminal branches inherit the parent's segmentCount, so parent and
+    // child resolve to the same reduced count and junctions stay sealed.
+    const segments = Math.max(3, Math.round(segmentCount * segmentFactor));
+
+    // Number of texture wraps around the branch's circumference. Scaling with
+    // the branch's base radius keeps bark feature size roughly consistent
+    // across thick trunks and thin twigs. Held constant for the whole branch
+    // so tapered sections share a wrap count and don't twist the texture
+    // longitudinally.
+    const wrapsX = Math.max(
+      1,
+      Math.round(baseRadius * this.options.bark.textureScale.x),
+    );
+
+    // Sample every Nth ring, always keeping the first and last so branch
+    // endpoints (and parent/child junctions) stay put across detail levels.
+    const sampled = [];
+    for (let i = 0; i < sections.length; i += sectionStride) {
+      sampled.push(sections[i]);
+    }
+    if ((sections.length - 1) % sectionStride !== 0) {
+      sampled.push(sections[sections.length - 1]);
+    }
+
+    // Used later for geometry index generation
+    const indexOffset = buffers.verts.length / 3;
+
+    for (let k = 0; k < sampled.length; k++) {
+      const section = sampled[k];
+
+      // Create the segments that make up this section.
+      let first;
+      for (let j = 0; j < segments; j++) {
+        let angle = (2.0 * Math.PI * j) / segments;
+
+        // Create the segment vertex
+        const vertex = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle))
+          .multiplyScalar(section.radius)
+          .applyEuler(section.orientation)
+          .add(section.origin);
+
+        const normal = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle))
+          .applyEuler(section.orientation)
+          .normalize();
+
+        // uv.y alternates by sampled ring position rather than original
+        // section index, so section skipping keeps the 0/1 tiling pattern.
+        const uv = new THREE.Vector2(
+          (j / segments) * wrapsX,
+          (k % 2 === 0) ? 0 : 1,
+        );
+
+        buffers.verts.push(...Object.values(vertex));
+        buffers.normals.push(...Object.values(normal));
+        buffers.uvs.push(...Object.values(uv));
+
+        if (j === 0) {
+          first = { vertex, normal, uv };
+        }
+      }
+
+      // Duplicate the first vertex so there is continuity in the UV mapping.
+      // u=wrapsX maps to the same texel as u=0 since wrapsX is an integer.
+      buffers.verts.push(...Object.values(first.vertex));
+      buffers.normals.push(...Object.values(first.normal));
+      buffers.uvs.push(wrapsX, first.uv.y);
+    }
+
+    // Build geometry for each section of the branch (cylinder without end caps)
     let v1, v2, v3, v4;
-    const N = branch.segmentCount + 1;
-    for (let i = 0; i < branch.sectionCount; i++) {
+    const N = segments + 1;
+    for (let i = 0; i < sampled.length - 1; i++) {
       // Build the quad for each segment of the section
-      for (let j = 0; j < branch.segmentCount; j++) {
+      for (let j = 0; j < segments; j++) {
         v1 = indexOffset + i * N + j;
         // The last segment wraps around back to the starting segment, so omit j + 1 term
         v2 = indexOffset + i * N + (j + 1);
         v3 = v1 + N;
         v4 = v2 + N;
-        this.branches.indices.push(v1, v3, v2, v2, v3, v4);
+        buffers.indices.push(v1, v3, v2, v2, v3, v4);
       }
     }
   }
 
   /**
-   * Generates the geometry for the branches
+   * Builds a BufferGeometry from raw attribute buffers
+   * @param {{verts: number[], normals: number[], indices: number[], uvs: number[]}} buffers
+   * @returns {THREE.BufferGeometry}
    */
-  createBranchesGeometry() {
+  #buildBufferGeometry(buffers) {
     const g = new THREE.BufferGeometry();
     g.setAttribute(
       'position',
-      new THREE.BufferAttribute(new Float32Array(this.branches.verts), 3),
+      new THREE.BufferAttribute(new Float32Array(buffers.verts), 3),
     );
     g.setAttribute(
       'normal',
-      new THREE.BufferAttribute(new Float32Array(this.branches.normals), 3),
+      new THREE.BufferAttribute(new Float32Array(buffers.normals), 3),
     );
     g.setAttribute(
       'uv',
-      new THREE.BufferAttribute(new Float32Array(this.branches.uvs), 2),
+      new THREE.BufferAttribute(new Float32Array(buffers.uvs), 2),
     );
     g.setIndex(
-      new THREE.BufferAttribute(new Uint16Array(this.branches.indices), 1),
+      new THREE.BufferAttribute(new Uint16Array(buffers.indices), 1),
     );
     g.computeBoundingSphere();
+    return g;
+  }
 
+  /**
+   * Creates the bark material from the current options
+   * @returns {THREE.MeshPhongMaterial}
+   */
+  #createBarkMaterial() {
     const mat = new THREE.MeshPhongMaterial({
       name: 'branches',
       flatShading: this.options.bark.flatShading,
@@ -610,7 +868,7 @@ export class Tree extends THREE.Group {
     });
 
     if (this.options.bark.textured) {
-      // textureScale.x is baked into UVs in generateBranch (wrapsX), so only
+      // textureScale.x is baked into UVs during meshing (wrapsX), so only
       // the Y axis needs runtime scaling on the texture itself.
       const scale = this.options.bark.textureScale;
       const maps = this.options.bark.maps;
@@ -628,37 +886,27 @@ export class Tree extends THREE.Group {
       if (maps.roughness) mat.roughnessMap = apply(maps.roughness);
     }
 
+    return mat;
+  }
+
+  /**
+   * Generates the geometry for the branches
+   */
+  createBranchesGeometry() {
     this.branchesMesh.geometry.dispose();
-    this.branchesMesh.geometry = g;
+    this.branchesMesh.geometry = this.#buildBufferGeometry(this.branches);
     this.branchesMesh.material.dispose();
-    this.branchesMesh.material = mat;
+    this.branchesMesh.material = this.#createBarkMaterial();
     this.branchesMesh.castShadow = true;
     this.branchesMesh.receiveShadow = true;
   }
 
   /**
-   * Generates the geometry for the leaves
+   * Creates the leaf material, including the wind sway vertex shader, from
+   * the current options
+   * @returns {THREE.MeshPhongMaterial}
    */
-  createLeavesGeometry() {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute(
-      'position',
-      new THREE.BufferAttribute(new Float32Array(this.leaves.verts), 3),
-    );
-    g.setAttribute(
-      'uv',
-      new THREE.BufferAttribute(new Float32Array(this.leaves.uvs), 2),
-    );
-    g.setIndex(
-      new THREE.BufferAttribute(new Uint16Array(this.leaves.indices), 1),
-    );
-    g.setAttribute(
-      'normal',
-      new THREE.BufferAttribute(new Float32Array(this.leaves.normals), 3),
-    );
-
-    g.computeBoundingSphere();
-
+  #createLeafMaterial() {
     const mat = new THREE.MeshPhongMaterial({
       name: 'leaves',
       map: this.options.leaves.map ?? null,
@@ -813,12 +1061,17 @@ export class Tree extends THREE.Group {
       mat.userData.shader = shader;
     };
 
+    return mat;
+  }
+
+  /**
+   * Generates the geometry for the leaves
+   */
+  createLeavesGeometry() {
     this.leavesMesh.geometry.dispose();
-    this.leavesMesh.geometry = g;
+    this.leavesMesh.geometry = this.#buildBufferGeometry(this.leaves);
     this.leavesMesh.material.dispose();
-
-    this.leavesMesh.material = mat;
-
+    this.leavesMesh.material = this.#createLeafMaterial();
     this.leavesMesh.castShadow = true;
     this.leavesMesh.receiveShadow = true;
   }

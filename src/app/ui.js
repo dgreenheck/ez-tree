@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { zipSync } from 'three/addons/libs/fflate.module.js';
 import { Billboard, TreePreset, Tree, TreeType } from '@dgreenheck/ez-tree';
 import { BarkType, LeafType, applyTreeTextures, loadPresetWithTextures } from './textures';
 import { Environment } from './environment';
@@ -460,12 +461,83 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   scrollArea.appendChild(exportTab);
 
   // ============================================================================
+  // Stats Overlay (viewport HUD) with LOD preview switching
+  // ============================================================================
+
+  // The hero tree always generates at full detail; the LOD buttons re-mesh
+  // its geometry at a chosen level via createGeometry() so it can be
+  // inspected at any camera distance without THREE.LOD auto-switching.
+  let previewLevel = 0;
+
+  const statsOverlay = document.createElement('div');
+  statsOverlay.id = 'stats-overlay';
+  statsOverlay.innerHTML = `
+    <div class="stats-counts">
+      <div class="stats-stat">
+        <span class="stats-value" data-stat="triangles">0</span>
+        <span class="stats-label">triangles</span>
+      </div>
+      <div class="stats-stat">
+        <span class="stats-value" data-stat="vertices">0</span>
+        <span class="stats-label">vertices</span>
+      </div>
+    </div>
+    <div class="lod-switcher"></div>
+  `;
+  container.appendChild(statsOverlay);
+
+  const statsTriangles = statsOverlay.querySelector('[data-stat="triangles"]');
+  const statsVertices = statsOverlay.querySelector('[data-stat="vertices"]');
+
+  const lodSwitcher = statsOverlay.querySelector('.lod-switcher');
+  const lodButtons = Tree.defaultLODLevels.map((level, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'lod-button' + (i === 0 ? ' active' : '');
+    btn.textContent = i === 0 ? 'Full' : `LOD${i}`;
+    btn.title = i === 0
+      ? 'Full detail'
+      : `Preview detail level ${i} (switches at ${level.distance} units)`;
+    btn.addEventListener('click', () => setPreviewLevel(i));
+    lodSwitcher.appendChild(btn);
+    return btn;
+  });
+
+  function applyLODPreview() {
+    const detail = Tree.defaultLODLevels[previewLevel]?.detail ?? {};
+    const { branches, leaves } = tree.createGeometry(detail);
+    tree.branchesMesh.geometry.dispose();
+    tree.branchesMesh.geometry = branches;
+    tree.leavesMesh.geometry.dispose();
+    tree.leavesMesh.geometry = leaves;
+  }
+
+  function setPreviewLevel(level) {
+    previewLevel = level;
+    lodButtons.forEach((b, i) => b.classList.toggle('active', i === level));
+    applyLODPreview();
+    updateInfoDisplays();
+  }
+
+  /** Vertex/triangle counts of the geometry currently on screen */
+  function displayedCounts() {
+    const gb = tree.branchesMesh.geometry;
+    const gl = tree.leavesMesh.geometry;
+    return {
+      vertices: (gb.attributes.position?.count ?? 0) + (gl.attributes.position?.count ?? 0),
+      triangles: ((gb.index?.count ?? 0) + (gl.index?.count ?? 0)) / 3,
+    };
+  }
+
+  // ============================================================================
   // Parameters Tab Content
   // ============================================================================
 
   const onChange = () => {
     applyTreeTextures(tree);
     tree.generate();
+    if (previewLevel > 0) {
+      applyLODPreview();
+    }
     tree.traverse((o) => {
       if (o.material) {
         o.material.needsUpdate = true;
@@ -483,6 +555,9 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
     initialPreset,
     (val) => {
       loadPresetWithTextures(tree, val);
+      if (previewLevel > 0) {
+        applyLODPreview();
+      }
       refreshAllControls();
     }
   );
@@ -947,8 +1022,11 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   parametersTab.appendChild(infoSection.element);
 
   function updateInfoDisplays() {
-    vertexDisplay.setValue(tree.vertexCount);
-    triangleDisplay.setValue(tree.triangleCount);
+    const { vertices, triangles } = displayedCounts();
+    vertexDisplay.setValue(vertices);
+    triangleDisplay.setValue(triangles);
+    statsVertices.textContent = Math.round(vertices).toLocaleString();
+    statsTriangles.textContent = Math.round(triangles).toLocaleString();
   }
 
   // ============================================================================
@@ -976,7 +1054,17 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
 
   const exportModelsSection = createSection('Export Models', 'cubeTransparent', true);
 
-  const exportGlbBtn = createButton('Export GLB', 'download', () => {
+  const exportGlbBtn = createButton('Export GLB (Full Detail)', 'download', () => {
+    // Export at full detail regardless of the active LOD preview
+    const restoreLevel = previewLevel;
+    if (restoreLevel !== 0) {
+      setPreviewLevel(0);
+    }
+    const restorePreview = () => {
+      if (restoreLevel !== 0) {
+        setPreviewLevel(restoreLevel);
+      }
+    };
     exporter.parse(
       tree,
       (glb) => {
@@ -986,14 +1074,51 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
         link.href = url;
         link.download = 'tree.glb';
         link.click();
+        restorePreview();
       },
       (err) => {
         console.error(err);
+        restorePreview();
       },
       { binary: true }
     );
   });
   exportModelsSection.add(exportGlbBtn);
+
+  const exportLodsBtn = createButton('Export LODs (ZIP)', 'archive', async () => {
+    try {
+      const files = {};
+      for (let i = 0; i < Tree.defaultLODLevels.length; i++) {
+        const { detail } = Tree.defaultLODLevels[i];
+        const { branches, leaves } = tree.createGeometry(detail ?? {});
+
+        const branchesMesh = new THREE.Mesh(branches, tree.branchesMesh.material);
+        branchesMesh.name = `Branches_LOD${i}`;
+        const leavesMesh = new THREE.Mesh(leaves, tree.leavesMesh.material);
+        leavesMesh.name = `Leaves_LOD${i}`;
+        const group = new THREE.Group();
+        group.name = `Tree_LOD${i}`;
+        group.add(branchesMesh, leavesMesh);
+
+        const glb = await new Promise((resolve, reject) =>
+          exporter.parse(group, resolve, reject, { binary: true }),
+        );
+        files[`tree_LOD${i}.glb`] = new Uint8Array(glb);
+
+        branches.dispose();
+        leaves.dispose();
+      }
+
+      const blob = new Blob([zipSync(files)], { type: 'application/zip' });
+      const link = document.getElementById('downloadLink');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'tree_lods.zip';
+      link.click();
+    } catch (err) {
+      console.error(err);
+    }
+  });
+  exportModelsSection.add(exportLodsBtn);
 
   const exportPngBtn = createButton('Export PNG', 'photo', () => {
     renderer.setClearColor(0, 0);
@@ -1058,6 +1183,9 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
         try {
           tree.options = JSON.parse(e.target.result);
           tree.generate();
+          if (previewLevel > 0) {
+            applyLODPreview();
+          }
           refreshAllControls();
         } catch (error) {
           console.error('Error parsing JSON:', error);
@@ -1077,6 +1205,9 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
     controls.forEach(({ update }) => update());
     updateInfoDisplays();
   }
+
+  // Initialize the stats overlay with the current tree's counts
+  updateInfoDisplays();
 
   // Mobile expand/collapse functionality
   setupMobileToggle(panel, header);

@@ -94,11 +94,15 @@ export function applyTreeTextures(tree) {
  * the same step so the first generate sees the textures.
  * @param {import('@dgreenheck/ez-tree').Tree} tree
  * @param {string} name - key into TreePreset registry
+ * @param {boolean} generate - set false to skip the generate step when the
+ * caller will generate the tree itself (e.g. via generateLODs)
  */
-export function loadPresetWithTextures(tree, name) {
+export function loadPresetWithTextures(tree, name, generate = true) {
   const json = structuredClone(TreePreset[name]);
   if (!json) return;
   tree.options.copy(json);
   applyTreeTextures(tree);
-  tree.generate();
+  if (generate) {
+    tree.generate();
+  }
 }
