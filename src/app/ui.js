@@ -1119,21 +1119,23 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
         const { detail } = Tree.defaultLODLevels[i];
         const { branches, leaves } = tree.createGeometry(detail ?? {});
 
-        const branchesMesh = new THREE.Mesh(branches, tree.branchesMesh.material);
-        branchesMesh.name = `Branches_LOD${i}`;
-        const leavesMesh = new THREE.Mesh(leaves, tree.leavesMesh.material);
-        leavesMesh.name = `Leaves_LOD${i}`;
-        const group = new THREE.Group();
-        group.name = `Tree_LOD${i}`;
-        group.add(branchesMesh, leavesMesh);
+        try {
+          const branchesMesh = new THREE.Mesh(branches, tree.branchesMesh.material);
+          branchesMesh.name = `Branches_LOD${i}`;
+          const leavesMesh = new THREE.Mesh(leaves, tree.leavesMesh.material);
+          leavesMesh.name = `Leaves_LOD${i}`;
+          const group = new THREE.Group();
+          group.name = `Tree_LOD${i}`;
+          group.add(branchesMesh, leavesMesh);
 
-        const glb = await new Promise((resolve, reject) =>
-          exporter.parse(group, resolve, reject, { binary: true }),
-        );
-        files[`tree_LOD${i}.glb`] = new Uint8Array(glb);
-
-        branches.dispose();
-        leaves.dispose();
+          const glb = await new Promise((resolve, reject) =>
+            exporter.parse(group, resolve, reject, { binary: true }),
+          );
+          files[`tree_LOD${i}.glb`] = new Uint8Array(glb);
+        } finally {
+          branches.dispose();
+          leaves.dispose();
+        }
       }
 
       const blob = new Blob([zipSync(files)], { type: 'application/zip' });

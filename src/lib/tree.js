@@ -141,7 +141,7 @@ export class Tree extends THREE.Group {
    * object inside this group. The renderer switches levels automatically
    * based on camera distance. All levels share one bark and one leaf
    * material, so update() animates wind at every level.
-   * @param {LODLevel[]} levels Ordered near-to-far level descriptors
+   * @param {LODLevel[]} levels Level descriptors, in any order
    */
   generateLODs(levels = Tree.defaultLODLevels) {
     this.#clearLOD();
@@ -153,7 +153,13 @@ export class Tree extends THREE.Group {
     this.lod = new THREE.LOD();
     this.lod.name = 'TreeLOD';
 
-    levels.forEach((level, index) => {
+    // THREE.LOD sorts its levels by distance internally, so sort here too and
+    // let the nearest level own the reused meshes regardless of input order.
+    const ordered = [...levels].sort(
+      (a, b) => (a.distance ?? 0) - (b.distance ?? 0),
+    );
+
+    ordered.forEach((level, index) => {
       const buffers = this.#meshSkeleton(level.detail ?? {});
 
       let branchesMesh, leavesMesh;
@@ -218,11 +224,11 @@ export class Tree extends THREE.Group {
   #clearLOD() {
     if (!this.lod) return;
 
-    this.lod.levels.forEach((level, index) => {
-      // Level 0 reuses branchesMesh/leavesMesh; their geometry and the
-      // shared materials are disposed by whichever generate path runs next.
-      if (index === 0) return;
+    this.lod.levels.forEach((level) => {
       for (const mesh of level.object.children) {
+        // One level reuses branchesMesh/leavesMesh; their geometry and the
+        // shared materials are disposed by whichever generate path runs next.
+        if (mesh === this.branchesMesh || mesh === this.leavesMesh) continue;
         mesh.geometry.dispose();
       }
     });
