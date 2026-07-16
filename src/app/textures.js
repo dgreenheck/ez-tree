@@ -28,14 +28,19 @@ const textureLoader = new THREE.TextureLoader();
 const barkCache = new Map();
 const leafCache = new Map();
 
-function loadColor(url) {
-  const t = textureLoader.load(url);
+// The onError callbacks below matter: a texture whose file is missing keeps
+// an undefined image forever (the dev server masks the 404 by serving
+// index.html). That renders harmlessly but breaks GLTF export, so a failed
+// load must remove the map from the cache entirely.
+
+function loadColor(url, onError) {
+  const t = textureLoader.load(url, undefined, undefined, onError);
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
 
-function loadLinear(url) {
-  return textureLoader.load(url);
+function loadLinear(url, onError) {
+  return textureLoader.load(url, undefined, undefined, onError);
 }
 
 /**
@@ -49,12 +54,15 @@ export function getBarkMaps(type) {
 
   const dir = `${type}_1K-JPG`;
   const base = `/textures/bark/${dir}/${dir}`;
-  const maps = {
-    color: loadColor(`${base}_Color.jpg`),
-    ao: loadLinear(`${base}_AmbientOcclusion.jpg`),
-    normal: loadLinear(`${base}_NormalGL.jpg`),
-    roughness: loadLinear(`${base}_Roughness.jpg`),
+  const maps = {};
+  const drop = (key) => () => {
+    console.warn(`Missing bark texture: ${base}_… (${key}); skipping this map.`);
+    maps[key] = null;
   };
+  maps.color = loadColor(`${base}_Color.jpg`, drop('color'));
+  maps.ao = loadLinear(`${base}_AmbientOcclusion.jpg`, drop('ao'));
+  maps.normal = loadLinear(`${base}_NormalGL.jpg`, drop('normal'));
+  maps.roughness = loadLinear(`${base}_Roughness.jpg`, drop('roughness'));
   barkCache.set(type, maps);
   return maps;
 }
@@ -66,7 +74,10 @@ export function getBarkMaps(type) {
  */
 export function getLeafMap(type) {
   if (leafCache.has(type)) return leafCache.get(type);
-  const texture = loadColor(`/textures/leaves/${type}.png`);
+  const texture = loadColor(`/textures/leaves/${type}.png`, () => {
+    console.warn(`Missing leaf texture: /textures/leaves/${type}.png; skipping.`);
+    leafCache.set(type, null);
+  });
   texture.premultiplyAlpha = true;
   leafCache.set(type, texture);
   return texture;

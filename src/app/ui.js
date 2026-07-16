@@ -1054,13 +1054,39 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
 
   const exportModelsSection = createSection('Export Models', 'cubeTransparent', true);
 
+  /**
+   * GLTFExporter aborts on textures whose image never loaded (e.g. the
+   * texture file is missing on disk). Rendering tolerates them, so strip
+   * them from the materials for the duration of an export and restore after.
+   * @param {THREE.Object3D} root
+   * @returns {() => void} restore function
+   */
+  function stripBrokenTextures(root) {
+    const restores = [];
+    root.traverse((o) => {
+      const materials = Array.isArray(o.material) ? o.material : o.material ? [o.material] : [];
+      for (const material of materials) {
+        for (const key of ['map', 'aoMap', 'normalMap', 'roughnessMap', 'metalnessMap']) {
+          const texture = material[key];
+          if (texture?.isTexture && !texture.image) {
+            restores.push(() => { material[key] = texture; });
+            material[key] = null;
+          }
+        }
+      }
+    });
+    return () => restores.forEach((restore) => restore());
+  }
+
   const exportGlbBtn = createButton('Export GLB (Full Detail)', 'download', () => {
     // Export at full detail regardless of the active LOD preview
     const restoreLevel = previewLevel;
     if (restoreLevel !== 0) {
       setPreviewLevel(0);
     }
-    const restorePreview = () => {
+    const restoreTextures = stripBrokenTextures(tree);
+    const restore = () => {
+      restoreTextures();
       if (restoreLevel !== 0) {
         setPreviewLevel(restoreLevel);
       }
@@ -1074,11 +1100,11 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
         link.href = url;
         link.download = 'tree.glb';
         link.click();
-        restorePreview();
+        restore();
       },
       (err) => {
         console.error(err);
-        restorePreview();
+        restore();
       },
       { binary: true }
     );
@@ -1086,6 +1112,7 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
   exportModelsSection.add(exportGlbBtn);
 
   const exportLodsBtn = createButton('Export LODs (ZIP)', 'archive', async () => {
+    const restoreTextures = stripBrokenTextures(tree);
     try {
       const files = {};
       for (let i = 0; i < Tree.defaultLODLevels.length; i++) {
@@ -1116,6 +1143,8 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
       link.click();
     } catch (err) {
       console.error(err);
+    } finally {
+      restoreTextures();
     }
   });
   exportModelsSection.add(exportLodsBtn);

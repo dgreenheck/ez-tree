@@ -31,6 +31,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Bug Fixes
 
+- GLB export silently failed for trees using the default bark: the Bark001 texture set has no ambient-occlusion file, the dev server masks the 404 by serving `index.html`, and GLTFExporter aborts on the resulting never-loaded texture. Texture loading now drops missing maps from the cache, and exports strip any never-loaded textures from materials for the duration of the export.
 - The growth force was not being applied correctly. Branches now grow uniformly in the same world direction.
 - Child branches and leaves are now placed with stratified sampling (with a permuted slot assignment) instead of fixed angular spacing, eliminating visible spirals and one-sided clumping.
 
