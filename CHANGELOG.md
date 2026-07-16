@@ -1,50 +1,51 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Added
+### Levels of Detail
 
-- `Tree.generateLODs(levels)` generates the tree at multiple levels of detail hosted in a `THREE.LOD` inside the tree group, with automatic distance-based switching. All levels are meshed from a single skeleton (identical silhouette, no popping) and share one bark and one leaf material so `update()` animates wind at every level. Default levels (`Tree.defaultLODLevels`) reduce to ~40% and ~20% of the full triangle count at 100 and 250 units.
-- `Tree.createGeometry(detail)` returns raw `{ branches, leaves }` `BufferGeometry` pairs at any detail level (`sectionStride`, `segmentFactor`, `leafStride`, `leafScale`, `billboard`) for external instancing or custom LOD systems.
-- The demo app's background forest now uses `generateLODs()`.
-- Demo app: viewport stats overlay showing live triangle/vertex counts with buttons to preview each LOD level on the hero tree, an "Export LODs (ZIP)" button that downloads one GLB per LOD level, and the GLB export button now always exports full detail regardless of the active LOD preview.
-- `bark.maps = { color, ao, normal, roughness }` and `leaves.map` slots on `TreeOptions` accept caller-supplied `THREE.Texture` instances; the library no longer bundles any textures.
-- `npm run dev` script and Vite mode-based alias so the dev server resolves `@dgreenheck/ez-tree` directly to `src/lib/` source — instant HMR with no rebuild step.
-- Git LFS tracking for `src/app/public/textures/**/*.{jpg,png,jpeg}`.
-- Demo app ships with 11 CC0 bark variants from ambientcg.com under `src/app/public/textures/bark/` with attribution in `src/app/public/textures/LICENSE.md`.
+- **`Tree.generateLODs(levels)`** builds the tree at multiple levels of detail hosted in a `THREE.LOD` inside the tree group, with automatic distance-based switching.
+  - All levels are meshed from a single skeleton, so the silhouette is identical across levels and switches don't pop.
+  - All levels share one bark and one leaf material, so `update()` animates wind at every level.
+  - Default levels (`Tree.defaultLODLevels`) reduce to ~40% of the full triangle count at 100 units and ~20% at 250 units.
+- **`Tree.createGeometry(detail)`** returns raw `{ branches, leaves }` `BufferGeometry` pairs at any detail level (`sectionStride`, `segmentFactor`, `leafStride`, `leafScale`, `billboard`) for external instancing or custom LOD systems.
+- Internally, tree generation is now split into a skeleton pass (all randomness) and a meshing pass (geometry emission). Output for a given seed is bit-identical to before; the undocumented internals `generateBranch`, `generateLeaf`, and `generateBranchIndices` were replaced by private methods.
+- Demo app:
+  - The background forest generates with LODs.
+  - New viewport stats overlay shows live triangle/vertex counts, with buttons to preview each LOD level on the hero tree.
+  - New "Export LODs (ZIP)" button downloads one GLB per LOD level; "Export GLB (Full Detail)" always exports full detail regardless of the active LOD preview.
 
-### Changed
+### Texture System (breaking)
 
-- Tree generation is now split into a skeleton pass (all randomness) and a meshing pass (geometry emission). Output for a given seed is bit-identical to before; the undocumented internals `generateBranch`, `generateLeaf`, and `generateBranchIndices` were replaced by private methods.
+- The library no longer bundles any textures. `bark.maps = { color, ao, normal, roughness }` and `leaves.map` slots on `TreeOptions` accept caller-supplied `THREE.Texture` instances.
 - **Breaking:** removed `BarkType` and `LeafType` enums and the bundled-texture lookup. Callers must now load `THREE.Texture` instances themselves and assign them to `options.bark.maps` / `options.leaves.map`. `bark.type` / `leaves.type` strings are still carried through presets but are now purely informational identifiers the host app can use to resolve textures.
 - Bark UVs now scale with `branch.radius` (integer-rounded per branch) so bark feature size stays consistent across thick trunks and thin twigs; `bark.textureScale.x` now means "wraps per unit radius" rather than "wraps per branch" (existing preset values may need re-tuning).
+- Demo app ships with 11 CC0 bark variants from ambientcg.com under `src/app/public/textures/bark/` with attribution in `src/app/public/textures/LICENSE.md`, tracked via Git LFS.
+
+### Rendering Improvements
+
+- Leaves use custom rounded normals for softer, canopy-shaped shading (#43).
+
+### Bug Fixes
+
+- The growth force was not being applied correctly. Branches now grow uniformly in the same world direction.
+- Child branches and leaves are now placed with stratified sampling (with a permuted slot assignment) instead of fixed angular spacing, eliminating visible spirals and one-sided clumping.
+
+### Development & Tooling
+
+- `npm run dev` script and Vite mode-based alias so the dev server resolves `@dgreenheck/ez-tree` directly to `src/lib/` source — instant HMR with no rebuild step.
 - Reorganized `src/app/public/` into `audio/`, `fonts/`, `images/`, `icons/`, `models/`, `textures/{bark,ground,leaves}/`; browser/SEO well-known files remain at the root.
 - Updated Dockerfile to Node 24 and removed the obsolete `version` attribute from `docker-compose.yml`.
-- Use custom rounded normals for leaves for softer shading (#43).
-
-### Fixed
-
-- The growth force was not being applied correctly. Branches should now grow uniformly in the same world direction.
-- Child branches and leaves are now placed with stratified sampling (with a permuted slot assignment) instead of fixed angular spacing, eliminating visible spirals and one-sided clumping.
 
 ## [1.1.0] - 2026-01-14
 
-### Added
-
 - Trellis system with force attraction for branch growth, enabling guided/structured tree shapes (#35).
-
-### Changed
-
 - Disabled the trellis system on presets where it isn't applicable.
 
 ## [1.0.1] - 2026-01-14
-
-### Changed
 
 - Redesigned the application UI (#34).
 - Reduced bundled asset sizes by more than 50%.
