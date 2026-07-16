@@ -885,7 +885,14 @@ export class Tree extends THREE.Group {
       if (maps.color) mat.map = apply(maps.color);
       if (maps.ao) mat.aoMap = apply(maps.ao);
       if (maps.normal) mat.normalMap = apply(maps.normal);
-      if (maps.roughness) mat.roughnessMap = apply(maps.roughness);
+      if (maps.roughness) {
+        mat.roughnessMap = apply(maps.roughness);
+        // Point metalnessMap at the same texture: metalness stays 0 because
+        // the metalness factor is 0, and GLTFExporter reuses the texture
+        // as-is instead of synthesizing a merged metal/rough PNG (and
+        // warning about it) when the two slots differ.
+        mat.metalnessMap = mat.roughnessMap;
+      }
     }
 
     return mat;
@@ -1062,7 +1069,14 @@ export class Tree extends THREE.Group {
         )
       );
 
-      mat.userData.shader = shader;
+      // Non-enumerable so JSON serialization (e.g. GLTFExporter's userData
+      // pass) skips the live shader object — Texture uniforms inside it are
+      // not serializable. update() still reads userData.shader normally.
+      Object.defineProperty(mat.userData, 'shader', {
+        value: shader,
+        configurable: true,
+        enumerable: false,
+      });
     };
 
     return mat;
