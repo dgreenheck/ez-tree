@@ -198,6 +198,9 @@ export class Tree extends THREE.Group {
         new THREE.Vector3(0, sectionLength, 0).applyEuler(sectionOrientation),
       );
 
+      const up_rotated = new THREE.Vector3(0, 1.0, 0).applyEuler(sectionOrientation);
+      const outwardsVector = new THREE.Vector3(up_rotated.x, 0.0, up_rotated.z).normalize();
+
       // Perturb the orientation of the next section randomly. The higher the
       // gnarliness, the larger potential perturbation
       const gnarliness =
@@ -240,6 +243,18 @@ export class Tree extends THREE.Group {
         );
       }
 
+      // Make sub-branches grow straight out depending on the planarness factor
+      if (branch.level > 0 && !branch.isTerminal) {
+        const qPlanar = new THREE.Quaternion().setFromUnitVectors(
+          new THREE.Vector3(0, 1, 0),
+          new THREE.Vector3().copy(outwardsVector),
+        );
+        qSection.rotateTowards(
+          qPlanar,
+          this.options.branch.planarness
+        )
+      }
+      
       // Apply trellis force if enabled
       if (this.options.trellis.enabled) {
         const trellisResult = this.calculateTrellisForce(sectionOrigin, sectionRadius);
@@ -274,6 +289,7 @@ export class Tree extends THREE.Group {
             // since the child branch is growing from the end of the parent branch
             branch.sectionCount,
             branch.segmentCount,
+            branch.level == 0 // only true for the terminal branch of the main stem
           ),
         );
       } else {
@@ -453,9 +469,24 @@ export class Tree extends THREE.Group {
       );
       const q3 = new THREE.Quaternion().setFromEuler(parentOrientation);
 
-      const leafOrientation = new THREE.Euler().setFromQuaternion(
-        q3.multiply(q2.multiply(q1)),
+      const qSum = q3.multiply(q2.multiply(q1));
+
+      // Calculate straight outwards rotation
+      let straightOut = new THREE.Vector3(0, 1, 0).applyQuaternion(qSum);
+      straightOut.y = 0.0;
+      straightOut.normalize();
+
+      // Apply planarness by lerping the rotation quaternion towards the same quaternion with the yaw removed
+      let leafOrientation = new THREE.Euler().setFromQuaternion(
+        qSum.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), straightOut), this.options.leaves.planarness)
       );
+
+      // This makes leaves face exactly down/up when using single billboards, but since that makes the leaves practically disappear when viewed
+      // from the side, I'm not sure if it's ever desirable
+      // if (this.options.leaves.billboard == Billboard.Single) {
+      //   leafOrientation.x = THREE.MathUtils.lerp(leafOrientation.x, -Math.PI / 2.0, this.options.leaves.planarness);
+      //   leafOrientation.y *= (1.0 - this.options.leaves.planarness);
+      // }
 
       this.generateLeaf(leafOrigin, leafOrientation);
     }
