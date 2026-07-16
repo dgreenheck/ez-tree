@@ -43,11 +43,12 @@ export class Ground extends THREE.Mesh {
 
     fetchAssets().then(() => {
       // Ground plane with procedural grass/dirt texture
-      this.material = new THREE.MeshPhongMaterial({
+      this.material = new THREE.MeshStandardMaterial({
         emissive: new THREE.Color(0xffffff),
         emissiveIntensity: 0.01,
         normalMap: _dirtNormal,
-        shininess: 0.1
+        metalness: 0.0,
+        roughness: 1.0
       });
 
       this.material.onBeforeCompile = (shader) => {

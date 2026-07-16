@@ -108,7 +108,7 @@ export class Grass extends THREE.Object3D {
       mesh.traverse((o) => {
         if (o.isMesh && o.material) {
           if (o.material.map) {
-            o.material = new THREE.MeshPhongMaterial({ map: o.material.map });
+            o.material = new THREE.MeshStandardMaterial({ map: o.material.map, metalness: 0.0, roughness: 1.0 });
           }
           this.appendWindShader(o.material);
         }
@@ -127,7 +127,7 @@ export class Grass extends THREE.Object3D {
   }
 
   generateGrass() {
-    const grassMaterial = new THREE.MeshPhongMaterial({
+    const grassMaterial = new THREE.MeshStandardMaterial({
       map: _grassMesh.material.map,
       // Add some emission so grass has some color when not lit
       emissive: new THREE.Color(0x308040),
@@ -136,6 +136,8 @@ export class Grass extends THREE.Object3D {
       alphaTest: 0.5,
       depthTest: true,
       depthWrite: true,
+      metalness: 0.0,
+      roughness: 1.0,
       side: THREE.DoubleSide
     });
 

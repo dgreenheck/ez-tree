@@ -24,9 +24,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Breaking:** removed `BarkType` and `LeafType` enums and the bundled-texture lookup. Callers must now load `THREE.Texture` instances themselves and assign them to `options.bark.maps` / `options.leaves.map`. `bark.type` / `leaves.type` strings are still carried through presets but are now purely informational identifiers the host app can use to resolve textures.
 - Bark UVs now scale with `branch.radius` (integer-rounded per branch) so bark feature size stays consistent across thick trunks and thin twigs; `bark.textureScale.x` now means "wraps per unit radius" rather than "wraps per branch" (existing preset values may need re-tuning).
 - Demo app ships with 11 CC0 bark variants from ambientcg.com under `src/app/public/textures/bark/` with attribution in `src/app/public/textures/LICENSE.md`, tracked via Git LFS.
+- Trimmed the bark texture sets to the maps the demo actually uses (color, GL normal, roughness) — removed the ambient-occlusion, displacement, and DirectX normal variants (~15 MB). The library still applies an `ao` map when a caller supplies one.
 
 ### Rendering Improvements
 
+- Bark, leaf, ground, and grass materials switched from `MeshPhongMaterial` to `MeshStandardMaterial` (PBR). Bark roughness maps now actually affect shading, and GLB exports round-trip cleanly without the exporter's Phong-conversion warnings.
 - Leaves use custom rounded normals for softer, canopy-shaped shading (#43).
 
 ### Bug Fixes

@@ -858,13 +858,15 @@ export class Tree extends THREE.Group {
 
   /**
    * Creates the bark material from the current options
-   * @returns {THREE.MeshPhongMaterial}
+   * @returns {THREE.MeshStandardMaterial}
    */
   #createBarkMaterial() {
-    const mat = new THREE.MeshPhongMaterial({
+    const mat = new THREE.MeshStandardMaterial({
       name: 'branches',
       flatShading: this.options.bark.flatShading,
       color: new THREE.Color(this.options.bark.tint),
+      metalness: 0.0,
+      roughness: 1.0,
     });
 
     if (this.options.bark.textured) {
@@ -904,15 +906,17 @@ export class Tree extends THREE.Group {
   /**
    * Creates the leaf material, including the wind sway vertex shader, from
    * the current options
-   * @returns {THREE.MeshPhongMaterial}
+   * @returns {THREE.MeshStandardMaterial}
    */
   #createLeafMaterial() {
-    const mat = new THREE.MeshPhongMaterial({
+    const mat = new THREE.MeshStandardMaterial({
       name: 'leaves',
       map: this.options.leaves.map ?? null,
       color: new THREE.Color(this.options.leaves.tint),
       side: THREE.DoubleSide,
       alphaTest: this.options.leaves.alphaTest,
+      metalness: 0.0,
+      roughness: 1.0,
       dithering: true
     });
 

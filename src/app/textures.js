@@ -46,7 +46,7 @@ function loadLinear(url, onError) {
 /**
  * Returns a cached set of THREE.Texture maps for the given bark type.
  * @param {string} type - one of BarkType values
- * @returns {{ color: THREE.Texture, ao: THREE.Texture, normal: THREE.Texture, roughness: THREE.Texture } | null}
+ * @returns {{ color: THREE.Texture, normal: THREE.Texture, roughness: THREE.Texture } | null}
  */
 export function getBarkMaps(type) {
   if (!BarkType[type]) return null;
@@ -60,7 +60,6 @@ export function getBarkMaps(type) {
     maps[key] = null;
   };
   maps.color = loadColor(`${base}_Color.jpg`, drop('color'));
-  maps.ao = loadLinear(`${base}_AmbientOcclusion.jpg`, drop('ao'));
   maps.normal = loadLinear(`${base}_NormalGL.jpg`, drop('normal'));
   maps.roughness = loadLinear(`${base}_Roughness.jpg`, drop('roughness'));
   barkCache.set(type, maps);
@@ -93,7 +92,6 @@ export function applyTreeTextures(tree) {
   const barkMaps = getBarkMaps(tree.options.bark.type);
   if (barkMaps) {
     tree.options.bark.maps.color = barkMaps.color;
-    tree.options.bark.maps.ao = barkMaps.ao;
     tree.options.bark.maps.normal = barkMaps.normal;
     tree.options.bark.maps.roughness = barkMaps.roughness;
   }
