@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { Skybox } from './skybox';
 import { Ground } from './ground';
 import { Grass } from './grass';

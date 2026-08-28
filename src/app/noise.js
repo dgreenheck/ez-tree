@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 
 function mod3(v) {
   return new THREE.Vector3(

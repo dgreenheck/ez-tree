@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Tree, TreePreset } from '@dgreenheck/ez-tree';
 import { Environment } from './environment';
@@ -14,7 +14,7 @@ function paintUI() {
 
 /**
  * Creates a new instance of the Three.js scene
- * @param {THREE.WebGLRenderer} renderer 
+ * @param {THREE.WebGPURenderer} renderer
  * @returns 
  */
 export async function createScene(renderer) {

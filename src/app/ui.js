@@ -1,10 +1,10 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { zipSync } from 'three/addons/libs/fflate.module.js';
 import { Billboard, TreePreset, Tree, TreeType } from '@dgreenheck/ez-tree';
 import { BarkType, LeafType, applyTreeTextures, loadPresetWithTextures } from './textures';
 import { Environment } from './environment';
-import { OrbitControls } from 'three/examples/jsm/Addons.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { version } from '../../package.json';
 
 const exporter = new GLTFExporter();
@@ -448,7 +448,7 @@ let controls = [];
  * Setups the UI
  * @param {Tree} tree
  * @param {Environment} environment
- * @param {THREE.WebGLRenderer} renderer
+ * @param {THREE.WebGPURenderer} renderer
  * @param {THREE.Scene} scene
  * @param {THREE.Camera} camera
  * @param {OrbitControls} orbitControls
@@ -579,10 +579,26 @@ export function setupUI(tree, environment, renderer, scene, camera, orbitControl
     const t0 = performance.now();
     const { branches, leaves } = tree.createGeometry(detail);
     lastBuildMs = performance.now() - t0;
-    tree.branchesMesh.geometry.dispose();
-    tree.branchesMesh.geometry = branches;
-    tree.leavesMesh.geometry.dispose();
-    tree.leavesMesh.geometry = leaves;
+
+    // WebGPURenderer caches a render object with the mesh's geometry. Replace
+    // the mesh objects so the renderer picks up the new vertex buffers.
+    const replaceMesh = (property, geometry) => {
+      const previous = tree[property];
+      const replacement = new THREE.Mesh(geometry, previous.material);
+      replacement.name = previous.name;
+      replacement.castShadow = previous.castShadow;
+      replacement.receiveShadow = previous.receiveShadow;
+      replacement.visible = previous.visible;
+      replacement.renderOrder = previous.renderOrder;
+
+      tree.remove(previous);
+      previous.geometry.dispose();
+      tree.add(replacement);
+      tree[property] = replacement;
+    };
+
+    replaceMesh('branchesMesh', branches);
+    replaceMesh('leavesMesh', leaves);
   }
 
   function setPreviewLevel(level) {

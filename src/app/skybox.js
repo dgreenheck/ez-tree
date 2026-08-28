@@ -1,7 +1,13 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { degToRad } from 'three/src/math/MathUtils.js';
-import fragmentShader from './shaders/skybox.frag?raw';
-import vertexShader from './shaders/skybox.vert?raw';
+import {
+  MeshBasicNodeMaterial,
+  mix,
+  positionLocal,
+  uniform,
+  vec3,
+  vec4,
+} from 'three/tsl';
 
 export class SkyboxOptions {
   constructor() {
@@ -53,19 +59,47 @@ export class Skybox extends THREE.Mesh {
     // Create a box geometry and apply the skybox material
     this.geometry = new THREE.SphereGeometry(900, 900, 900);
 
-    // Create the skybox material with the shaders
-    this.material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      uniforms: {
-        uSunAzimuth: { value: options.sunAzimuth },
-        uSunElevation: { value: options.sunElevation },
-        uSunColor: { value: options.sunColor },
-        uSkyColorLow: { value: options.skyColorLow },
-        uSkyColorHigh: { value: options.skyColorHigh },
-        uSunSize: { value: options.sunSize }
-      },
+    // Build the sky gradient and sun disc as a TSL color graph. The node
+    // material emits this graph as WGSL or GLSL for the active backend.
+    this.material = new MeshBasicNodeMaterial({
       side: THREE.BackSide
+    });
+
+    this._uniforms = {
+      uSunAzimuth: uniform(options.sunAzimuth).label('uSunAzimuth'),
+      uSunElevation: uniform(options.sunElevation).label('uSunElevation'),
+      uSunColor: uniform(options.sunColor).label('uSunColor'),
+      uSkyColorLow: uniform(options.skyColorLow).label('uSkyColorLow'),
+      uSkyColorHigh: uniform(options.skyColorHigh).label('uSkyColorHigh'),
+      uSunSize: uniform(options.sunSize).label('uSunSize'),
+    };
+
+    const azimuth = this._uniforms.uSunAzimuth.radians();
+    const elevation = this._uniforms.uSunElevation.radians();
+    const sunDirection = vec3(
+      elevation.cos().mul(azimuth.sin()),
+      elevation.sin(),
+      elevation.cos().mul(azimuth.cos()),
+    ).normalize();
+    const direction = positionLocal.normalize();
+    const skyMix = direction.y.mul(0.5).add(0.5);
+    const skyColor = mix(
+      this._uniforms.uSkyColorLow,
+      this._uniforms.uSkyColorHigh,
+      skyMix,
+    );
+    const sunIntensity = direction.dot(sunDirection).max(0)
+      .pow(this._uniforms.uSunSize.reciprocal().mul(1000));
+
+    this.material.colorNode = vec4(
+      skyColor.add(this._uniforms.uSunColor.mul(sunIntensity)),
+      1,
+    );
+    this.material.fog = false;
+    Object.defineProperty(this.material.userData, 'tslUniforms', {
+      value: this._uniforms,
+      configurable: true,
+      enumerable: false,
     });
 
     this.sun = new THREE.DirectionalLight();
@@ -103,11 +137,11 @@ export class Skybox extends THREE.Mesh {
    * @returns {number}
    */
   get sunAzimuth() {
-    return this.material.uniforms.uSunAzimuth.value;
+    return this._uniforms.uSunAzimuth.value;
   }
 
   set sunAzimuth(azimuth) {
-    this.material.uniforms.uSunAzimuth.value = azimuth;
+    this._uniforms.uSunAzimuth.value = azimuth;
     this.updateSunPosition();
   }
 
@@ -115,11 +149,11 @@ export class Skybox extends THREE.Mesh {
    * @returns {number}
    */
   get sunElevation() {
-    return this.material.uniforms.uSunElevation.value;
+    return this._uniforms.uSunElevation.value;
   }
 
   set sunElevation(elevation) {
-    this.material.uniforms.uSunElevation.value = elevation;
+    this._uniforms.uSunElevation.value = elevation;
     this.updateSunPosition();
   }
 
@@ -127,11 +161,11 @@ export class Skybox extends THREE.Mesh {
    * @returns {THREE.Color}
    */
   get sunColor() {
-    return this.material.uniforms.uSunColor.value;
+    return this._uniforms.uSunColor.value;
   }
 
   set sunColor(color) {
-    this.material.uniforms.uSunColor.value = color;
+    this._uniforms.uSunColor.value = color;
     this.sun.color = color;
   }
 
@@ -139,32 +173,32 @@ export class Skybox extends THREE.Mesh {
    * @returns {THREE.Color}
    */
   get skyColorLow() {
-    return this.material.uniforms.uSkyColorLow.value;
+    return this._uniforms.uSkyColorLow.value;
   }
 
   set skyColorLow(color) {
-    this.material.uniforms.uSkyColorLow.value = color;
+    this._uniforms.uSkyColorLow.value = color;
   }
 
   /**
     * @returns {THREE.Color}
     */
   get skyColorHigh() {
-    return this.material.uniforms.uSkyColorHigh.value;
+    return this._uniforms.uSkyColorHigh.value;
   }
 
   set skyColorHigh(color) {
-    this.material.uniforms.uSkyColorHigh.value = color;
+    this._uniforms.uSkyColorHigh.value = color;
   }
 
   /**
    * @returns {number}
    */
   get sunSize() {
-    return this.material.uniforms.uSunSize.value;
+    return this._uniforms.uSunSize.value;
   }
 
   set sunSize(size) {
-    this.material.uniforms.uSunSize.value = size;
+    this._uniforms.uSunSize.value = size;
   }
 }

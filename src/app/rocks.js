@@ -1,6 +1,7 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import * as THREE from 'three/webgpu';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { toNodeMaterial } from '../lib/tsl';
 
 let loaded = false;
 let _rock1Mesh = null;
@@ -56,7 +57,10 @@ export class Rocks extends THREE.Group {
   }
 
   generateInstances(mesh) {
-    const instancedMesh = new THREE.InstancedMesh(mesh.geometry, mesh.material, 200);
+    const material = Array.isArray(mesh.material)
+      ? mesh.material.map(toNodeMaterial)
+      : toNodeMaterial(mesh.material);
+    const instancedMesh = new THREE.InstancedMesh(mesh.geometry, material, 200);
 
     const dummy = new THREE.Object3D();
 
