@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { TreePreset } from '@dgreenheck/ez-tree';
 
 // Bark keys map 1:1 to ambientcg directories under /textures/bark/.

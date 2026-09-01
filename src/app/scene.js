@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Tree, TreePreset } from '@dgreenheck/ez-tree';
 import { Environment } from './environment';
@@ -14,7 +14,7 @@ function paintUI() {
 
 /**
  * Creates a new instance of the Three.js scene
- * @param {THREE.WebGLRenderer} renderer 
+ * @param {THREE.WebGPURenderer} renderer
  * @returns 
  */
 export async function createScene(renderer) {
@@ -95,14 +95,18 @@ export async function createScene(renderer) {
       i++;
     }
 
-    // All trees are loaded, hide loading screen
-    await sleep(300);
-    logoElement.style.clipPath = `inset(0% 0% 0% 0%)`;
-    document.getElementById('loading-screen').style.display = 'none';
   }
 
   // Start the tree loading process
   await loadTrees(0);
+  await environment.ready;
+
+  // Keep the loading screen visible until the asynchronous environment assets
+  // are ready to render. This prevents a bare ground frame before vegetation
+  // and rocks have been added to the scene.
+  await sleep(300);
+  logoElement.style.clipPath = `inset(0% 0% 0% 0%)`;
+  document.getElementById('loading-screen').style.display = 'none';
 
   scene.add(forest);
 

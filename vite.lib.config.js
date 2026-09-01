@@ -12,10 +12,12 @@ export default {
       fileName: (format) => `ez-tree.${format}.js`,
     },
     rollupOptions: {
-      external: ['three'],
+      external: (id) => id === 'three' || id.startsWith('three/'),
       output: {
         globals: {
           three: 'THREE',
+          'three/webgpu': 'THREE',
+          'three/tsl': 'THREE',
         },
       },
     },

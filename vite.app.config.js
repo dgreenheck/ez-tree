@@ -12,8 +12,16 @@ export default ({ command }) => ({
     emptyOutDir: true,
     outDir: '../../dist',
     sourcemap: true,
+    target: 'esnext',
   },
   root: './src/app',
+  optimizeDeps: {
+    esbuildOptions: {
+      // three/webgpu contains top-level await during renderer feature
+      // detection, so dependency pre-bundling must keep modern syntax.
+      target: 'esnext',
+    },
+  },
   resolve: {
     alias: {
       '@dgreenheck/ez-tree': command === 'serve'
@@ -24,5 +32,4 @@ export default ({ command }) => ({
   server: {
     hmr: true,
   },
-  assetsInclude: ['**/*.frag', '**/*.vert'],
 });

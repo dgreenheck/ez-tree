@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
+import { MeshStandardNodeMaterial } from 'three/webgpu';
 
 /**
  * Trellis structure for guiding tree branch growth
@@ -26,7 +27,7 @@ export class Trellis extends THREE.Group {
     // Clear existing geometry
     this.dispose();
 
-    this.material = new THREE.MeshStandardMaterial({
+    this.material = new MeshStandardNodeMaterial({
       color: t.color,
       roughness: 0.8,
     });
