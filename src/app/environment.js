@@ -25,6 +25,14 @@ export class Environment extends THREE.Object3D {
     this.clouds.position.set(0, 200, 0);
     this.clouds.rotation.x = Math.PI / 2;
     this.add(this.clouds);
+
+    this.ready = Promise.all([
+      this.ground.ready,
+      this.grass.ready,
+      this.skybox.ready,
+      this.rocks.ready,
+      this.clouds.ready,
+    ]).then(() => this);
   }
 
   update(elapsedTime) {

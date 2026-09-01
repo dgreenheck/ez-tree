@@ -49,10 +49,12 @@ export class Rocks extends THREE.Group {
      */
     this.options = options;
 
-    fetchAssets().then(() => {
+    this.ready = fetchAssets().then(() => {
       this.add(this.generateInstances(_rock1Mesh));
       this.add(this.generateInstances(_rock2Mesh));
       this.add(this.generateInstances(_rock3Mesh));
+
+      return this;
     });
   }
 

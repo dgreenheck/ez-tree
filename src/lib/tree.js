@@ -1,8 +1,8 @@
 import * as THREE from 'three/webgpu';
+import { MeshStandardNodeMaterial } from 'three/webgpu';
 import {
-  MeshStandardNodeMaterial,
   texture,
-  tslFn,
+  Fn,
   uv,
   vec4,
 } from 'three/tsl';
@@ -17,7 +17,7 @@ import { attachTslUniforms, createWindNode, leafNormalNode } from './tsl';
 function createAlphaShadowNode(map, alphaTest) {
   if (!map || alphaTest <= 0) return null;
 
-  return tslFn(() => {
+  return Fn(() => {
     texture(map, uv()).a.lessThanEqual(alphaTest).discard();
     return vec4(0, 0, 0, 1);
   })();

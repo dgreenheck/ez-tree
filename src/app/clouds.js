@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu';
+import { MeshBasicNodeMaterial } from 'three/webgpu';
 import {
-  MeshBasicNodeMaterial,
   length,
   positionWorld,
   smoothstep,
@@ -14,13 +14,15 @@ export class Clouds extends THREE.Mesh {
   constructor() {
     super();
 
+    this.ready = Promise.resolve(this);
+
     this.material = new MeshBasicNodeMaterial({
       transparent: true, // Allow alpha blending if needed
       opacity: 0.9,
       fog: true,
     });
 
-    const uTime = uniform(0).label('uTime');
+    const uTime = uniform(0).setName('uTime');
     const cloudNoise = simplex2d(uv().mul(5).add(uTime.div(40)))
       .add(simplex2d(uv().mul(10).add(uTime.div(30))));
     const cloud = smoothstep(0.2, 0.8, cloudNoise.mul(0.5).add(0.4));

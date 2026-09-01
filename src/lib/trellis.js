@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu';
-import { MeshStandardNodeMaterial } from 'three/tsl';
+import { MeshStandardNodeMaterial } from 'three/webgpu';
 
 /**
  * Trellis structure for guiding tree branch growth

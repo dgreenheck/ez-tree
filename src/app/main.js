@@ -37,10 +37,14 @@ async function start() {
 
   const { scene, environment, tree, camera, controls } = await createScene(renderer);
 
-  const clock = new THREE.Clock();
-  function animate() {
+  const timer = new THREE.Timer();
+  timer.connect(document);
+
+  function animate(timestamp) {
+    timer.update(timestamp);
+
     // Update time for wind sway nodes
-    const t = clock.getElapsedTime();
+    const t = timer.getElapsed();
     tree.update(t);
     scene.getObjectByName('Forest').children.forEach((o) => o.update(t));
     environment.update(t);

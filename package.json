@@ -37,15 +37,15 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/three": "^0.169.0",
+    "@types/three": "^0.185.4",
     "prettier": "3.3.3",
-    "three": "^0.167.x",
+    "three": "^0.185.1",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.9.1",
     "vite-plugin-static-copy": "^1.0.5"
   },
   "peerDependencies": {
-    "three": ">=0.167"
+    "three": ">=0.171"
   },
   "keywords": [
     "threejs",

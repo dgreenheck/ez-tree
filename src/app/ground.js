@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu';
+import { MeshStandardNodeMaterial } from 'three/webgpu';
 import {
-  MeshStandardNodeMaterial,
   mix,
   normalMap,
   positionWorld,
@@ -53,7 +53,7 @@ export class Ground extends THREE.Mesh {
      */
     this.options = options;
 
-    fetchAssets().then(() => {
+    this.ready = fetchAssets().then(() => {
       // Ground plane with procedural grass/dirt texture
       this.material = new MeshStandardNodeMaterial({
         emissive: new THREE.Color(0xffffff),
@@ -62,8 +62,8 @@ export class Ground extends THREE.Mesh {
         roughness: 1.0
       });
 
-      const uNoiseScale = uniform(this.options.scale).label('uNoiseScale');
-      const uPatchiness = uniform(this.options.patchiness).label('uPatchiness');
+      const uNoiseScale = uniform(this.options.scale).setName('uNoiseScale');
+      const uPatchiness = uniform(this.options.patchiness).setName('uPatchiness');
       const worldUv = positionWorld.xz;
       const groundUv = worldUv.div(30);
       const noise = simplex2d(worldUv.div(uNoiseScale)).mul(0.5).add(0.5);
@@ -89,6 +89,8 @@ export class Ground extends THREE.Mesh {
       this.geometry = new THREE.PlaneGeometry(2000, 2000);
       this.rotation.x = -Math.PI / 2;
       this.receiveShadow = true;
+
+      return this;
     });
   }
 }

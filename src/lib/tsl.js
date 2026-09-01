@@ -12,36 +12,37 @@ import {
   vec2,
   vec3,
   vec4,
-  Vector3,
   step,
-  tslFn,
+  Fn,
 } from 'three/tsl';
-import { NodeMaterial } from 'three/tsl';
+import { StandardNodeLibrary, Vector3 } from 'three/webgpu';
 
-const mod289Vec2 = tslFn(([value]) =>
+const nodeMaterialLibrary = new StandardNodeLibrary();
+
+const mod289Vec2 = Fn(([value]) =>
   value.sub(floor(value.mul(1 / 289)).mul(289)),
 );
 
-const mod289Vec3 = tslFn(([value]) =>
+const mod289Vec3 = Fn(([value]) =>
   value.sub(floor(value.mul(1 / 289)).mul(289)),
 );
 
-const mod289Vec4 = tslFn(([value]) =>
+const mod289Vec4 = Fn(([value]) =>
   value.sub(floor(value.mul(1 / 289)).mul(289)),
 );
 
-const permuteVec3 = tslFn(([value]) =>
+const permuteVec3 = Fn(([value]) =>
   mod289Vec3(value.mul(34).add(1).mul(value)),
 );
 
-const permuteVec4 = tslFn(([value]) =>
+const permuteVec4 = Fn(([value]) =>
   mod289Vec4(value.mul(34).add(1).mul(value)),
 );
 
 /**
  * 2D simplex noise expressed as a TSL function for use in material graphs.
  */
-export const simplex2d = tslFn(([value]) => {
+export const simplex2d = Fn(([value]) => {
   const C = vec4(
     0.211324865405187,
     0.366025403784439,
@@ -118,7 +119,7 @@ simplex2d.setLayout({
 /**
  * 3D simplex noise expressed as a TSL function for use in material graphs.
  */
-export const simplex3d = tslFn(([value]) => {
+export const simplex3d = Fn(([value]) => {
   const C = vec2(1 / 6, 1 / 3);
   const D = vec4(0, 0.5, 1, 2);
 
@@ -220,12 +221,12 @@ export function createWindNode({
   mode,
   heightScale = 1,
 }) {
-  const uTime = uniform(0).label('uTime');
+  const uTime = uniform(0).setName('uTime');
   const uWindStrength = uniform(
     new Vector3(strength.x, strength.y, strength.z),
-  ).label('uWindStrength');
-  const uWindFrequency = uniform(frequency).label('uWindFrequency');
-  const uWindScale = uniform(scale).label('uWindScale');
+  ).setName('uWindStrength');
+  const uWindFrequency = uniform(frequency).setName('uWindFrequency');
+  const uWindScale = uniform(scale).setName('uWindScale');
 
   // positionLocal includes the instance transform for InstancedMesh objects.
   // positionGeometry remains the unscaled vertex attribute for height-based
@@ -279,7 +280,7 @@ export function createWindNode({
 export function toNodeMaterial(material) {
   return material?.isNodeMaterial
     ? material
-    : NodeMaterial.fromMaterial(material);
+    : nodeMaterialLibrary.fromMaterial(material);
 }
 
 /**

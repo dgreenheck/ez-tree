@@ -1,9 +1,9 @@
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshStandardNodeMaterial } from 'three/webgpu';
 import {
-  MeshStandardNodeMaterial,
+  Fn,
   texture,
-  tslFn,
   uv,
   vec4,
 } from 'three/tsl';
@@ -19,7 +19,7 @@ let _yellowFlower = null;
 function createAlphaShadowNode(map, alphaTest) {
   if (!map || alphaTest <= 0) return null;
 
-  return tslFn(() => {
+  return Fn(() => {
     texture(map, uv()).a.lessThanEqual(alphaTest).discard();
     return vec4(0, 0, 0, 1);
   })();
@@ -89,11 +89,13 @@ export class Grass extends THREE.Object3D {
     this.flowers = new THREE.Group();
     this.add(this.flowers);
 
-    this.fetchAssets().then(() => {
+    this.ready = this.fetchAssets().then(() => {
       this.generateGrass();
       this.generateFlowers(_whiteFlower);
       this.generateFlowers(_blueFlower);
       this.generateFlowers(_yellowFlower);
+
+      return this;
     });
   }
 

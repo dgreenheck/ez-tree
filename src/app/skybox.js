@@ -1,7 +1,7 @@
 import * as THREE from 'three/webgpu';
 import { degToRad } from 'three/src/math/MathUtils.js';
+import { MeshBasicNodeMaterial } from 'three/webgpu';
 import {
-  MeshBasicNodeMaterial,
   mix,
   positionLocal,
   uniform,
@@ -54,6 +54,8 @@ export class Skybox extends THREE.Mesh {
   constructor(options = new SkyboxOptions()) {
     super();
 
+    this.ready = Promise.resolve(this);
+
     this.name = 'Skybox';
 
     // Create a box geometry and apply the skybox material
@@ -66,12 +68,12 @@ export class Skybox extends THREE.Mesh {
     });
 
     this._uniforms = {
-      uSunAzimuth: uniform(options.sunAzimuth).label('uSunAzimuth'),
-      uSunElevation: uniform(options.sunElevation).label('uSunElevation'),
-      uSunColor: uniform(options.sunColor).label('uSunColor'),
-      uSkyColorLow: uniform(options.skyColorLow).label('uSkyColorLow'),
-      uSkyColorHigh: uniform(options.skyColorHigh).label('uSkyColorHigh'),
-      uSunSize: uniform(options.sunSize).label('uSunSize'),
+      uSunAzimuth: uniform(options.sunAzimuth).setName('uSunAzimuth'),
+      uSunElevation: uniform(options.sunElevation).setName('uSunElevation'),
+      uSunColor: uniform(options.sunColor).setName('uSunColor'),
+      uSkyColorLow: uniform(options.skyColorLow).setName('uSkyColorLow'),
+      uSkyColorHigh: uniform(options.skyColorHigh).setName('uSkyColorHigh'),
+      uSunSize: uniform(options.sunSize).setName('uSunSize'),
     };
 
     const azimuth = this._uniforms.uSunAzimuth.radians();
